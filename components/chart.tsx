@@ -1,12 +1,57 @@
 "use client";
 
-import { CandlestickSeries, createChart, ColorType } from "lightweight-charts";
+import {
+  CandlestickSeries,
+  createChart,
+  ColorType,
+  UTCTimestamp,
+  TickMarkType,
+} from "lightweight-charts";
 import React, { useEffect, useRef } from "react";
+
+export function formatTickMarks(
+  time: UTCTimestamp,
+  tickMarkType: TickMarkType,
+  locale: string
+): string {
+  const date = new Date(time.valueOf() * 1000);
+  switch (tickMarkType) {
+    case TickMarkType.Year:
+      return date.toLocaleString(locale, { year: "numeric" });
+    case TickMarkType.Month:
+      return date.toLocaleString(locale, { month: "short", year: "numeric" });
+    case TickMarkType.DayOfMonth:
+      return date.toLocaleString(locale, { month: "short", day: "numeric" });
+    case TickMarkType.Time:
+      return date.toLocaleString(locale, {
+        hour: "numeric",
+        minute: "numeric",
+      });
+    case TickMarkType.TimeWithSeconds:
+      return date.toLocaleString(locale, {
+        hour: "numeric",
+        minute: "numeric",
+        second: "2-digit",
+      });
+    default:
+      return date.toLocaleString(locale, {
+        hour: "numeric",
+        minute: "numeric",
+        second: "2-digit",
+      });
+  }
+}
 
 export function Chart({
   data,
 }: {
-  data: { time: string; open: number; high: number; close: number }[];
+  data: {
+    time: string | UTCTimestamp;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+  }[];
 }) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +75,14 @@ export function Chart({
       },
       width: chartContainerRef.current.clientWidth,
       height: 360,
+      timeScale: {
+        tickMarkFormatter: formatTickMarks,
+        timeVisible: true,
+        borderVisible: false,
+        ticksVisible: false,
+        fixLeftEdge: true,
+        fixRightEdge: true,
+      },
     });
     chart.timeScale().fitContent();
 
