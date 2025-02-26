@@ -10,16 +10,16 @@ import { useParams } from "next/navigation";
 import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
 
-export default function Buy() {
-  const { token } = useParams();
-  const chartData = useChartData(token as string);
+export default function Token() {
+  const { address } = useParams();
+  const chartData = useChartData(address as string);
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">
       <div className="flex-1">
         <div className="flex flex-col">
           <div>
-            <TokenInfo tokenAddress={token as string} />
+            <TokenInfo tokenAddress={address as string} />
             <div className="mt-2 h-[360px]">
               {chartData?.length ? (
                 <Chart data={chartData} />
@@ -39,7 +39,7 @@ export default function Buy() {
         </div>
       </div>
       <div className="sm:max-w-[420px] w-full flex flex-col space-y-4">
-        <OrderPanel tokenAddress={token as string} />
+        <OrderPanel tokenAddress={address as string} />
         <Community />
       </div>
     </div>

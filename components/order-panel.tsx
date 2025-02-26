@@ -113,14 +113,17 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </div>
         </div>
         <div className="my-3 text-sm flex flex-col gap-1">
-          <div className="flex items-center">
-            <span>Slippage</span>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Slippage</span>
+            <span>-</span>
           </div>
-          <div className="flex items-center">
-            <span>Smart Ordering</span>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Smart ordering</span>
+            <span>-</span>
           </div>
-          <div className="flex items-center">
-            <span>Buy More</span>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Buy more</span>
+            <span>-</span>
           </div>
         </div>
         <Button className="w-full" size="lg">
