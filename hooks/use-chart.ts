@@ -1,4 +1,5 @@
 import axios from "axios";
+import { UTCTimestamp } from "lightweight-charts";
 import useSWR from "swr";
 
 export function useChartData(address: string | null) {
@@ -21,6 +22,6 @@ export function useChartData(address: string | null) {
     close: c,
     high: h,
     low: l,
-    time: t,
+    time: t as UTCTimestamp,
   }));
 }
