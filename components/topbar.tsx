@@ -1,11 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Search } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaTelegramPlane, FaRegFileWord } from "react-icons/fa";
+import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { ellipseMiddle } from "@/lib/utils";
 
 export function Topbar() {
+  const [, setOpen] = useConnectWalletModalOpen();
+  const { publicKey, disconnect } = useWallet();
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto">
@@ -40,7 +47,13 @@ export function Topbar() {
                 <FaRegFileWord className="size-5" />
               </Button>
             </div>
-            <Button>Connect</Button>
+            {publicKey ? (
+              <Button variant="secondary" onClick={disconnect}>
+                {ellipseMiddle(publicKey.toString())}
+              </Button>
+            ) : (
+              <Button onClick={() => setOpen(true)}>Connect</Button>
+            )}
           </div>
         </div>
       </div>

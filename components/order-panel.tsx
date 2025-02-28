@@ -6,11 +6,13 @@ import { ArrowDownUp } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Skeleton } from "./ui/skeleton";
 import { TokenIcon } from "./token-icon";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
 
+  const { publicKey } = useWallet();
   const [isReverse, setIsReverse] = useState(false);
 
   const [tokenA, tokenB] = useMemo(
@@ -34,31 +36,33 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
       </div>
       <div className="p-4">
         <div className="p-4 rounded-t-lg bg-accent">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between h-6">
             <span className="text-sm">Selling</span>
-            <div className="flex space-x-2">
-              <Button
-                size="xs"
-                variant="secondary"
-                className="text-muted-foreground"
-              >
-                25%
-              </Button>
-              <Button
-                size="xs"
-                variant="secondary"
-                className="text-muted-foreground"
-              >
-                50%
-              </Button>
-              <Button
-                size="xs"
-                variant="secondary"
-                className="text-muted-foreground"
-              >
-                100%
-              </Button>
-            </div>
+            {publicKey && (
+              <div className="flex space-x-2">
+                <Button
+                  size="xs"
+                  variant="secondary"
+                  className="text-muted-foreground"
+                >
+                  25%
+                </Button>
+                <Button
+                  size="xs"
+                  variant="secondary"
+                  className="text-muted-foreground"
+                >
+                  50%
+                </Button>
+                <Button
+                  size="xs"
+                  variant="secondary"
+                  className="text-muted-foreground"
+                >
+                  100%
+                </Button>
+              </div>
+            )}
           </div>
           <div className="mt-2 flex">
             {tokenA ? (
@@ -90,7 +94,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           <div className="absolute inset-x-0 top-[50%] bg-border/60 h-[1px]" />
         </div>
         <div className="p-4 rounded-b-lg bg-light-card/70">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between h-6">
             <span className="text-sm">Buying</span>
             <div className="flex space-x-2"></div>
           </div>
