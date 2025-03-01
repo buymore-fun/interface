@@ -7,6 +7,7 @@ import { SOL_ADDRESS } from "@/lib/constants";
 import { Skeleton } from "./ui/skeleton";
 import { TokenIcon } from "./token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useTokenBalance } from "@/hooks/use-token-balance";
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const token = useToken(tokenAddress);
@@ -20,9 +21,15 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
     [isReverse, token, SOL]
   );
 
+  const SOLBalance = useTokenBalance(SOL);
+  const tokenBalance = useTokenBalance(token);
+
   const toggleToken = () => {
     setIsReverse((reverse) => !reverse);
   };
+
+  console.log("SOLBalance", SOLBalance);
+  console.log("tokenBalance", tokenBalance);
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">
