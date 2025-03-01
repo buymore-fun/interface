@@ -9,17 +9,24 @@ import { Activities } from "@/components/activities";
 import { useParams } from "next/navigation";
 import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { ChartType } from "@/types/chart";
 
 export default function Token() {
   const { address } = useParams();
-  const chartData = useChartData(address as string);
+  const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
+  const chartData = useChartData(address as string, chartType);
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">
       <div className="flex-1">
         <div className="flex flex-col">
           <div>
-            <TokenInfo tokenAddress={address as string} />
+            <TokenInfo
+              tokenAddress={address as string}
+              type={chartType}
+              onTypeChange={setChartType}
+            />
             <div className="mt-2 h-[360px]">
               {chartData?.length ? (
                 <Chart data={chartData} />

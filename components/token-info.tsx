@@ -11,8 +11,17 @@ import { Skeleton } from "./ui/skeleton";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { ellipseMiddle } from "@/lib/utils";
 import { TokenIcon } from "./token-icon";
+import { ChartType } from "@/types/chart";
 
-export function TokenInfo({ tokenAddress }: { tokenAddress: string }) {
+export function TokenInfo({
+  tokenAddress,
+  onTypeChange,
+  type,
+}: {
+  tokenAddress: string;
+  type: ChartType;
+  onTypeChange: (type: ChartType) => void;
+}) {
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
 
@@ -67,18 +76,17 @@ export function TokenInfo({ tokenAddress }: { tokenAddress: string }) {
         </div>
       </div>
       <div className="flex items-center space-x-1">
-        <Button variant="outline" size="xs" className="text-muted-foreground">
-          1m
-        </Button>
-        <Button variant="secondary" size="xs">
-          5m
-        </Button>
-        <Button variant="outline" size="xs" className="text-muted-foreground">
-          1h
-        </Button>
-        <Button variant="outline" size="xs" className="text-muted-foreground">
-          4h
-        </Button>
+        {Object.values(ChartType).map((chartType) => (
+          <Button
+            variant={type === chartType ? "secondary" : "outline"}
+            size="xs"
+            className={type !== chartType ? "text-muted-foreground" : "'"}
+            onClick={() => onTypeChange(chartType)}
+            key={chartType}
+          >
+            {chartType}
+          </Button>
+        ))}
       </div>
     </div>
   );
