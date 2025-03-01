@@ -27,7 +27,7 @@ export function useTokenBalance(token: Token | undefined) {
 
   const balance = useMemo(
     () =>
-      portfolio
+      portfolio && token
         ? portfolio.walletBalance.balances.find(
             (balance) =>
               (balance.mint == "" && token.address === SOL_ADDRESS) ||
