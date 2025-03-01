@@ -1,7 +1,7 @@
 import { useToken } from "@/hooks/use-token";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDownUp } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Skeleton } from "./ui/skeleton";
@@ -19,8 +19,11 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
   const SOLBalance = useTokenBalance(SOL);
   const tokenBalance = useTokenBalance(token);
+  const [tokenAAmount, setTokenAAmount] = useState("");
+  const [tokenBAmount, setTokenBAmount] = useState("");
 
   const { publicKey } = useWallet();
+  const [isQuoting, setIsQuoting] = useState(false);
   const [isReverse, setIsReverse] = useState(false);
 
   const [tokenA, tokenB] = useMemo(
@@ -36,6 +39,19 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const toggleToken = () => {
     setIsReverse((reverse) => !reverse);
   };
+
+  useEffect(() => {
+    if (!tokenAAmount) {
+      setIsQuoting(false);
+      setTokenBAmount("");
+      return;
+    }
+    setIsQuoting(true);
+    setTimeout(() => {
+      setTokenBAmount("0.01");
+      setIsQuoting(false);
+    }, 2000);
+  }, [tokenAAmount]);
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">
@@ -100,6 +116,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
             <Input
               className="border-none text-lg font-semibold text-right outline-none p-0"
               placeholder="0.00"
+              onChange={(e) => setTokenAAmount(e.target.value)}
             />
           </div>
         </div>
@@ -140,10 +157,18 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
             ) : (
               <Skeleton className="h-9 w-24" />
             )}
-            <Input
-              className="border-none text-lg font-semibold text-right outline-none p-0"
-              placeholder="0.00"
-            />
+            {isQuoting ? (
+              <div className="flex-1 flex justify-end">
+                <Skeleton className="w-32 h-8" />
+              </div>
+            ) : (
+              <Input
+                className="border-none text-lg font-semibold text-right outline-none p-0"
+                placeholder="0.00"
+                value={tokenBAmount}
+                readOnly
+              />
+            )}
           </div>
         </div>
         <div className="my-3 text-sm flex flex-col gap-1">
@@ -161,7 +186,11 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </div>
         </div>
         {publicKey ? (
-          <Button className="w-full" size="lg">
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={!tokenAAmount || !tokenBAmount}
+          >
             Buy
           </Button>
         ) : (
