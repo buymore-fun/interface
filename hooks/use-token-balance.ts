@@ -3,10 +3,12 @@ import useSWR from "swr";
 import { Token } from "@/types/token";
 import { useMemo } from "react";
 import { SOL_ADDRESS } from "@/lib/constants";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export function useTokenBalance(token: Token | undefined) {
+  const { publicKey } = useWallet();
   const { data: portfolio } = useSWR(
-    token ? `/api/portfolio/${token.address}` : undefined,
+    publicKey ? `/api/portfolio/${publicKey.toString()}` : undefined,
     (url: string) =>
       axios
         .get<{

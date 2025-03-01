@@ -8,10 +8,15 @@ import { Skeleton } from "./ui/skeleton";
 import { TokenIcon } from "./token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useTokenBalance } from "@/hooks/use-token-balance";
+import { formatNumber } from "@/lib/utils";
+import { Wallet } from "lucide-react";
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
+
+  const SOLBalance = useTokenBalance(SOL);
+  const tokenBalance = useTokenBalance(token);
 
   const { publicKey } = useWallet();
   const [isReverse, setIsReverse] = useState(false);
@@ -21,15 +26,14 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
     [isReverse, token, SOL]
   );
 
-  const SOLBalance = useTokenBalance(SOL);
-  const tokenBalance = useTokenBalance(token);
+  const [tokenABalance, tokenBBalance] = useMemo(
+    () => (isReverse ? [SOLBalance, tokenBalance] : [tokenBalance, SOLBalance]),
+    [isReverse, tokenBalance, SOLBalance]
+  );
 
   const toggleToken = () => {
     setIsReverse((reverse) => !reverse);
   };
-
-  console.log("SOLBalance", SOLBalance);
-  console.log("tokenBalance", tokenBalance);
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">
@@ -45,8 +49,14 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
         <div className="p-4 rounded-t-lg bg-accent">
           <div className="flex items-center justify-between h-6">
             <span className="text-sm">Selling</span>
-            {publicKey && (
-              <div className="flex space-x-2">
+            {tokenABalance !== undefined ? (
+              <div className="flex space-x-2 items-center">
+                <div className="flex items-center space-x-1">
+                  <Wallet className="text-muted-foreground size-3" />
+                  <span className="text-muted-foreground text-xs">
+                    {formatNumber(tokenABalance)}
+                  </span>
+                </div>
                 <Button
                   size="xs"
                   variant="secondary"
@@ -69,7 +79,9 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   100%
                 </Button>
               </div>
-            )}
+            ) : publicKey ? (
+              <Skeleton className="h-full w-24" />
+            ) : null}
           </div>
           <div className="mt-2 flex">
             {tokenA ? (
@@ -103,7 +115,16 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
         <div className="p-4 rounded-b-lg bg-light-card/70">
           <div className="flex items-center justify-between h-6">
             <span className="text-sm">Buying</span>
-            <div className="flex space-x-2"></div>
+            {tokenBBalance !== undefined ? (
+              <div className="flex items-center space-x-1">
+                <Wallet className="text-muted-foreground size-3" />
+                <span className="text-muted-foreground text-xs">
+                  {formatNumber(tokenBBalance)} {tokenB?.symbol}
+                </span>
+              </div>
+            ) : publicKey ? (
+              <Skeleton className="h-full w-24" />
+            ) : null}
           </div>
           <div className="mt-2 flex">
             {tokenB ? (
