@@ -12,7 +12,7 @@ import { ellipseMiddle } from "@/lib/utils";
 
 export function Topbar() {
   const [, setOpen] = useConnectWalletModalOpen();
-  const { publicKey, disconnect } = useWallet();
+  const { publicKey, disconnect, wallet } = useWallet();
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto">
@@ -48,7 +48,20 @@ export function Topbar() {
               </Button>
             </div>
             {publicKey ? (
-              <Button variant="secondary" onClick={disconnect}>
+              <Button
+                variant="secondary"
+                onClick={disconnect}
+                className="px-3 rounded-full"
+              >
+                {wallet ? (
+                  <Image
+                    src={wallet.adapter.icon}
+                    alt={wallet.adapter.name}
+                    width={64}
+                    height={64}
+                    className="size-6 rounded-full"
+                  />
+                ) : null}
                 {ellipseMiddle(publicKey.toString())}
               </Button>
             ) : (
