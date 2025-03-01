@@ -10,10 +10,12 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useTokenBalance } from "@/hooks/use-token-balance";
 import { formatNumber } from "@/lib/utils";
 import { Wallet } from "lucide-react";
+import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
+  const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
   const SOLBalance = useTokenBalance(SOL);
   const tokenBalance = useTokenBalance(token);
@@ -158,9 +160,19 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
             <span>-</span>
           </div>
         </div>
-        <Button className="w-full" size="lg">
-          Buy
-        </Button>
+        {publicKey ? (
+          <Button className="w-full" size="lg">
+            Buy
+          </Button>
+        ) : (
+          <Button
+            className="w-full"
+            size="lg"
+            onClick={() => setConnectWalletModalOpen(true)}
+          >
+            Connect Wallet
+          </Button>
+        )}
       </div>
     </div>
   );
