@@ -62,10 +62,7 @@ function getFormatterRule(input: number) {
   return { hardCodedInput: undefined, formatterOptions: undefined };
 }
 
-export function formatNumber(
-  input: number | string | undefined,
-  placeholder = "-"
-): string {
+export function formatNumber(input: number | string | undefined, placeholder = "-"): string {
   const locale = "en-US";
 
   if (input === null || input === undefined) {
@@ -83,18 +80,11 @@ export function formatNumber(
   }
 
   if (!hardCodedInput) {
-    // eslint-disable-next-line
     return new Intl.NumberFormat(locale, formatterOptions as any).format(input);
   }
 
   const { input: hardCodedInputValue, prefix } = hardCodedInput;
   if (hardCodedInputValue === undefined) return placeholder;
 
-  return (
-    (prefix ?? "") +
-    // eslint-disable-next-line
-    new Intl.NumberFormat(locale, formatterOptions as any).format(
-      hardCodedInputValue
-    )
-  );
+  return (prefix ?? "") + new Intl.NumberFormat(locale, formatterOptions as any).format(hardCodedInputValue);
 }

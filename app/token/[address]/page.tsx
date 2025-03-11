@@ -16,17 +16,14 @@ export default function Token() {
   const { address } = useParams();
   const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
   const chartData = useChartData(address as string, chartType);
+  // console.log("🚀 ~ Token ~ chartData:", chartData);
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">
       <div className="flex-1">
         <div className="flex flex-col">
           <div>
-            <TokenInfo
-              tokenAddress={address as string}
-              type={chartType}
-              onTypeChange={setChartType}
-            />
+            <TokenInfo tokenAddress={address as string} type={chartType} onTypeChange={setChartType} />
             <div className="mt-2 h-[360px]">
               {chartData?.length ? (
                 <Chart data={chartData} />
