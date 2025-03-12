@@ -1,26 +1,30 @@
-import { useToken } from "@/hooks/use-token";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowDownUp } from "lucide-react";
-import { SOL_ADDRESS } from "@/lib/constants";
-import { Skeleton } from "./ui/skeleton";
-import { TokenIcon } from "./token-icon";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useTokenBalance } from "@/hooks/use-token-balance";
-import { formatNumber } from "@/lib/utils";
-import { Wallet } from "lucide-react";
-import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
+import { useToken } from '@/hooks/use-token';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowDownUp } from 'lucide-react';
+import { SOL_ADDRESS } from '@/lib/constants';
+import { Skeleton } from './ui/skeleton';
+import { TokenIcon } from './token-icon';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useTokenBalance } from '@/hooks/use-token-balance';
+import { formatNumber } from '@/lib/utils';
+import { Wallet } from 'lucide-react';
+import { useConnectWalletModalOpen } from '@/hooks/use-connect-wallet-modal';
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const token = useToken(tokenAddress);
+  console.log('🚀 ~ OrderPanel ~ token:', token);
   const SOL = useToken(SOL_ADDRESS);
+  console.log('🚀 ~ OrderPanel ~ SOL:', SOL);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
   const SOLBalance = useTokenBalance(SOL);
+  console.log('🚀 ~ OrderPanel ~ SOLBalance:', SOLBalance);
   const tokenBalance = useTokenBalance(token);
-  const [tokenAAmount, setTokenAAmount] = useState("");
-  const [tokenBAmount, setTokenBAmount] = useState("");
+  console.log('🚀 ~ OrderPanel ~ tokenBalance:', tokenBalance);
+  const [tokenAAmount, setTokenAAmount] = useState('');
+  const [tokenBAmount, setTokenBAmount] = useState('');
 
   const { publicKey } = useWallet();
   const [isQuoting, setIsQuoting] = useState(false);
@@ -40,15 +44,30 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
     setIsReverse((reverse) => !reverse);
   };
 
+  const onPercentButtonClick = (percent: number) => {
+    if (!publicKey) {
+      setConnectWalletModalOpen(true);
+      return;
+    }
+
+    if (!tokenABalance) return;
+
+    const maxAmount = isReverse ? SOLBalance : tokenBalance;
+    if (!maxAmount) return;
+
+    const calculatedAmount = (+maxAmount * percent) / 100;
+    setTokenAAmount(calculatedAmount.toString());
+  };
+
   useEffect(() => {
     if (!tokenAAmount) {
       setIsQuoting(false);
-      setTokenBAmount("");
+      setTokenBAmount('');
       return;
     }
     setIsQuoting(true);
     setTimeout(() => {
-      setTokenBAmount("0.01");
+      setTokenBAmount('0.01');
       setIsQuoting(false);
     }, 2000);
   }, [tokenAAmount]);
@@ -79,6 +98,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   size="xs"
                   variant="secondary"
                   className="text-muted-foreground"
+                  onClick={() => onPercentButtonClick(25)}
                 >
                   25%
                 </Button>
@@ -86,6 +106,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   size="xs"
                   variant="secondary"
                   className="text-muted-foreground"
+                  onClick={() => onPercentButtonClick(50)}
                 >
                   50%
                 </Button>
@@ -93,6 +114,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   size="xs"
                   variant="secondary"
                   className="text-muted-foreground"
+                  onClick={() => onPercentButtonClick(100)}
                 >
                   100%
                 </Button>
@@ -103,10 +125,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </div>
           <div className="mt-2 flex">
             {tokenA ? (
-              <Button
-                variant="secondary"
-                className="bg-secondary/60 hvoer:bg-secondary/60 px-2"
-              >
+              <Button variant="secondary" className="bg-secondary/60 hvoer:bg-secondary/60 px-2">
                 <TokenIcon token={tokenA} size="sm" />
                 {tokenA.symbol}
               </Button>
@@ -147,10 +166,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </div>
           <div className="mt-2 flex">
             {tokenB ? (
-              <Button
-                variant="secondary"
-                className="bg-light-card hover:bg-light-card px-2"
-              >
+              <Button variant="secondary" className="bg-light-card hover:bg-light-card px-2">
                 <TokenIcon token={tokenB} size="sm" />
                 {tokenB.symbol}
               </Button>
@@ -186,19 +202,11 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </div>
         </div>
         {publicKey ? (
-          <Button
-            className="w-full"
-            size="lg"
-            disabled={!tokenAAmount || !tokenBAmount}
-          >
+          <Button className="w-full" size="lg" disabled={!tokenAAmount || !tokenBAmount}>
             Buy
           </Button>
         ) : (
-          <Button
-            className="w-full"
-            size="lg"
-            onClick={() => setConnectWalletModalOpen(true)}
-          >
+          <Button className="w-full" size="lg" onClick={() => setConnectWalletModalOpen(true)}>
             Connect Wallet
           </Button>
         )}
