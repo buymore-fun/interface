@@ -1,16 +1,21 @@
 "use client";
 
 import {
+  AnchorWallet,
   ConnectionProvider,
+  useConnection,
+  useWallet,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { PropsWithChildren, useMemo } from "react";
-import { clusterApiUrl } from "@solana/web3.js";
+import { clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
 
-export function Providers({ children }: PropsWithChildren) {
-  const network = WalletAdapterNetwork.Mainnet;
+export function SolanaProvider({ children }: PropsWithChildren) {
+  // const network = WalletAdapterNetwork.Mainnet;
+  const network = WalletAdapterNetwork.Devnet;
 
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(
@@ -40,4 +45,13 @@ export function Providers({ children }: PropsWithChildren) {
       </WalletProvider>
     </ConnectionProvider>
   );
+}
+
+export function useAnchorProvider() {
+  const { connection } = useConnection();
+  const wallet = useWallet();
+
+  return new AnchorProvider(connection, wallet as AnchorWallet, {
+    commitment: "confirmed",
+  });
 }

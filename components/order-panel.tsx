@@ -1,30 +1,30 @@
-import { useToken } from '@/hooks/use-token';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowDownUp } from 'lucide-react';
-import { SOL_ADDRESS } from '@/lib/constants';
-import { Skeleton } from './ui/skeleton';
-import { TokenIcon } from './token-icon';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useTokenBalance } from '@/hooks/use-token-balance';
-import { formatNumber } from '@/lib/utils';
-import { Wallet } from 'lucide-react';
-import { useConnectWalletModalOpen } from '@/hooks/use-connect-wallet-modal';
+import { useToken } from "@/hooks/use-token";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDownUp } from "lucide-react";
+import { SOL_ADDRESS } from "@/lib/constants";
+import { Skeleton } from "./ui/skeleton";
+import { TokenIcon } from "./token-icon";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useTokenBalance } from "@/hooks/use-token-balance";
+import { formatNumber } from "@/lib/utils";
+import { Wallet } from "lucide-react";
+import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const token = useToken(tokenAddress);
-  console.log('🚀 ~ OrderPanel ~ token:', token);
+  console.log("🚀 ~ OrderPanel ~ token:", token);
   const SOL = useToken(SOL_ADDRESS);
-  console.log('🚀 ~ OrderPanel ~ SOL:', SOL);
+  console.log("🚀 ~ OrderPanel ~ SOL:", SOL);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
   const SOLBalance = useTokenBalance(SOL);
-  console.log('🚀 ~ OrderPanel ~ SOLBalance:', SOLBalance);
+  console.log("🚀 ~ OrderPanel ~ SOLBalance:", SOLBalance);
   const tokenBalance = useTokenBalance(token);
-  console.log('🚀 ~ OrderPanel ~ tokenBalance:', tokenBalance);
-  const [tokenAAmount, setTokenAAmount] = useState('');
-  const [tokenBAmount, setTokenBAmount] = useState('');
+  console.log("🚀 ~ OrderPanel ~ tokenBalance:", tokenBalance);
+  const [tokenAAmount, setTokenAAmount] = useState("");
+  const [tokenBAmount, setTokenBAmount] = useState("");
 
   const { publicKey } = useWallet();
   const [isQuoting, setIsQuoting] = useState(false);
@@ -62,12 +62,12 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   useEffect(() => {
     if (!tokenAAmount) {
       setIsQuoting(false);
-      setTokenBAmount('');
+      setTokenBAmount("");
       return;
     }
     setIsQuoting(true);
     setTimeout(() => {
-      setTokenBAmount('0.01');
+      setTokenBAmount("0.01");
       setIsQuoting(false);
     }, 2000);
   }, [tokenAAmount]);
@@ -154,9 +154,9 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           <div className="flex items-center justify-between h-6">
             <span className="text-sm">Buying</span>
             {tokenBBalance !== undefined ? (
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 ">
                 <Wallet className="text-muted-foreground size-3" />
-                <span className="text-muted-foreground text-xs">
+                <span className="text-muted-foreground text-xs ">
                   {formatNumber(tokenBBalance)} {tokenB?.symbol}
                 </span>
               </div>
@@ -179,7 +179,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
               </div>
             ) : (
               <Input
-                className="border-none text-lg font-semibold text-right outline-none p-0"
+                className="border-none text-lg disabled:cursor-not-allowed font-semibold text-right outline-none p-0"
                 placeholder="0.00"
                 value={tokenBAmount}
                 readOnly

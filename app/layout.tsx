@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Topbar } from "@/components/topbar";
 import { ConnectWalletModal } from "@/components/connect-wallet-modal";
-import { Providers } from "@/components/providers";
+import { SolanaProvider } from "@/app/solana-provider";
+import { ReactQueryProvider } from "@/app/react-query-provider";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,18 +29,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          <div className="flex min-h-screen w-screen flex-col">
-            <Topbar />
-            <div className="flex flex-1 flex-col p-4 overflow-y-auto">
-              <div className="w-full max-w-6xl mx-auto">{children}</div>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ReactQueryProvider>
+          <SolanaProvider>
+            <div className="flex min-h-screen w-screen flex-col">
+              <Topbar />
+              <div className="flex flex-1 flex-col p-4 overflow-y-auto">
+                <div className="w-full max-w-6xl mx-auto">{children}</div>
+              </div>
+              <ConnectWalletModal />
+              <Toaster position="bottom-right" />
             </div>
-            <ConnectWalletModal />
-          </div>
-        </Providers>
+          </SolanaProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

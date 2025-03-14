@@ -11,16 +11,13 @@ import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { ChartType } from "@/types/chart";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
+// http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 export default function Token() {
   const { address } = useParams();
-  const connection = useConnection();
   const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
   const chartData = useChartData(address as string, chartType);
-
-  const wallet = useWallet();
-  console.log("🚀 ~ Token ~ wallet:", wallet);
+  // console.log("🚀 ~ Token ~ chartData:", chartData);
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">
