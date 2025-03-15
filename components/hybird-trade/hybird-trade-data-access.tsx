@@ -24,6 +24,7 @@ import {
 
 export function useHybirdTradeProgram() {
   const wallet = useWallet();
+
   const { connection } = useConnection();
   // const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
@@ -47,6 +48,7 @@ export function useHybirdTradeProgram() {
     [receiver.publicKey.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
     ATA_PROGRAM_ID
   );
+  console.log("🚀 ~ useHybirdTradeProgram ~ receiverATA:", receiverATA.toBase58());
 
   const [counter] = PublicKey.findProgramAddressSync(
     [Buffer.from(ORDER_COUNTER_SEED)],

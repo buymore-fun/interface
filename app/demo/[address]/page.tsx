@@ -11,13 +11,89 @@ import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { ChartType } from "@/types/chart";
+import { useHybirdTradeProgram } from "@/components/hybird-trade/hybird-trade-data-access";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletAuth } from "@/components/wallet-auth";
+
+export default function DemoPage() {
+  return (
+    <WalletAuth>
+      <DemoPageContent />
+    </WalletAuth>
+  );
+}
 
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
-export default function Token() {
+export function DemoPageContent() {
   const { address } = useParams();
-  const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
-  const chartData = useChartData(address as string, chartType);
   // console.log("🚀 ~ Token ~ chartData:", chartData);
+  const wallet = useWallet();
+
+  const { initializePool, addSOLOrder, addTokenOrder, cancelOrder } = useHybirdTradeProgram();
+
+  // State for form inputs
+  const [poolName, setPoolName] = useState("");
+  const [solAmount, setSolAmount] = useState("");
+  const [tokenAmount, setTokenAmount] = useState("");
+  const [orderId, setOrderId] = useState("");
+
+  // Loading states
+  const [initializingPool, setInitializingPool] = useState(false);
+  const [addingSOLOrder, setAddingSOLOrder] = useState(false);
+  const [addingTokenOrder, setAddingTokenOrder] = useState(false);
+  const [cancelingOrder, setCancelingOrder] = useState(false);
+
+  const handleInitializePool = async () => {
+    if (!poolName) return;
+    setInitializingPool(true);
+    try {
+      await initializePool(poolName);
+    } catch (error) {
+      console.error("Failed to initialize pool:", error);
+    } finally {
+      setInitializingPool(false);
+    }
+  };
+
+  const handleAddSOLOrder = async () => {
+    if (!solAmount) return;
+    setAddingSOLOrder(true);
+    try {
+      await addSOLOrder(parseFloat(solAmount));
+    } catch (error) {
+      console.error("Failed to add SOL order:", error);
+    } finally {
+      setAddingSOLOrder(false);
+    }
+  };
+
+  const handleAddTokenOrder = async () => {
+    if (!tokenAmount) return;
+    setAddingTokenOrder(true);
+    try {
+      await addTokenOrder(address as string, parseFloat(tokenAmount));
+    } catch (error) {
+      console.error("Failed to add token order:", error);
+    } finally {
+      setAddingTokenOrder(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderId) return;
+    setCancelingOrder(true);
+    try {
+      await cancelOrder(orderId);
+    } catch (error) {
+      console.error("Failed to cancel order:", error);
+    } finally {
+      setCancelingOrder(false);
+    }
+  };
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">
@@ -26,30 +102,167 @@ export default function Token() {
           <div>
             <TokenInfo
               tokenAddress={address as string}
-              type={chartType}
-              onTypeChange={setChartType}
+              type={ChartType.FIVE_MINUTE}
+              onTypeChange={() => {}}
             />
-            <div className="mt-2 h-[360px]">
-              {chartData?.length ? (
-                <Chart data={chartData} />
-              ) : (
-                <div className="flex w-full h-full items-center justify-center bg-secondary/10">
-                  <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
+
+          {/* Hybrid Trade Functions UI */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Initialize Pool</CardTitle>
+                <CardDescription>Create a new trading pool with a custom name</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="poolName" className="text-white">
+                      Pool Name
+                    </Label>
+                    <Input
+                      id="poolName"
+                      value={poolName}
+                      onChange={(e) => setPoolName(e.target.value)}
+                      placeholder="Enter pool name"
+                      className="text-white"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleInitializePool}
+                    disabled={initializingPool || !poolName}
+                    className="w-full"
+                  >
+                    {initializingPool ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Initializing...
+                      </>
+                    ) : (
+                      "Initialize Pool"
+                    )}
+                  </Button>
                 </div>
-              )}
-            </div>
-          </div>
-          <div className="mt-4">
-            <Overview />
-          </div>
-          <div className="mt-4">
-            <Activities />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Add SOL Order</CardTitle>
+                <CardDescription>Create a new order with SOL</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="solAmount" className="text-white">
+                      SOL Amount
+                    </Label>
+                    <Input
+                      id="solAmount"
+                      value={solAmount}
+                      onChange={(e) => setSolAmount(e.target.value)}
+                      placeholder="Enter SOL amount"
+                      type="number"
+                      step="0.01"
+                      className="text-white"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleAddSOLOrder}
+                    disabled={addingSOLOrder || !solAmount}
+                    className="w-full"
+                  >
+                    {addingSOLOrder ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Adding SOL Order...
+                      </>
+                    ) : (
+                      "Add SOL Order"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Add Token Order</CardTitle>
+                <CardDescription>Create a new order with the current token</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tokenAmount" className="text-white">
+                      Token Amount
+                    </Label>
+                    <Input
+                      id="tokenAmount"
+                      value={tokenAmount}
+                      onChange={(e) => setTokenAmount(e.target.value)}
+                      placeholder="Enter token amount"
+                      type="number"
+                      step="0.01"
+                      className="text-white"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleAddTokenOrder}
+                    disabled={addingTokenOrder || !tokenAmount}
+                    className="w-full"
+                  >
+                    {addingTokenOrder ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Adding Token Order...
+                      </>
+                    ) : (
+                      "Add Token Order"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Cancel Order</CardTitle>
+                <CardDescription>Cancel an existing order by ID</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="orderId" className="text-white">
+                      Order ID
+                    </Label>
+                    <Input
+                      id="orderId"
+                      value={orderId}
+                      onChange={(e) => setOrderId(e.target.value)}
+                      placeholder="Enter order ID"
+                      className="text-white"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleCancelOrder}
+                    disabled={cancelingOrder || !orderId}
+                    className="w-full"
+                    variant="destructive"
+                  >
+                    {cancelingOrder ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Canceling Order...
+                      </>
+                    ) : (
+                      <span className="text-white">Cancel Order</span>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
-      <div className="sm:max-w-[420px] w-full flex flex-col space-y-4">
-        <OrderPanel tokenAddress={address as string} />
-        <Community />
       </div>
     </div>
   );
