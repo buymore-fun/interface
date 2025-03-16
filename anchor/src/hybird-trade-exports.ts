@@ -5,6 +5,12 @@ import HybirdTradeIDL from "../target/idl/hybird_trade.json";
 import type { HybirdTrade } from "../target/types/hybird_trade";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 
+// Import SOL address constant
+export const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
+
+// Import from SPL Token 2022
+import { TOKEN_2022_PROGRAM_ID as SPL_TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+
 // Re-export the generated IDL and type
 export { HybirdTrade, HybirdTradeIDL };
 
@@ -12,9 +18,6 @@ export { HybirdTrade, HybirdTradeIDL };
 export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(HybirdTradeIDL.address);
 
 // const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-
-export const TOKEN_2022_PROGRAM_ID = new PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
-export const ATA_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 
 // This is a helper function to get the Counter Anchor program.
 export function getHybirdTradeProgram(provider: AnchorProvider) {

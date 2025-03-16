@@ -43,6 +43,7 @@ export function DemoPageContent() {
   const [orderId, setOrderId] = useState("");
 
   // Loading states
+  const [initializingBuymoreProgram, setInitializingBuymoreProgram] = useState(false);
   const [initializingPool, setInitializingPool] = useState(false);
   const [addingSOLOrder, setAddingSOLOrder] = useState(false);
   const [addingTokenOrder, setAddingTokenOrder] = useState(false);
@@ -50,11 +51,10 @@ export function DemoPageContent() {
 
   const handleInitializePool = async () => {
     // if (!poolAmount) return;
-
-    console.log("111");
+    // await hybirdTradeProgram.fetchPoolData();
+    // console.log("111");
     // const data = await hybirdTradeProgram.fetchPoolData();
     // console.log("🚀 ~ handleInitializePool ~ data:", data);
-    debugger;
 
     setInitializingPool(true);
     try {
@@ -67,11 +67,23 @@ export function DemoPageContent() {
     }
   };
 
-  const handleAddSOLOrder = async () => {
-    if (!solAmount) return;
-    setAddingSOLOrder(true);
+  const handleInitializeBuymoreProgram = async () => {
+    setInitializingBuymoreProgram(true);
     try {
-      await hybirdTradeProgram.addSOLOrder();
+      await hybirdTradeProgram.initializeBuymoreProgram();
+    } catch (error) {
+      console.error("Failed to initialize buymore program:", error);
+    } finally {
+      setInitializingBuymoreProgram(false);
+    }
+  };
+
+  const handleAddSOLOrder = async () => {
+    // if (!solAmount) return;
+    setAddingSOLOrder(true);
+
+    try {
+      await hybirdTradeProgram.addSOLOrder(10000, 1000);
     } catch (error) {
       console.error("Failed to add SOL order:", error);
     } finally {
@@ -117,6 +129,26 @@ export function DemoPageContent() {
 
           {/* Hybrid Trade Functions UI */}
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Initialize Buymore Program</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button onClick={handleInitializeBuymoreProgram} className="w-full">
+                    {initializingBuymoreProgram ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Initializing...
+                      </>
+                    ) : (
+                      "Initialize Buymore Program"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-white">Initialize Pool</CardTitle>

@@ -6,12 +6,7 @@ import { Cluster, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-import {
-  ATA_PROGRAM_ID,
-  getHybirdTradeProgram,
-  getHybirdTradeProgramId,
-  TOKEN_2022_PROGRAM_ID,
-} from "@/anchor/src";
+import { getHybirdTradeProgram, getHybirdTradeProgramId } from "@/anchor/src";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
@@ -23,9 +18,11 @@ import {
   ORDER_BOOK_WITH_TOKEN_SEED,
   OrderType,
 } from "@/anchor/constants";
+import { TOKEN_2022_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+// https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
 
 export function useHybirdTradeProgram() {
   const wallet = useWallet();
@@ -37,32 +34,42 @@ export function useHybirdTradeProgram() {
 
   const program = useMemo(() => getHybirdTradeProgram(provider), [provider]);
 
-  // console.log("🚀 ~ program:", program.programId.toBase58());
-  const [mint] = PublicKey.findProgramAddressSync(
-    [Buffer.from("token-2022-token"), wallet!.publicKey!.toBytes(), Buffer.from("USD Coin")],
-    // program.
-    new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U")
-  );
+  const usdcMintAddress = new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U");
+  const tokenName = "USD Coin";
 
-  const mintAddress = mint.toBase58();
+  // const [mint] = PublicKey.findProgramAddressSync(
+  //   [Buffer.from("token-2022-token"), wallet!.publicKey!.toBytes(), Buffer.from(tokenName)],
+  //   // MINT ADDRESS
+  //   usdcMintAddress
+  // );
+
+  // const [program_mint] = PublicKey.findProgramAddressSync(
+  //   [Buffer.from("token-2022-token"), program.programId.toBytes(), Buffer.from(tokenName)],
+  //   program.programId
+  // );
+
+  const mint = usdcMintAddress;
+
+  // const mintAddress = mint.toBase58();
 
   const [payerATA] = PublicKey.findProgramAddressSync(
     [wallet.publicKey!.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
-    ATA_PROGRAM_ID
+    ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
   const receiver = Keypair.generate();
 
   const [receiverATA] = PublicKey.findProgramAddressSync(
     [receiver.publicKey.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
-    ATA_PROGRAM_ID
+    ASSOCIATED_TOKEN_PROGRAM_ID
   );
-  console.log("🚀 ~ useHybirdTradeProgram ~ receiverATA:", receiverATA.toBase58());
+  // console.log("🚀 ~ useHybirdTradeProgram ~ receiverATA:", receiverATA.toBase58());
 
   const [counter] = PublicKey.findProgramAddressSync(
     [Buffer.from(ORDER_COUNTER_SEED)],
     program.programId
   );
+  // console.log("🚀 ~ useHybirdTradeProgram ~ counter:", counter.toBase58());
 
   const [order_config] = PublicKey.findProgramAddressSync(
     [Buffer.from(ORDER_CONFIG_SEED)],
@@ -78,6 +85,7 @@ export function useHybirdTradeProgram() {
     [Buffer.from(ORDER_BOOK_DETAIL_SEED), mint.toBytes()],
     program.programId
   );
+  console.log("🚀 ~ useHybirdTradeProgram ~ order_book_detail:", order_book_detail.toBase58());
 
   const order_book = (owner, pool_id, type_v) => {
     return PublicKey.findProgramAddressSync(
@@ -94,14 +102,42 @@ export function useHybirdTradeProgram() {
 
   const [pool_account] = PublicKey.findProgramAddressSync(
     [contract_authority.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
-    ATA_PROGRAM_ID
+    ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  console.log("🚀 ~ mintAddress ~ address:", mintAddress);
+  // console.log("🚀 ~ mintAddress ~ address:", mintAddress);
 
   const fetchPoolData = async () => {
-    const orderbook_data = await program.account.orderBook.fetch(mintAddress);
-    return orderbook_data;
+    // const orderbook_data = await program.account.orderBook.fetch(mint);
+
+    // return orderbook_data;
+
+    const order_book_detail_data = await program.account.orderBookDetail.fetch(order_book_detail);
+    console.log("🚀 ~ fetchPoolData ~ order_book_detail_data:", order_book_detail_data);
+
+    return order_book_detail_data;
+  };
+
+  const initializeBuymoreProgram = async () => {
+    const tx = new Transaction();
+
+    const orderCounter = await program.account.orderCounter.fetch(counter);
+    // console.log("🚀 ~ initializeBuymoreProgram ~ orderCounter:", orderCounter.value);
+    const r = orderCounter.value.toNumber();
+
+    // console.log("🚀 ~ initializeBuymoreProgram ~ wallet.publicKey:", wallet.publicKey?.toBase58());
+    const ix = await program.methods
+      .initialize(wallet.publicKey!)
+      .accounts({
+        payer: wallet.publicKey!,
+      })
+      .instruction();
+
+    tx.add(ix);
+
+    const signature = await provider.sendAndConfirm(tx);
+    console.log("Your transaction signature", signature);
+    return signature;
   };
 
   const initializePool = async (amount: number) => {
@@ -112,10 +148,11 @@ export function useHybirdTradeProgram() {
       .accounts({
         payer: wallet.publicKey!,
         tokenMint: mint,
+        // tokenMint: program_mint,
         tokenVault: pool_account,
         config: order_config,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        associatedTokenProgram: ATA_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -166,7 +203,7 @@ export function useHybirdTradeProgram() {
         mint: mint,
         counter: counter,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        associatedTokenProgram: ATA_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -204,7 +241,7 @@ export function useHybirdTradeProgram() {
         mint: mint,
         counter: counter,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        associatedTokenProgram: ATA_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -233,7 +270,7 @@ export function useHybirdTradeProgram() {
         to: wallet.publicKey!,
         toAta: payerATA,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        associatedTokenProgram: ATA_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -252,6 +289,7 @@ export function useHybirdTradeProgram() {
     addSOLOrder,
     addTokenOrder,
     cancelOrder,
+    initializeBuymoreProgram,
   };
 }
 
