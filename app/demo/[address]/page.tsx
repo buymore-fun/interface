@@ -49,7 +49,12 @@ export function DemoPageContent() {
   const [cancelingOrder, setCancelingOrder] = useState(false);
 
   const handleInitializePool = async () => {
-    if (!poolAmount) return;
+    // if (!poolAmount) return;
+
+    console.log("111");
+    // const data = await hybirdTradeProgram.fetchPoolData();
+    // console.log("🚀 ~ handleInitializePool ~ data:", data);
+    debugger;
 
     setInitializingPool(true);
     try {

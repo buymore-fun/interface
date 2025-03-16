@@ -37,10 +37,14 @@ export function useHybirdTradeProgram() {
 
   const program = useMemo(() => getHybirdTradeProgram(provider), [provider]);
 
+  // console.log("🚀 ~ program:", program.programId.toBase58());
   const [mint] = PublicKey.findProgramAddressSync(
-    [Buffer.from("token-2022-token"), wallet!.publicKey!.toBytes(), Buffer.from("USDC")],
-    program.programId
+    [Buffer.from("token-2022-token"), wallet!.publicKey!.toBytes(), Buffer.from("USD Coin")],
+    // program.
+    new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U")
   );
+
+  const mintAddress = mint.toBase58();
 
   const [payerATA] = PublicKey.findProgramAddressSync(
     [wallet.publicKey!.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
@@ -92,6 +96,13 @@ export function useHybirdTradeProgram() {
     [contract_authority.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
     ATA_PROGRAM_ID
   );
+
+  console.log("🚀 ~ mintAddress ~ address:", mintAddress);
+
+  const fetchPoolData = async () => {
+    const orderbook_data = await program.account.orderBook.fetch(mintAddress);
+    return orderbook_data;
+  };
 
   const initializePool = async (amount: number) => {
     const tx = new Transaction();
@@ -236,6 +247,7 @@ export function useHybirdTradeProgram() {
 
   return {
     program,
+    fetchPoolData,
     initializePool,
     addSOLOrder,
     addTokenOrder,
