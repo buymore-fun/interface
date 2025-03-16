@@ -53,7 +53,8 @@ export function DemoPageContent() {
 
     setInitializingPool(true);
     try {
-      await hybirdTradeProgram.initializePool(+poolAmount);
+      // await hybirdTradeProgram.initializePool(+poolAmount);
+      await hybirdTradeProgram.initializePool(10);
     } catch (error) {
       console.error("Failed to initialize pool:", error);
     } finally {
@@ -65,7 +66,7 @@ export function DemoPageContent() {
     if (!solAmount) return;
     setAddingSOLOrder(true);
     try {
-      await hybirdTradeProgram.addSOLOrder(parseFloat(solAmount));
+      await hybirdTradeProgram.addSOLOrder();
     } catch (error) {
       console.error("Failed to add SOL order:", error);
     } finally {
@@ -120,19 +121,19 @@ export function DemoPageContent() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="poolAmount" className="text-white">
-                      Pool amount
+                      Pool amount ( 10 )
                     </Label>
-                    <Input
+                    {/* <Input
                       id="poolAmount"
                       value={poolAmount}
                       onChange={(e) => setPoolAmount(e.target.value)}
                       placeholder="Enter pool amount"
                       className="text-white"
-                    />
+                    /> */}
                   </div>
                   <Button
                     onClick={handleInitializePool}
-                    disabled={initializingPool || !poolAmount}
+                    // disabled={initializingPool || !poolAmount}
                     className="w-full"
                   >
                     {initializingPool ? (
@@ -155,7 +156,7 @@ export function DemoPageContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label htmlFor="solAmount" className="text-white">
                       SOL Amount
                     </Label>
@@ -168,10 +169,10 @@ export function DemoPageContent() {
                       step="0.01"
                       className="text-white"
                     />
-                  </div>
+                  </div> */}
                   <Button
                     onClick={handleAddSOLOrder}
-                    disabled={addingSOLOrder || !solAmount}
+                    // disabled={addingSOLOrder || !solAmount}
                     className="w-full"
                   >
                     {addingSOLOrder ? (

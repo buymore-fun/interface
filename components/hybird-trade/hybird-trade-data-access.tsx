@@ -110,10 +110,29 @@ export function useHybirdTradeProgram() {
 
     tx.add(ix);
 
+    // const signature = await wallet.sendTransaction(tx, connection);
     const signature = await provider.sendAndConfirm(tx);
     console.log("Your transaction signature", signature);
     transactionToast(signature);
     return signature;
+  };
+
+  const send_and_config = async (tx, payer) => {
+    const { blockhash } = await connection.getLatestBlockhash("confirmed");
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = payer[0].publicKey;
+
+    const sig = await connection.sendTransaction(tx, payer);
+    await connection.confirmTransaction(
+      {
+        signature: sig,
+        blockhash: blockhash,
+        lastValidBlockHeight: (await connection.getBlockHeight()) + 250,
+      },
+      "confirmed"
+    );
+
+    return sig;
   };
 
   const addSOLOrder = async (amount: number, price: number, expiryTime?: number) => {
