@@ -20,7 +20,12 @@ import {
   ORDER_CONFIG_SEED,
   AUTHORITY_SEED,
   ORDER_BOOK_DETAIL_SEED,
+  ORDER_BOOK_WITH_TOKEN_SEED,
+  OrderType,
 } from "@/anchor/constants";
+
+// http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
+// http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 
 export function useHybirdTradeProgram() {
   const wallet = useWallet();
@@ -70,9 +75,15 @@ export function useHybirdTradeProgram() {
     program.programId
   );
 
-  const order_book = (owner: PublicKey) => {
+  const order_book = (owner, pool_id, type_v) => {
     return PublicKey.findProgramAddressSync(
-      [Buffer.from("buymore_order"), owner.toBytes(), mint.toBytes()],
+      [
+        Buffer.from(ORDER_BOOK_WITH_TOKEN_SEED),
+        new Uint8Array(pool_id.toArray("le", 8)),
+        new Uint8Array([type_v]),
+        // owner.toBytes(),
+        mint.toBytes(),
+      ],
       program.programId
     );
   };
@@ -107,19 +118,19 @@ export function useHybirdTradeProgram() {
 
   const addSOLOrder = async (amount: number, price: number, expiryTime?: number) => {
     const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day by default
+    const in_amount = new BN(10000);
+    const out_amount = new BN(1000);
+    const now_v = new BN(now);
+    const order_type = OrderType.Buy;
+    const pool_id = new BN(1);
 
     const tx = new Transaction();
 
     const ix = await program.methods
-      .addOrderToPool(
-        0, // Order type
-        new BN(amount),
-        new BN(price),
-        new BN(now)
-      )
+      .addOrderToPool(pool_id, order_type, in_amount, out_amount, now_v)
       .accounts({
         payer: wallet.publicKey!,
-        orderBook: order_book(wallet.publicKey!)[0],
+        orderBook: order_book(wallet.publicKey, pool_id, order_type),
         tokenVault: pool_account,
         fromAta: payerATA, // For SOL orders, this should be null or handled differently
         mint: mint,
@@ -138,20 +149,26 @@ export function useHybirdTradeProgram() {
   };
 
   const addTokenOrder = async (amount: number, price: number, expiryTime?: number) => {
-    const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day by default
+    const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
+    const in_amount = new BN(1000);
+    const out_amount = new BN(10000);
+    const now_v = new BN(now);
+    const order_type = OrderType.Sell;
+    const pool_id = new BN(2); // different pool id for different orderbook pool.
 
     const tx = new Transaction();
 
     const ix = await program.methods
       .addOrderToPool(
-        1, // sell
-        new BN(amount),
-        new BN(price),
-        new BN(now)
+        pool_id,
+        order_type, // sell
+        in_amount,
+        out_amount,
+        now_v
       )
       .accounts({
         payer: wallet.publicKey!,
-        orderBook: order_book(wallet.publicKey!)[0],
+        orderBook: order_book(wallet.publicKey, pool_id, order_type),
         tokenVault: pool_account,
         fromAta: payerATA,
         mint: mint,
@@ -170,13 +187,17 @@ export function useHybirdTradeProgram() {
   };
 
   const cancelOrder = async (orderType: number, orderId: number) => {
+    const pool_id = new BN(2);
+    const order_type = OrderType.Sell;
+    const cancel_order_id = new BN(3);
+
     const tx = new Transaction();
 
     const ix = await program.methods
-      .cancelOrder(orderType, new BN(orderId))
+      .cancelOrder(pool_id, order_type, cancel_order_id)
       .accounts({
         payer: wallet.publicKey!,
-        orderBook: order_book(wallet.publicKey!)[0],
+        orderBook: order_book(wallet.publicKey, pool_id, order_type),
         tokenVault: pool_account,
         tokenMint: mint,
         to: wallet.publicKey!,

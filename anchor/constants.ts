@@ -10,6 +10,9 @@ export const ORDER_CONFIG_SEED = "buymore_order_config";
 
 export const SOL_VAULT_SEED = "buymore_sol_vault";
 
-export const ORDER_BOOK_SEED = "buymore_order";
-
 export const MAX_ORDER_LIMIT = 10;
+
+export enum OrderType {
+  Buy = 0,
+  Sell = 1,
+}

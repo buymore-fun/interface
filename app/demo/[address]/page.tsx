@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletAuth } from "@/components/wallet-auth";
+import { BN } from "@coral-xyz/anchor";
 
 export default function DemoPage() {
   return (
@@ -33,10 +34,10 @@ export function DemoPageContent() {
   // console.log("🚀 ~ Token ~ chartData:", chartData);
   const wallet = useWallet();
 
-  const { initializePool, addSOLOrder, addTokenOrder, cancelOrder } = useHybirdTradeProgram();
+  const hybirdTradeProgram = useHybirdTradeProgram();
 
   // State for form inputs
-  const [poolName, setPoolName] = useState("");
+  const [poolAmount, setPoolAmount] = useState("");
   const [solAmount, setSolAmount] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [orderId, setOrderId] = useState("");
@@ -48,10 +49,11 @@ export function DemoPageContent() {
   const [cancelingOrder, setCancelingOrder] = useState(false);
 
   const handleInitializePool = async () => {
-    if (!poolName) return;
+    if (!poolAmount) return;
+
     setInitializingPool(true);
     try {
-      await initializePool(poolName);
+      await hybirdTradeProgram.initializePool(+poolAmount);
     } catch (error) {
       console.error("Failed to initialize pool:", error);
     } finally {
@@ -63,7 +65,7 @@ export function DemoPageContent() {
     if (!solAmount) return;
     setAddingSOLOrder(true);
     try {
-      await addSOLOrder(parseFloat(solAmount));
+      await hybirdTradeProgram.addSOLOrder(parseFloat(solAmount));
     } catch (error) {
       console.error("Failed to add SOL order:", error);
     } finally {
@@ -75,7 +77,7 @@ export function DemoPageContent() {
     if (!tokenAmount) return;
     setAddingTokenOrder(true);
     try {
-      await addTokenOrder(address as string, parseFloat(tokenAmount));
+      await hybirdTradeProgram.addTokenOrder(address as string, parseFloat(tokenAmount));
     } catch (error) {
       console.error("Failed to add token order:", error);
     } finally {
@@ -87,7 +89,7 @@ export function DemoPageContent() {
     if (!orderId) return;
     setCancelingOrder(true);
     try {
-      await cancelOrder(orderId);
+      await hybirdTradeProgram.cancelOrder(orderId);
     } catch (error) {
       console.error("Failed to cancel order:", error);
     } finally {
@@ -112,25 +114,25 @@ export function DemoPageContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-white">Initialize Pool</CardTitle>
-                <CardDescription>Create a new trading pool with a custom name</CardDescription>
+                <CardDescription>Create a new trading pool with a custom amount</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="poolName" className="text-white">
-                      Pool Name
+                    <Label htmlFor="poolAmount" className="text-white">
+                      Pool amount
                     </Label>
                     <Input
-                      id="poolName"
-                      value={poolName}
-                      onChange={(e) => setPoolName(e.target.value)}
-                      placeholder="Enter pool name"
+                      id="poolAmount"
+                      value={poolAmount}
+                      onChange={(e) => setPoolAmount(e.target.value)}
+                      placeholder="Enter pool amount"
                       className="text-white"
                     />
                   </div>
                   <Button
                     onClick={handleInitializePool}
-                    disabled={initializingPool || !poolName}
+                    disabled={initializingPool || !poolAmount}
                     className="w-full"
                   >
                     {initializingPool ? (

@@ -66,8 +66,12 @@ export type HybirdTrade = {
                 ]
               },
               {
-                "kind": "account",
-                "path": "payer"
+                "kind": "arg",
+                "path": "poolId"
+              },
+              {
+                "kind": "arg",
+                "path": "typeV"
               },
               {
                 "kind": "account",
@@ -173,6 +177,10 @@ export type HybirdTrade = {
       ],
       "args": [
         {
+          "name": "poolId",
+          "type": "u64"
+        },
+        {
           "name": "typeV",
           "type": "u8"
         },
@@ -243,8 +251,12 @@ export type HybirdTrade = {
                 ]
               },
               {
-                "kind": "account",
-                "path": "payer"
+                "kind": "arg",
+                "path": "poolId"
+              },
+              {
+                "kind": "arg",
+                "path": "typeV"
               },
               {
                 "kind": "account",
@@ -350,6 +362,10 @@ export type HybirdTrade = {
       ],
       "args": [
         {
+          "name": "poolId",
+          "type": "u64"
+        },
+        {
           "name": "typeV",
           "type": "u8"
         },
@@ -376,9 +392,6 @@ export type HybirdTrade = {
           "name": "payer",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "owner"
         },
         {
           "name": "orderBook",
@@ -415,42 +428,16 @@ export type HybirdTrade = {
                 ]
               },
               {
-                "kind": "account",
-                "path": "owner"
+                "kind": "arg",
+                "path": "poolId"
               },
               {
-                "kind": "account",
-                "path": "tokenMint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "solVault",
-          "writable": true,
-          "pda": {
-            "seeds": [
+                "kind": "arg",
+                "path": "typeV"
+              },
               {
-                "kind": "const",
-                "value": [
-                  98,
-                  117,
-                  121,
-                  109,
-                  111,
-                  114,
-                  101,
-                  95,
-                  115,
-                  111,
-                  108,
-                  95,
-                  118,
-                  97,
-                  117,
-                  108,
-                  116
-                ]
+                "kind": "arg",
+                "path": "owner"
               },
               {
                 "kind": "account",
@@ -476,6 +463,10 @@ export type HybirdTrade = {
         }
       ],
       "args": [
+        {
+          "name": "owner",
+          "type": "pubkey"
+        },
         {
           "name": "typeV",
           "type": "u8"
@@ -1137,6 +1128,171 @@ export type HybirdTrade = {
       ]
     },
     {
+      "name": "tradeOrder",
+      "discriminator": [
+        146,
+        150,
+        82,
+        154,
+        120,
+        144,
+        70,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payerAta",
+          "writable": true
+        },
+        {
+          "name": "orderBook0",
+          "writable": true
+        },
+        {
+          "name": "orderBook1",
+          "writable": true
+        },
+        {
+          "name": "orderBook2",
+          "writable": true
+        },
+        {
+          "name": "orderBook3",
+          "writable": true
+        },
+        {
+          "name": "orderBook4",
+          "writable": true
+        },
+        {
+          "name": "orderBook5",
+          "writable": true
+        },
+        {
+          "name": "solVault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  109,
+                  111,
+                  114,
+                  101,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "tokenMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tokenVault",
+          "writable": true
+        },
+        {
+          "name": "poolAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  109,
+                  111,
+                  114,
+                  101,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "tokenMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tokenMint",
+          "writable": true
+        },
+        {
+          "name": "selfProgram"
+        },
+        {
+          "name": "tokenProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "trades",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "trade"
+              }
+            }
+          }
+        },
+        {
+          "name": "orderType",
+          "type": "u8"
+        },
+        {
+          "name": "inAmount",
+          "type": "u64"
+        },
+        {
+          "name": "minOutAmount",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "transferToken",
       "discriminator": [
         219,
@@ -1398,6 +1554,10 @@ export type HybirdTrade = {
         "kind": "struct",
         "fields": [
           {
+            "name": "poolId",
+            "type": "u64"
+          },
+          {
             "name": "orderId",
             "type": "u64"
           },
@@ -1413,6 +1573,10 @@ export type HybirdTrade = {
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "poolId",
+            "type": "u64"
+          },
           {
             "name": "orderId",
             "type": "u64"
@@ -1458,18 +1622,6 @@ export type HybirdTrade = {
             "type": "u64"
           },
           {
-            "name": "token",
-            "type": "pubkey"
-          },
-          {
-            "name": "orderType",
-            "type": {
-              "defined": {
-                "name": "orderType"
-              }
-            }
-          },
-          {
             "name": "owner",
             "type": "pubkey"
           },
@@ -1498,17 +1650,7 @@ export type HybirdTrade = {
             "type": "u64"
           },
           {
-            "name": "buyOrders",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "order"
-                }
-              }
-            }
-          },
-          {
-            "name": "sellOrders",
+            "name": "orders",
             "type": {
               "vec": {
                 "defined": {
@@ -1582,6 +1724,22 @@ export type HybirdTrade = {
           },
           {
             "name": "sell"
+          }
+        ]
+      }
+    },
+    {
+      "name": "trade",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "orderId",
+            "type": "u64"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
           }
         ]
       }
