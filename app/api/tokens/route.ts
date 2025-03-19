@@ -11,10 +11,16 @@ export async function GET(request: NextRequest) {
     const response = await axios.get(`https://tokens.jup.ag/tokens?tags=${tags}`);
     const tokens = response.data;
 
-    return NextResponse.json({
+    // Create response with 5-minute cache
+    const res = NextResponse.json({
       success: true,
       data: tokens,
     });
+
+    // Set cache control headers for 5 minutes (300 seconds)
+    res.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=60");
+
+    return res;
   } catch (error) {
     return NextResponse.json({
       error: error instanceof Error ? error.message || error.toString() : "Unknown Error",
