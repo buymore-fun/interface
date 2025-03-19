@@ -1,11 +1,11 @@
 import { useToken } from "@/hooks/use-token";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDownUp } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
-import { Skeleton } from "./ui/skeleton";
-import { TokenIcon } from "./token-icon";
+import { Skeleton } from "../ui/skeleton";
+import { TokenIcon } from "../token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useTokenBalance } from "@/hooks/use-token-balance";
 import { formatNumber } from "@/lib/utils";
@@ -16,7 +16,13 @@ import Market from "@/public/assets/token/market.svg";
 import Order from "@/public/assets/token/order.svg";
 import WalletIcon from "@/public/assets/token/wallet.svg";
 import Image from "next/image";
-import { Icon } from "./ui/icon";
+import { Icon, ChevronsUpDown } from "../ui/icon";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";
+import { Separator } from "@/components/ui/separator";
+import TooltipWrapper from "@/components/tooltip-wrapper";
+import { OrderPanelDexComparison } from "@/components/order-pannel/order-panel-dex-comparison";
+import { OrderPanelRouting } from "@/components/order-pannel/order-panel-routing";
+import { SlippageDialog } from "@/components/slippage-dialog";
 
 enum Tab {
   MARKET = "market",
@@ -24,6 +30,10 @@ enum Tab {
 }
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [slippage, setSlippage] = useState(0);
+  const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
+
   const [tab, setTab] = useState<Tab>(Tab.MARKET);
   // const [tab, setTab] = useState<Tab>(Tab.ORDER);
 
@@ -192,9 +202,9 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
               </Button>
               <div className="absolute inset-x-0 top-[50%] bg-border/60 h-[1px]" />
             </div>
-            <div className="p-4 rounded-b-lg bg-light-card/70 border border-primary rounded-lg z-100 relative">
+            <div className="pt-4 rounded-b-lg bg-light-card/70 border border-primary rounded-lg z-100 relative">
               {/* <div className="p-4 rounded-b-lg bg-light-card/70 "> */}
-              <div className="flex items-center justify-between h-6 ">
+              <div className="px-4 flex items-center justify-between h-6 ">
                 <span className="text-sm">Buying</span>
                 {tokenBBalance !== undefined ? (
                   <div className="flex items-center space-x-1 ">
@@ -207,7 +217,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   <Skeleton className="h-full w-24" />
                 ) : null}
               </div>
-              <div className="mt-2 flex">
+              <div className="mt-4 px-4 flex ">
                 {tokenB ? (
                   <Button variant="secondary" className="bg-light-card hover:bg-light-card px-2">
                     <TokenIcon token={tokenB} size="sm" />
@@ -229,18 +239,71 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   />
                 )}
               </div>
+
+              <Separator className="my-4 bg-[#797979]" />
+
+              <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
+                <OrderPanelRouting />
+
+                <CollapsibleContent className="space-y-2">
+                  <OrderPanelDexComparison />
+                </CollapsibleContent>
+
+                <div className="flex items-center justify-center">
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <ChevronsUpDown isOpen={isOpen} />
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+              </Collapsible>
             </div>
             <div className="my-3 text-sm flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <span className="text-white">Slippage</span>
-                <span>-</span>
+                <span>
+                  <div className="flex space-x-2 items-center">
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      className="text-muted-foreground "
+                      onClick={() => onPercentButtonClick(25)}
+                    >
+                      1%
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      className="text-muted-foreground"
+                      onClick={() => onPercentButtonClick(50)}
+                    >
+                      5%
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      className="text-muted-foreground"
+                      onClick={() => onPercentButtonClick(100)}
+                    >
+                      10%
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      className="text-muted-foreground"
+                      onClick={() => setSlippageDialogOpen(true)}
+                    >
+                      Custom
+                    </Button>
+                  </div>
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white">Smart ordering</span>
                 <span>-</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-primary-highlight">Buy more</span>
+                <span className="text-primary-highlight">Buymore</span>
                 <span className="text-primary/80">≈+9.999 $USDC</span>
               </div>
             </div>
@@ -351,6 +414,12 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </div>
         </TabsContent>
       </Tabs>
+
+      <SlippageDialog
+        onSlippageChange={setSlippage}
+        open={slippageDialogOpen}
+        onOpenChange={setSlippageDialogOpen}
+      />
     </div>
   );
 }

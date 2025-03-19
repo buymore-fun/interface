@@ -2,7 +2,7 @@
 
 import { Chart } from "@/components/chart";
 import { TokenInfo } from "@/components/token-info";
-import { OrderPanel } from "@/components/order-panel";
+import { OrderPanel } from "@/components/order-pannel/order-panel";
 import { Community } from "@/components/community";
 import { Overview } from "@/components/overview";
 import { Activities } from "@/components/activities";

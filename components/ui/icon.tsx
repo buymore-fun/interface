@@ -20,9 +20,9 @@ export function Icon({ name, className }: IconProps) {
           <path
             fill="none"
             stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="4"
             d="M42 19H6M30 7l12 12M6.799 29h36m-36 0l12 12"
           />
         </svg>
@@ -47,4 +47,39 @@ export function Icon({ name, className }: IconProps) {
     default:
       return null;
   }
+}
+
+interface ChevronsUpDownProps {
+  isOpen: boolean;
+}
+
+export function ChevronsUpDown({ isOpen }: ChevronsUpDownProps) {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("size-4", isOpen ? "rotate-180" : "")}
+    >
+      <rect opacity="0.01" width="15" height="15" fill="#26878D" />
+      <path
+        d="M13.405 7.71886C13.2337 7.54749 12.9554 7.54749 12.784 7.71886L7.1903 13.3111C7.01893 13.4825 7.01893 13.7607 7.1903 13.9321C7.36167 14.1035 7.63996 14.1035 7.81133 13.9321L13.4036 8.33989C13.5764 8.16852 13.5764 7.89023 13.405 7.71886Z"
+        fill="#26878D"
+      />
+      <path
+        d="M7.82592 13.3126L2.23076 7.71739C2.05939 7.54602 1.7811 7.54602 1.60973 7.71739C1.43836 7.88876 1.43836 8.16706 1.60973 8.33843L7.20489 13.9336C7.37626 14.105 7.65455 14.105 7.82592 13.9336C7.99729 13.7622 7.99729 13.4839 7.82592 13.3126Z"
+        fill="#26878D"
+      />
+      <path
+        d="M13.405 1.06945C13.2337 0.898075 12.9554 0.898075 12.784 1.06945L7.1903 6.66167C7.01893 6.83304 7.01893 7.11134 7.1903 7.28271C7.36167 7.45408 7.63996 7.45408 7.81133 7.28271L13.4036 1.69048C13.5764 1.51911 13.5764 1.24082 13.405 1.06945Z"
+        fill="#26878D"
+      />
+      <path
+        d="M7.82592 6.66314L2.23076 1.06798C2.05939 0.896611 1.7811 0.896611 1.60973 1.06798C1.43836 1.23935 1.43836 1.51764 1.60973 1.68901L7.20489 7.28417C7.37626 7.45554 7.65455 7.45554 7.82592 7.28417C7.99729 7.1128 7.99729 6.83451 7.82592 6.66314Z"
+        fill="#26878D"
+      />
+    </svg>
+  );
 }
