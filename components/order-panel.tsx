@@ -14,7 +14,9 @@ import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import Market from "@/public/assets/token/market.svg";
 import Order from "@/public/assets/token/order.svg";
+import WalletIcon from "@/public/assets/token/wallet.svg";
 import Image from "next/image";
+import { Icon } from "./ui/icon";
 
 enum Tab {
   MARKET = "market",
@@ -23,6 +25,7 @@ enum Tab {
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const [tab, setTab] = useState<Tab>(Tab.MARKET);
+  // const [tab, setTab] = useState<Tab>(Tab.ORDER);
 
   const token = useToken(tokenAddress);
   // console.log("🚀 ~ OrderPanel ~ token:", token);
@@ -86,6 +89,15 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">
+      {/* <div className="flex text-lg font-semibold">
+        <div className="flex-1 h-11 flex items-center justify-center cursor-pointer">
+          <span>Market</span>
+        </div>
+        <div className="flex-1 h-11 flex items-center justify-center text-muted-foreground bg-accent cursor-pointer">
+          <span>Order</span>
+        </div>
+      </div> */}
+
       <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
         <TabsList className="w-full grid grid-cols-2 h-11 text-lg font-semibold">
           <TabsTrigger
@@ -124,7 +136,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                     <Button
                       size="xs"
                       variant="secondary"
-                      className="text-muted-foreground"
+                      className="text-muted-foreground "
                       onClick={() => onPercentButtonClick(25)}
                     >
                       25%
@@ -180,8 +192,9 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
               </Button>
               <div className="absolute inset-x-0 top-[50%] bg-border/60 h-[1px]" />
             </div>
-            <div className="p-4 rounded-b-lg bg-light-card/70">
-              <div className="flex items-center justify-between h-6">
+            <div className="p-4 rounded-b-lg bg-light-card/70 border border-primary rounded-lg z-100 relative">
+              {/* <div className="p-4 rounded-b-lg bg-light-card/70 "> */}
+              <div className="flex items-center justify-between h-6 ">
                 <span className="text-sm">Buying</span>
                 {tokenBBalance !== undefined ? (
                   <div className="flex items-center space-x-1 ">
@@ -219,16 +232,16 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
             </div>
             <div className="my-3 text-sm flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Slippage</span>
+                <span className="text-white">Slippage</span>
                 <span>-</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Smart ordering</span>
+                <span className="text-white">Smart ordering</span>
                 <span>-</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Buy more</span>
-                <span>-</span>
+                <span className="text-primary-highlight">Buy more</span>
+                <span className="text-primary/80">≈+9.999 $USDC</span>
               </div>
             </div>
             {publicKey ? (
@@ -242,22 +255,102 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
             )}
           </div>
         </TabsContent>
+
         <TabsContent value={Tab.ORDER}>
           <div className="p-4">
-            {/* Order content will go here */}
-            <div className="text-center p-4">Order tab content</div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-muted-foreground">Order type: Buying</div>
+              <div className="text-sm text-muted-foreground flex items-center gap-1 ">
+                <Image src={WalletIcon} alt="Wallet" />
+                <span>999,999 SOL</span>
+              </div>
+            </div>
+
+            <div className="p-4 bg-accent border border-primary rounded-lg ">
+              <div className="flex items-center justify-between bg-light-card/70 p-2 rounded-lg h-[60px]">
+                <div className="flex items-center gap-2 ">
+                  <Image src="/assets/token/price.svg" width={28} height={28} alt="Price" />
+                  <div className="flex flex-col">
+                    <span>Price</span>
+                    <span className="text-xs text-muted-foreground">BOB/SOL</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center gap-1">
+                    <span>499.500</span>
+                    <Button variant="ghost" size="xs" className="p-0 h-auto">
+                      <Icon name="refresh" className="text-primary" />
+                    </Button>
+                  </div>
+                  <div className="flex items-start text-xs text-muted-foreground w-full">
+                    <span>≈$0.00345</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-3  gap-2">
+                <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
+                  {tokenA ? (
+                    <Button variant="ghost" className="px-0">
+                      <TokenIcon token={tokenA} size="sm" />
+                      {tokenA.symbol}
+                    </Button>
+                  ) : (
+                    <Skeleton className="h-9 w-24" />
+                  )}
+                  <Input
+                    className="border-none text-lg font-semibold text-right outline-none p-0"
+                    placeholder="0.00"
+                    value={tokenAAmount}
+                    onChange={(e) => setTokenAAmount(e.target.value)}
+                  />
+                </div>
+
+                <Button variant="ghost" size="icon">
+                  <Icon name="switch" className="text-primary" />
+                </Button>
+
+                <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
+                  {tokenB ? (
+                    <Button variant="ghost" className="px-0">
+                      <TokenIcon token={tokenB} size="sm" />
+                      {tokenB.symbol}
+                    </Button>
+                  ) : (
+                    <Skeleton className="h-9 w-24" />
+                  )}
+                  <Input
+                    className="border-none text-lg font-semibold text-right outline-none p-0 disabled:cursor-not-allowed"
+                    placeholder="0.00"
+                    value={tokenBAmount}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 text-sm text-muted-foreground text-right">
+              Fee: 0% (<span className="line-through">0.25%</span>)
+            </div>
+
+            <div className="mt-3">
+              {publicKey ? (
+                <Button className="w-full" size="lg" disabled={!tokenAAmount}>
+                  Submit
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={() => setConnectWalletModalOpen(true)}
+                >
+                  Connect Wallet
+                </Button>
+              )}
+            </div>
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* <div className="flex text-lg font-semibold">
-        <div className="flex-1 h-11 flex items-center justify-center cursor-pointer">
-          <span>Market</span>
-        </div>
-        <div className="flex-1 h-11 flex items-center justify-center text-muted-foreground bg-accent cursor-pointer">
-          <span>Order</span>
-        </div>
-      </div> */}
     </div>
   );
 }
