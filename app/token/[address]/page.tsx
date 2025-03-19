@@ -20,7 +20,6 @@ export default function Token() {
   const chartData = useChartData(address as string, chartType);
 
   const wallet = useWallet();
-  console.log("🚀 ~ Token ~ wallet:", wallet);
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">
