@@ -23,6 +23,10 @@ import TooltipWrapper from "@/components/tooltip-wrapper";
 import { OrderPanelDexComparison } from "@/components/order-pannel/order-panel-dex-comparison";
 import { OrderPanelRouting } from "@/components/order-pannel/order-panel-routing";
 import { SlippageDialog } from "@/components/slippage-dialog";
+import { atomWithStorage } from "jotai/utils";
+import { useAtom } from "jotai";
+
+const slippageAtom = atomWithStorage("slippage", 5);
 
 enum Tab {
   MARKET = "market",
@@ -31,7 +35,8 @@ enum Tab {
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [slippage, setSlippage] = useState(0);
+  const [slippage, setSlippage] = useAtom(slippageAtom);
+
   const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
 
   const [tab, setTab] = useState<Tab>(Tab.MARKET);

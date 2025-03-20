@@ -18,18 +18,13 @@ import {
   ORDER_BOOK_WITH_TOKEN_SEED,
   OrderType,
 } from "@/anchor/constants";
-import {
-  TOKEN_PROGRAM_ID as TOKEN_2022_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+import { TOKEN_2022_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
 
-const USDC_MINT = new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U");
-const tokenName = "USD Coin";
-// 9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U
+const usdcMintAddress = new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U");
 
 export function useHybirdTradeProgram() {
   const wallet = useWallet();
@@ -38,59 +33,82 @@ export function useHybirdTradeProgram() {
   // const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
   const provider = useAnchorProvider();
-  // console.log("🚀 ~ useHybirdTradeProgram ~ provider:", provider.wallet.publicKey?.toBase58());
-  // log provider cluster
-  // console.log("🚀 ~ useHybirdTradeProgram ~ provider:", provider.connection.rpcEndpoint);
 
   const program = useMemo(() => getHybirdTradeProgram(provider), [provider]);
 
   const SEEDS = useMemo(() => getSeeds(program), [program]);
 
-  // console.log( program.idl.constants)
+  const tokenName = "USD Coin";
+
+  // const [mint] = PublicKey.findProgramAddressSync(
+  //   [Buffer.from("token-2022-token"), wallet!.publicKey!.toBytes(), Buffer.from(tokenName)],
+  //   // MINT ADDRESS
+  //   usdcMintAddress
+  // );
+
+  // const [program_mint] = PublicKey.findProgramAddressSync(
+  //   [Buffer.from("token-2022-token"), program.programId.toBytes(), Buffer.from(tokenName)],
+  //   program.programId
+  // );
+
+  const mint = usdcMintAddress;
+
+  // const mintAddress = mint.toBase58();
+
+  const [payerATA] = PublicKey.findProgramAddressSync(
+    [wallet.publicKey!.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  const receiver = Keypair.generate();
+
+  const [receiverATA] = PublicKey.findProgramAddressSync(
+    [receiver.publicKey.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+  // console.log("🚀 ~ useHybirdTradeProgram ~ receiverATA:", receiverATA.toBase58());
 
   const [counter] = PublicKey.findProgramAddressSync(
-    // [Buffer.from(`buymore_order_counter_${VERSION}`)],
-    [SEEDS["orderCounterSeed"]],
+    [Buffer.from(ORDER_COUNTER_SEED)],
     program.programId
   );
   // console.log("🚀 ~ useHybirdTradeProgram ~ counter:", counter.toBase58());
 
   const [order_config] = PublicKey.findProgramAddressSync(
-    // [Buffer.from(`buymore_order_config_${VERSION}`)],
-    [SEEDS["orderConfigSeed"]],
+    [Buffer.from(ORDER_CONFIG_SEED)],
     program.programId
   );
 
-  const [pool_authority] = PublicKey.findProgramAddressSync(
-    // [ Buffer.from(`buymore_authority_${VERSION}`), USDC_MINT.toBytes() ],
-    [SEEDS["authoritySeed"], USDC_MINT.toBytes()],
+  const [contract_authority] = PublicKey.findProgramAddressSync(
+    [Buffer.from(AUTHORITY_SEED), mint.toBytes()],
     program.programId
   );
 
-  // const [ order_book_detail ] = PublicKey.findProgramAddressSync(
-  //     // [ Buffer.from(`buymore_order_detail_${VERSION}`), USDC_MINT.toBytes()],
-  //     [ SEEDS['orderDetailSeed'], USDC_MINT.toBytes()],
-  //     program.programId
-  // )
-
-  const [sol_vault] = PublicKey.findProgramAddressSync(
-    [SEEDS["solVaultSeed"], USDC_MINT.toBytes()],
+  const [order_book_detail] = PublicKey.findProgramAddressSync(
+    [Buffer.from(ORDER_BOOK_DETAIL_SEED), mint.toBytes()],
     program.programId
   );
+  console.log("🚀 ~ useHybirdTradeProgram ~ order_book_detail:", order_book_detail.toBase58());
 
-  const [token_vault] = PublicKey.findProgramAddressSync(
-    [pool_authority.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
+  const order_book = (owner, pool_id, type_v) => {
+    return PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(ORDER_BOOK_WITH_TOKEN_SEED),
+        new Uint8Array(pool_id.toArray("le", 8)),
+        new Uint8Array([type_v]),
+        // owner.toBytes(),
+        mint.toBytes(),
+      ],
+      program.programId
+    );
+  };
+
+  const [pool_account] = PublicKey.findProgramAddressSync(
+    [contract_authority.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mint.toBytes()],
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  console.log(`token_vault`, token_vault.toBase58());
-
-  // TODO TOKEN_2022_PROGRAM_ID dynamic
-  const [payer_ata] = PublicKey.findProgramAddressSync(
-    [wallet.publicKey!.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
-    ASSOCIATED_TOKEN_PROGRAM_ID
-  );
-  console.log(`payer_ata`, payer_ata.toBase58());
+  // console.log("🚀 ~ mintAddress ~ address:", mintAddress);
 
   const fetchPoolData = async () => {
     // const orderbook_data = await program.account.orderBook.fetch(mint);
@@ -103,27 +121,27 @@ export function useHybirdTradeProgram() {
     return order_book_detail_data;
   };
 
-  // const initializeBuymoreProgram = async () => {
-  //   const tx = new Transaction();
+  const initializeBuymoreProgram = async () => {
+    const tx = new Transaction();
 
-  //   const orderCounter = await program.account.orderCounter.fetch(counter);
-  //   // console.log("🚀 ~ initializeBuymoreProgram ~ orderCounter:", orderCounter.value);
-  //   const r = orderCounter.value.toNumber();
+    const orderCounter = await program.account.orderCounter.fetch(counter);
+    // console.log("🚀 ~ initializeBuymoreProgram ~ orderCounter:", orderCounter.value);
+    const r = orderCounter.value.toNumber();
 
-  //   // console.log("🚀 ~ initializeBuymoreProgram ~ wallet.publicKey:", wallet.publicKey?.toBase58());
-  //   const ix = await program.methods
-  //     .initialize(wallet.publicKey!)
-  //     .accounts({
-  //       payer: wallet.publicKey!,
-  //     })
-  //     .instruction();
+    // console.log("🚀 ~ initializeBuymoreProgram ~ wallet.publicKey:", wallet.publicKey?.toBase58());
+    const ix = await program.methods
+      .initialize(wallet.publicKey!)
+      .accounts({
+        payer: wallet.publicKey!,
+      })
+      .instruction();
 
-  //   tx.add(ix);
+    tx.add(ix);
 
-  //   const signature = await provider.sendAndConfirm(tx);
-  //   console.log("Your transaction signature", signature);
-  //   return signature;
-  // };
+    const signature = await provider.sendAndConfirm(tx);
+    console.log("Your transaction signature", signature);
+    return signature;
+  };
 
   const initializePool = async (amount: number) => {
     const tx = new Transaction();
@@ -132,9 +150,12 @@ export function useHybirdTradeProgram() {
       .initializePool(new BN(amount))
       .accounts({
         payer: wallet.publicKey!,
-        tokenMint: USDC_MINT,
+        tokenMint: mint,
+        // tokenMint: program_mint,
+        tokenVault: pool_account,
         config: order_config,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -165,21 +186,13 @@ export function useHybirdTradeProgram() {
     return sig;
   };
 
-  const addOrder = async (
-    in_amount: BN,
-    out_amount: BN,
-    order_type: number,
-    pool_id: BN,
-    expiryTime?: number
-  ) => {
+  const addSOLOrder = async (amount: number, price: number, expiryTime?: number) => {
     const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day by default
-
-    in_amount = new BN(10000);
-    out_amount = new BN(1000);
-    order_type = OrderType.Buy;
-    pool_id = new BN(1);
-
+    const in_amount = new BN(10000);
+    const out_amount = new BN(1000);
     const now_v = new BN(now);
+    const order_type = OrderType.Buy;
+    const pool_id = new BN(1);
 
     const tx = new Transaction();
 
@@ -187,11 +200,13 @@ export function useHybirdTradeProgram() {
       .addOrderToPool(pool_id, order_type, in_amount, out_amount, now_v)
       .accounts({
         payer: wallet.publicKey!,
-        tokenVault: token_vault,
-        fromAta: payer_ata,
-        mint: USDC_MINT,
+        orderBook: order_book(wallet.publicKey, pool_id, order_type),
+        tokenVault: pool_account,
+        fromAta: payerATA, // For SOL orders, this should be null or handled differently
+        mint: mint,
         counter: counter,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -203,46 +218,46 @@ export function useHybirdTradeProgram() {
     return signature;
   };
 
-  // const addTokenOrder = async (amount: number, price: number, expiryTime?: number) => {
-  //   const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
-  //   const in_amount = new BN(1000);
-  //   const out_amount = new BN(10000);
-  //   const now_v = new BN(now);
-  //   const order_type = OrderType.Sell;
-  //   const pool_id = new BN(2); // different pool id for different orderbook pool.
+  const addTokenOrder = async (amount: number, price: number, expiryTime?: number) => {
+    const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
+    const in_amount = new BN(1000);
+    const out_amount = new BN(10000);
+    const now_v = new BN(now);
+    const order_type = OrderType.Sell;
+    const pool_id = new BN(2); // different pool id for different orderbook pool.
 
-  //   const tx = new Transaction();
+    const tx = new Transaction();
 
-  //   const ix = await program.methods
-  //     .addOrderToPool(
-  //       pool_id,
-  //       order_type, // sell
-  //       in_amount,
-  //       out_amount,
-  //       now_v
-  //     )
-  //     .accounts({
-  //       payer: wallet.publicKey!,
-  //       orderBook: order_book(wallet.publicKey, pool_id, order_type),
-  //       tokenVault: pool_account,
-  //       fromAta: payerATA,
-  //       mint: mint,
-  //       counter: counter,
-  //       tokenProgram: TOKEN_2022_PROGRAM_ID,
-  //       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-  //     })
-  //     .instruction();
+    const ix = await program.methods
+      .addOrderToPool(
+        pool_id,
+        order_type, // sell
+        in_amount,
+        out_amount,
+        now_v
+      )
+      .accounts({
+        payer: wallet.publicKey!,
+        orderBook: order_book(wallet.publicKey, pool_id, order_type),
+        tokenVault: pool_account,
+        fromAta: payerATA,
+        mint: mint,
+        counter: counter,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      })
+      .instruction();
 
-  //   tx.add(ix);
+    tx.add(ix);
 
-  //   const signature = await provider.sendAndConfirm(tx);
-  //   console.log("Your transaction signature", signature);
-  //   transactionToast(signature);
-  //   return signature;
-  // };
+    const signature = await provider.sendAndConfirm(tx);
+    console.log("Your transaction signature", signature);
+    transactionToast(signature);
+    return signature;
+  };
 
-  const cancelOrder = async (poolId: number, orderType: number, orderId: number) => {
-    const pool_id = new BN(1);
+  const cancelOrder = async (orderType: number, orderId: number) => {
+    const pool_id = new BN(2);
     const order_type = OrderType.Sell;
     const cancel_order_id = new BN(3);
 
@@ -252,11 +267,13 @@ export function useHybirdTradeProgram() {
       .cancelOrder(pool_id, order_type, cancel_order_id)
       .accounts({
         payer: wallet.publicKey!,
-        tokenVault: token_vault,
+        orderBook: order_book(wallet.publicKey, pool_id, order_type),
+        tokenVault: pool_account,
+        tokenMint: mint,
         to: wallet.publicKey!,
-        toAta: payer_ata,
-        tokenMint: USDC_MINT,
+        toAta: payerATA,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .instruction();
 
@@ -272,8 +289,10 @@ export function useHybirdTradeProgram() {
     program,
     fetchPoolData,
     initializePool,
-    addOrder,
+    addSOLOrder,
+    addTokenOrder,
     cancelOrder,
+    initializeBuymoreProgram,
   };
 }
 

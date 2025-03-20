@@ -67,47 +67,47 @@ export function DemoPageContent() {
     }
   };
 
-  const handleInitializeBuymoreProgram = async () => {
-    setInitializingBuymoreProgram(true);
-    try {
-      await hybirdTradeProgram.initializeBuymoreProgram();
-    } catch (error) {
-      console.error("Failed to initialize buymore program:", error);
-    } finally {
-      setInitializingBuymoreProgram(false);
-    }
-  };
+  // const handleInitializeBuymoreProgram = async () => {
+  //   setInitializingBuymoreProgram(true);
+  //   try {
+  //     await hybirdTradeProgram.initializeBuymoreProgram();
+  //   } catch (error) {
+  //     console.error("Failed to initialize buymore program:", error);
+  //   } finally {
+  //     setInitializingBuymoreProgram(false);
+  //   }
+  // };
 
-  const handleAddSOLOrder = async () => {
+  const handleAddOrder = async () => {
     // if (!solAmount) return;
     setAddingSOLOrder(true);
 
     try {
-      await hybirdTradeProgram.addSOLOrder(10000, 1000);
+      await hybirdTradeProgram.addOrder(new BN(10000), new BN(1000), 0, new BN(1));
     } catch (error) {
-      console.error("Failed to add SOL order:", error);
+      console.error("Failed to add order:", error);
     } finally {
       setAddingSOLOrder(false);
     }
   };
 
-  const handleAddTokenOrder = async () => {
-    if (!tokenAmount) return;
-    setAddingTokenOrder(true);
-    try {
-      await hybirdTradeProgram.addTokenOrder(address as string, parseFloat(tokenAmount));
-    } catch (error) {
-      console.error("Failed to add token order:", error);
-    } finally {
-      setAddingTokenOrder(false);
-    }
-  };
+  // const handleAddTokenOrder = async () => {
+  //   if (!tokenAmount) return;
+  //   setAddingTokenOrder(true);
+  //   try {
+  //     await hybirdTradeProgram.addTokenOrder(address as string, parseFloat(tokenAmount));
+  //   } catch (error) {
+  //     console.error("Failed to add token order:", error);
+  //   } finally {
+  //     setAddingTokenOrder(false);
+  //   }
+  // };
 
   const handleCancelOrder = async () => {
     if (!orderId) return;
     setCancelingOrder(true);
     try {
-      await hybirdTradeProgram.cancelOrder(orderId);
+      await hybirdTradeProgram.cancelOrder(1, 1, +orderId);
     } catch (error) {
       console.error("Failed to cancel order:", error);
     } finally {
@@ -129,7 +129,7 @@ export function DemoPageContent() {
 
           {/* Hybrid Trade Functions UI */}
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle className="text-white">Initialize Buymore Program</CardTitle>
               </CardHeader>
@@ -147,7 +147,7 @@ export function DemoPageContent() {
                   </Button>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card>
               <CardHeader>
@@ -208,7 +208,7 @@ export function DemoPageContent() {
                     />
                   </div> */}
                   <Button
-                    onClick={handleAddSOLOrder}
+                    onClick={handleAddOrder}
                     // disabled={addingSOLOrder || !solAmount}
                     className="w-full"
                   >
@@ -225,7 +225,7 @@ export function DemoPageContent() {
               </CardContent>
             </Card>
 
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle className="text-white">Add Token Order</CardTitle>
                 <CardDescription>Create a new order with the current token</CardDescription>
@@ -262,7 +262,7 @@ export function DemoPageContent() {
                   </Button>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card>
               <CardHeader>
