@@ -29,7 +29,7 @@ export default function DemoPage() {
 }
 
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
-export function DemoPageContent() {
+function DemoPageContent() {
   const { address } = useParams();
   // console.log("🚀 ~ Token ~ chartData:", chartData);
   const wallet = useWallet();

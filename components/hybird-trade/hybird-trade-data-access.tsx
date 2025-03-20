@@ -92,16 +92,16 @@ export function useHybirdTradeProgram() {
   );
   console.log(`payer_ata`, payer_ata.toBase58());
 
-  const fetchPoolData = async () => {
-    // const orderbook_data = await program.account.orderBook.fetch(mint);
+  // const fetchPoolData = async () => {
+  //   // const orderbook_data = await program.account.orderBook.fetch(mint);
 
-    // return orderbook_data;
+  //   // return orderbook_data;
 
-    const order_book_detail_data = await program.account.orderBookDetail.fetch(order_book_detail);
-    console.log("🚀 ~ fetchPoolData ~ order_book_detail_data:", order_book_detail_data);
+  //   const order_book_detail_data = await program.account.orderBookDetail.fetch(order_book_detail);
+  //   console.log("🚀 ~ fetchPoolData ~ order_book_detail_data:", order_book_detail_data);
 
-    return order_book_detail_data;
-  };
+  //   return order_book_detail_data;
+  // };
 
   // const initializeBuymoreProgram = async () => {
   //   const tx = new Transaction();
@@ -270,7 +270,7 @@ export function useHybirdTradeProgram() {
 
   return {
     program,
-    fetchPoolData,
+    // fetchPoolData,
     initializePool,
     addOrder,
     cancelOrder,
