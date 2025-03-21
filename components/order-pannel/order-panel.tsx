@@ -2,7 +2,7 @@ import { useToken } from "@/hooks/use-token";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownUp } from "lucide-react";
+import { ArrowDownUp, Info } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
@@ -23,10 +23,12 @@ import TooltipWrapper from "@/components/tooltip-wrapper";
 import { OrderPanelDexComparison } from "@/components/order-pannel/order-panel-dex-comparison";
 import { OrderPanelRouting } from "@/components/order-pannel/order-panel-routing";
 import { SlippageDialog } from "@/components/slippage-dialog";
-import { atomWithStorage } from "jotai/utils";
 import { useAtom } from "jotai";
+import { Switch } from "@/components/ui/switch";
+import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/slippage-button";
+import { atomWithLocalStorage } from "@/hooks/atom-with-local-storage";
 
-const slippageAtom = atomWithStorage("slippage", 5);
+const slippageAtom = atomWithLocalStorage("slippage", 5);
 
 enum Tab {
   MARKET = "market",
@@ -87,6 +89,10 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
     const calculatedAmount = (+maxAmount * percent) / 100;
     setTokenAAmount(calculatedAmount.toString());
+  };
+
+  const onSlippageClick = (value: number) => {
+    setSlippage(value);
   };
 
   useEffect(() => {
@@ -268,48 +274,63 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                 <span className="text-white">Slippage</span>
                 <span>
                   <div className="flex space-x-2 items-center">
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      className="text-muted-foreground "
-                      onClick={() => onPercentButtonClick(25)}
-                    >
-                      1%
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      className="text-muted-foreground"
-                      onClick={() => onPercentButtonClick(50)}
-                    >
-                      5%
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      className="text-muted-foreground"
-                      onClick={() => onPercentButtonClick(100)}
-                    >
-                      10%
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      className="text-muted-foreground"
+                    <SlippageButton
+                      slippage={1}
+                      onClick={() => onSlippageClick(1)}
+                      selected={slippage === 1}
+                    />
+                    <SlippageButton
+                      slippage={5}
+                      onClick={() => onSlippageClick(5)}
+                      selected={slippage === 5}
+                    />
+                    <SlippageButton
+                      slippage={10}
+                      onClick={() => onSlippageClick(10)}
+                      selected={slippage === 10}
+                    />
+                    <SlippageCustomButton
                       onClick={() => setSlippageDialogOpen(true)}
-                    >
-                      Custom
-                    </Button>
+                      selected={![1, 5, 10].includes(slippage)}
+                    />
                   </div>
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white">Smart ordering</span>
-                <span>-</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-white">Smart ordering</span>
+                  <TooltipWrapper
+                    content={
+                      <div>
+                        {`We'll determine the fastest-executing order ratio based on current traders, volume, and orders to help you buy more.`}
+                        <br />
+                        Note: Tokens may not execute immediately—trade carefully.
+                      </div>
+                    }
+                  >
+                    <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+                  </TooltipWrapper>
+                  <span className="text-muted-foreground">0% Fee</span>
+                </div>
+                <span>
+                  <Switch color="primary" />
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-primary-highlight">Buymore</span>
                 <span className="text-primary/80">≈+9.999 $USDC</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Order</span>
+                <span className="text-muted-foreground">999.999(10%)</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Limit Price</span>
+                <span className="text-muted-foreground">$999.999</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Receive Amt</span>
+                <span className="text-muted-foreground">999.999 $USDC</span>
               </div>
             </div>
             {publicKey ? (

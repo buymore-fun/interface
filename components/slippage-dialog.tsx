@@ -28,7 +28,8 @@ export function SlippageDialog({ onSlippageChange, open, onOpenChange }: Slippag
   const [customSlippage, setCustomSlippage] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSlippageSubmit = () => {
+  const handleSlippageSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const slippage = parseFloat(customSlippage);
 
     try {

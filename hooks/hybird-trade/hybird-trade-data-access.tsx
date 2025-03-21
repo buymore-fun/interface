@@ -175,11 +175,6 @@ export function useHybirdTradeProgram(mintAddress: string) {
   ) => {
     const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 365; // 1day by default
 
-    in_amount = new BN(10000);
-    out_amount = new BN(1000);
-    order_type = OrderType.Buy;
-    pool_id = new BN(1);
-
     const now_v = new BN(now);
 
     const tx = new Transaction();
