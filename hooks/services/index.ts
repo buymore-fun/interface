@@ -1,0 +1,121 @@
+import {
+  IResponseActivityList,
+  IResponseCommunityDetail,
+  IResponseDashboardIndex,
+  IResponseOrderBook,
+  IResponseOrderbookDepth,
+  IResponseTradeHistory,
+} from "@/types";
+import axios from "axios";
+import useSWR from "swr";
+
+const BASE_URL = "https://api-test.buymore.fun/usurper";
+
+const axiosInstance = axios.create({
+  baseURL: BASE_URL,
+});
+
+// https://api-test.buymore.fun/usurper/dashboard/index?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&tt=all
+export function useDashboardIndex(params: { inputMint: string; tt?: string }) {
+  const { data, error, isLoading } = useSWR(`/dashboard/index`, async (url: string) => {
+    const response = await axiosInstance.get(url, {
+      params,
+    });
+    return response.data?.data as IResponseDashboardIndex;
+  });
+
+  return {
+    data,
+    error,
+    isLoading,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/community/detail?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
+export function useCommunityDetail(params: { inputMint: string }) {
+  const { data, error, isLoading, mutate } = useSWR(`/community/detail`, async (url: string) => {
+    const response = await axiosInstance.get(url, {
+      params,
+    });
+    return response.data?.data as IResponseCommunityDetail;
+  });
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/activity/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
+export function useActivityList(params: { inputMint: string }) {
+  const { data, error, isLoading, mutate } = useSWR(`/activity/list`, async (url: string) => {
+    const response = await axiosInstance.get(url, {
+      params,
+    });
+    return response.data?.data as IResponseActivityList;
+  });
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/my-order/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&address=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
+export function useOrdersList(params: { inputMint: string; address: string }) {
+  const { data, error, isLoading, mutate } = useSWR(`/my-order/list`, async (url: string) => {
+    const response = await axiosInstance.get(url, {
+      params,
+    });
+    return response.data.data as IResponseOrderBook;
+  });
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/trade-history/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&address=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
+export function useTradeHistoryList(params: { inputMint: string; address: string }) {
+  const { data, error, isLoading, mutate } = useSWR(`/trade-history/list`, async (url: string) => {
+    const response = await axiosInstance.get(url, {
+      params,
+    });
+    return response.data.data as IResponseTradeHistory;
+  });
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/orderbook/depth?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&output_mint=So11111111111111111111111111111111111111112&price=142.7
+export function useOrderbookDepth(params: {
+  inputMint: string;
+  outputMint: string;
+  price: number;
+}) {
+  const { data, error, isLoading, mutate } = useSWR(`/orderbook/depth`, async (url: string) => {
+    const response = await axiosInstance.get(url, {
+      params,
+    });
+    return response.data?.data as IResponseOrderbookDepth;
+  });
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
