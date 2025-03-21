@@ -25,7 +25,7 @@ function ExplorerLink({
   className: string;
 }) {
   return (
-    <a href={`https://explorer.solana.com/${path}`} className={className}>
+    <a href={`https://explorer.solana.com/${path}`} target="_blank" className={className}>
       {label}
     </a>
   );

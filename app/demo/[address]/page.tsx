@@ -9,9 +9,9 @@ import { Activities } from "@/components/activities";
 import { useParams } from "next/navigation";
 import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChartType } from "@/types/chart";
-import { useHybirdTradeProgram } from "@/components/hybird-trade/hybird-trade-data-access";
+import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,8 +19,23 @@ import { Label } from "@/components/ui/label";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletAuth } from "@/components/wallet-auth";
 import { BN } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { atomWithStorage } from "jotai/utils";
+import { OrderType } from "@/anchor/constants";
+import { useAtom } from "jotai";
 
 export default function DemoPage() {
+  const { address } = useParams();
+
+  const isVerified = useMemo(() => {
+    return PublicKey.isOnCurve(address as string);
+  }, [address]);
+
+  if (!isVerified) {
+    return <div>Invalid Token Address</div>;
+  }
+
   return (
     <WalletAuth>
       <DemoPageContent />
@@ -28,19 +43,29 @@ export default function DemoPage() {
   );
 }
 
-// http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
+const inAmountStorage = atomWithStorage("demo_in_amount", "");
+const outAmountStorage = atomWithStorage("demo_out_amount", "");
+const orderTypeStorage = atomWithStorage("demo_order_type", OrderType.Buy);
+const poolIdStorage = atomWithStorage("demo_pool_id", 1);
+
+// http://localhost:3000/demo/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U
 function DemoPageContent() {
   const { address } = useParams();
-  // console.log("🚀 ~ Token ~ chartData:", chartData);
+
   const wallet = useWallet();
 
-  const hybirdTradeProgram = useHybirdTradeProgram();
+  const hybirdTradeProgram = useHybirdTradeProgram(address as string);
 
   // State for form inputs
   const [poolAmount, setPoolAmount] = useState("");
   const [solAmount, setSolAmount] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [orderId, setOrderId] = useState("");
+
+  const [inAmount, setInAmount] = useAtom(inAmountStorage);
+  const [outAmount, setOutAmount] = useAtom(outAmountStorage);
+  const [orderType, setOrderType] = useAtom(orderTypeStorage);
+  const [poolId, setPoolId] = useAtom(poolIdStorage);
 
   // Loading states
   const [initializingBuymoreProgram, setInitializingBuymoreProgram] = useState(false);
@@ -193,20 +218,65 @@ function DemoPageContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* <div className="space-y-2">
-                    <Label htmlFor="solAmount" className="text-white">
-                      SOL Amount
+                  <div className="space-y-2">
+                    <Label htmlFor="inAmount" className="text-white">
+                      In Amount
                     </Label>
                     <Input
-                      id="solAmount"
-                      value={solAmount}
-                      onChange={(e) => setSolAmount(e.target.value)}
-                      placeholder="Enter SOL amount"
+                      id="inAmount"
+                      value={inAmount}
+                      onChange={(e) => setInAmount(e.target.value)}
+                      placeholder="Enter in amount"
                       type="number"
                       step="0.01"
                       className="text-white"
                     />
-                  </div> */}
+                    <Label htmlFor="outAmount" className="text-white">
+                      Out Amount
+                    </Label>
+                    <Input
+                      id="outAmount"
+                      value={outAmount}
+                      onChange={(e) => setOutAmount(e.target.value)}
+                      placeholder="Enter out amount"
+                      type="number"
+                      step="0.01"
+                      className="text-white"
+                    />
+                    <Label htmlFor="orderType" className="text-white">
+                      Order Type
+                    </Label>
+                    <RadioGroup
+                      id="orderType"
+                      value={orderType.toString()}
+                      onValueChange={(value) => setOrderType(Number(value))}
+                      className="flex flex-col space-y-1"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value={`${OrderType.Buy}`} id="buy" />
+                        <Label htmlFor="buy" className="text-white">
+                          Buy
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value={`${OrderType.Sell}`} id="sell" />
+                        <Label htmlFor="sell" className="text-white">
+                          Sell
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    <Label htmlFor="poolId" className="text-white">
+                      Pool ID
+                    </Label>
+                    <Input
+                      id="poolId"
+                      value={poolId}
+                      onChange={(e) => setPoolId(Number(e.target.value))}
+                      placeholder="Enter pool ID"
+                      type="number"
+                      className="text-white"
+                    />
+                  </div>
                   <Button
                     onClick={handleAddOrder}
                     // disabled={addingSOLOrder || !solAmount}

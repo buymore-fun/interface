@@ -19,6 +19,7 @@ import {
   OrderType,
 } from "@/anchor/constants";
 import {
+  // TODO  default is TOKEN_PROGRAM_ID, add dynamic params
   TOKEN_PROGRAM_ID as TOKEN_2022_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -28,10 +29,10 @@ import {
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
 
 const USDC_MINT = new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U");
-const tokenName = "USD Coin";
+// const tokenName = "USD Coin";
 // 9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U
 
-export function useHybirdTradeProgram() {
+export function useHybirdTradeProgram(mintAddress: string) {
   const wallet = useWallet();
 
   const { connection } = useConnection();
@@ -172,7 +173,7 @@ export function useHybirdTradeProgram() {
     pool_id: BN,
     expiryTime?: number
   ) => {
-    const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day by default
+    const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 365; // 1day by default
 
     in_amount = new BN(10000);
     out_amount = new BN(1000);
