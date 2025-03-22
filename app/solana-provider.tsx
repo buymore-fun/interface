@@ -12,10 +12,11 @@ import { clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import { config, getWalletAdapterNetwork } from "@/config";
 
 export function SolanaProvider({ children }: PropsWithChildren) {
   // const network = WalletAdapterNetwork.Mainnet;
-  const network = WalletAdapterNetwork.Devnet;
+  const network = config.walletAdapterNetwork;
 
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(

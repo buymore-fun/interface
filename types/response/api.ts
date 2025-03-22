@@ -1,3 +1,5 @@
+import { IResponseCommonList } from "./common";
+
 export interface IResponseDashboardIndex {
   orders: string;
   total_volume: string;
@@ -50,10 +52,10 @@ interface IOrder {
   side: "SELL" | "BUY";
 }
 
-export interface IResponseActivityList {
-  items: IActivityItem[];
-  page_no: number;
-  total_page: number;
+export interface IResponseActivityList extends IResponseCommonList<IActivityItem> {
+  query?: {
+    input_mint: string;
+  };
 }
 
 interface IActivityItem {
@@ -74,14 +76,14 @@ interface IActivityItem {
   type: "sell" | "buy";
   usd: string;
 }
-export interface IResponseTradeHistory {
-  items: ITradeHistoryItem[];
-  page_no: number;
-  total_page: number;
-}
 
 interface ITradeHistoryItem {
-  amount: string;
+  amount: {
+    buy: string;
+    coin_name: string;
+    sell: string;
+    symbol: string;
+  };
   buymore: {
     address: string;
     amount: string;
@@ -97,6 +99,19 @@ interface ITradeHistoryItem {
   tx: string;
   type: "sell" | "buy";
   usd: string;
+  from: string;
+  receive: {
+    amount: string;
+    coin_name: string;
+    symbol: string;
+  };
+}
+
+export interface IResponseTradeHistoryList extends IResponseCommonList<ITradeHistoryItem> {
+  query?: {
+    input_mint: string;
+    address: string;
+  };
 }
 
 interface IOrderbookDepthItem {
@@ -106,8 +121,36 @@ interface IOrderbookDepthItem {
   type: "sell" | "buy";
 }
 
-export interface IResponseOrderbookDepth {
-  items: IOrderbookDepthItem[];
-  page_no: number;
-  total_page: number;
+export interface IResponseOrderbookDepth extends IResponseCommonList<IOrderbookDepthItem> {
+  query?: {
+    input_mint: string;
+  };
+}
+
+interface IMyOrderItem {
+  amount: {
+    buy: string;
+    coin_name: string;
+    sell: string;
+    symbol: string;
+  };
+  price: string;
+  receive: {
+    amount: string;
+    coin_name: string;
+    symbol: string;
+  };
+  time: number;
+  tx: string;
+  type: "sell" | "buy";
+  usd: string;
+  id?: string;
+  symbol?: string;
+}
+
+export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> {
+  query?: {
+    input_mint: string;
+    address: string;
+  };
 }
