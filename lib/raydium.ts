@@ -7,9 +7,8 @@ export const txVersion = TxVersion.V0; // or TxVersion.LEGACY
 const cluster = "devnet";
 
 let raydium: Raydium | undefined;
-export const initSdk = async (params?: { loadToken?: boolean; owner: Keypair }) => {
-  if (raydium && raydium.ownerPubKey.equals(params?.owner.publicKey || new PublicKey("")))
-    return raydium;
+export const initSdk = async (params?: { loadToken?: boolean; owner: PublicKey }) => {
+  if (raydium && raydium.ownerPubKey.equals(params?.owner || new PublicKey(""))) return raydium;
   if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta"))
     console.warn(
       "using free rpc node might cause unexpected error, strongly suggest uses paid rpc node"

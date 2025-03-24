@@ -6,6 +6,7 @@ import { ConnectWalletModal } from "@/components/connect-wallet-modal";
 import { SolanaProvider } from "@/app/solana-provider";
 import { ReactQueryProvider } from "@/app/react-query-provider";
 import { Toaster } from "react-hot-toast";
+import { GlobalInit } from "@/components/global-init";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ReactQueryProvider>
           <SolanaProvider>
+            <GlobalInit />
             <div className="flex min-h-screen w-screen flex-col">
               <Topbar />
               <div className="flex flex-1 flex-col p-4 overflow-y-auto">
