@@ -28,11 +28,31 @@ export interface IResponseCommunityDetail {
     value: string;
   };
   contact: {
-    enable: boolean;
-    logo: string;
-    url: string;
-    order?: number;
-  }[];
+    dex: {
+      enable: boolean;
+      logo: string;
+      order: number;
+      url: string;
+    };
+    tg: {
+      enable: boolean;
+      logo: string;
+      order: number;
+      url: string;
+    };
+    web: {
+      enable: boolean;
+      logo: string;
+      order: number;
+      url: string;
+    };
+    x: {
+      enable: boolean;
+      logo: string;
+      order: number;
+      url: string;
+    };
+  };
   holders: {
     url: string;
     value: string;

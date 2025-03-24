@@ -8,3 +8,7 @@ export function formatTimeAgo(timestamp: number | string | Date): string {
 export function formatTime(timestamp: number | string | Date): string {
   return moment(timestamp).format("HH:mm MM/DD");
 }
+
+export function formatTimeToFull(timestamp: number): string {
+  return moment.unix(timestamp).format("HH:mm MM/DD/YYYY");
+}
