@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { initSdk } from "@/lib/raydium";
+import { initSdk } from "@/lib/raydium/config";
 
 /**
  * GlobalInit component handles application-wide initialization
@@ -19,8 +19,8 @@ export function GlobalInit() {
 
   // Log wallet connection status changes
   useEffect(() => {
-    if (connected) {
-      // console.log("Wallet connected:", publicKey?.toString());
+    if (connected && publicKey) {
+      console.log("Wallet connected:", publicKey?.toString());
       initSdk({ owner: publicKey! });
     }
   }, [connected, publicKey]);

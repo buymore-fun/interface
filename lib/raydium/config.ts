@@ -61,3 +61,12 @@ export const fetchTokenAccountData = async (owner: Keypair) => {
   });
   return tokenAccountData;
 };
+
+export const getRaydium = () => {
+  return raydium;
+};
+
+export const getPoolInfo = async (poolId: string) => {
+  const data = await raydium?.liquidity.getPoolInfoFromRpc({ poolId });
+  return data;
+};

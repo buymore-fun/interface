@@ -84,14 +84,14 @@ export function useHybirdTradeProgram(mintAddress: string) {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  console.log(`token_vault`, token_vault.toBase58());
+  // console.log(`token_vault`, token_vault.toBase58());
 
   // TODO TOKEN_2022_PROGRAM_ID dynamic
   const [payer_ata] = PublicKey.findProgramAddressSync(
     [wallet.publicKey!.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
-  console.log(`payer_ata`, payer_ata.toBase58());
+  // console.log(`payer_ata`, payer_ata.toBase58());
 
   // const fetchPoolData = async () => {
   //   // const orderbook_data = await program.account.orderBook.fetch(mint);

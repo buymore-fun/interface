@@ -19,12 +19,15 @@ import { Label } from "@/components/ui/label";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletAuth } from "@/components/wallet-auth";
 import { BN } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { atomWithStorage } from "jotai/utils";
 import { OrderType } from "@/anchor/constants";
 import { useAtom } from "jotai";
-
+import { swap } from "@/lib/raydium/swap";
+import { connection, getPoolInfo } from "@/lib/raydium/config";
+import { useAnchorProvider } from "@/app/solana-provider";
+import { useTransactionToast } from "@/hooks/use-transaction-toast";
 export default function DemoPage() {
   const { address } = useParams();
 
@@ -66,6 +69,7 @@ function DemoPageContent() {
   const [outAmount, setOutAmount] = useAtom(outAmountStorage);
   const [orderType, setOrderType] = useAtom(orderTypeStorage);
   const [poolId, setPoolId] = useAtom(poolIdStorage);
+  const transactionToast = useTransactionToast();
 
   // Loading states
   const [initializingBuymoreProgram, setInitializingBuymoreProgram] = useState(false);
@@ -73,6 +77,31 @@ function DemoPageContent() {
   const [addingSOLOrder, setAddingSOLOrder] = useState(false);
   const [addingTokenOrder, setAddingTokenOrder] = useState(false);
   const [cancelingOrder, setCancelingOrder] = useState(false);
+  const [swapping, setSwapping] = useState(false);
+  const [poolInfo, setPoolInfo] = useState<any>(null);
+  const [raydiumPoolId, setRaydiumPoolId] = useState<string>(
+    "26auA3dMfiqK8SWBCkzShhkaSTbbWYQ3jrwhBQZCW5gT"
+  );
+
+  const provider = useAnchorProvider();
+
+  const handleSwap = async () => {
+    try {
+      setSwapping(true);
+      const poolInfo = await getPoolInfo(raydiumPoolId);
+      setPoolInfo(poolInfo?.poolInfo);
+      const transaction = await swap();
+
+      // Sign the transaction with the wallet
+      const signature = await provider!.sendAndConfirm(transaction);
+
+      transactionToast(signature);
+    } catch (error) {
+      console.error("Failed to swap:", error);
+    } finally {
+      setSwapping(false);
+    }
+  };
 
   const handleInitializePool = async () => {
     // if (!poolAmount) return;
@@ -366,6 +395,46 @@ function DemoPageContent() {
                       </>
                     ) : (
                       <span className="text-white">Cancel Order</span>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Swap</CardTitle>
+                <CardDescription>Swap tokens</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="raydiumPoolId" className="text-white">
+                      Raydium Pool ID
+                    </Label>
+                    <Input
+                      id="raydiumPoolId"
+                      value={raydiumPoolId}
+                      onChange={(e) => setRaydiumPoolId(e.target.value)}
+                      placeholder="Enter Raydium pool ID"
+                      className="text-white"
+                    />
+                    {poolInfo && (
+                      <div>
+                        <Label htmlFor="poolInfo" className="text-white">
+                          pool price: {poolInfo.price}
+                        </Label>
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={handleSwap} className="w-full" variant="default">
+                    {swapping ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Swapping...
+                      </>
+                    ) : (
+                      <span className="text-white">Swap</span>
                     )}
                   </Button>
                 </div>
