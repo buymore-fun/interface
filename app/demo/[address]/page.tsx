@@ -85,6 +85,8 @@ function DemoPageContent() {
     "26auA3dMfiqK8SWBCkzShhkaSTbbWYQ3jrwhBQZCW5gT"
   );
 
+  const [allPoolInfo, setAllPoolInfo] = useState<any>(null);
+
   const [tokenMintAddress, setTokenMintAddress] = useState<string>(
     "9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U"
   );
@@ -100,6 +102,18 @@ function DemoPageContent() {
 
     console.log("🚀 ~ fetchPoolByMints ~ poolByMints:", poolByMints);
     setPoolByMints(poolByMints);
+  };
+
+  const getAllPoolInfo = async () => {
+    try {
+      // const allPoolInfo = await raydium?.liquidity.getRpcPoolInfos([raydiumPoolId]);
+      const allPoolInfo = await raydium?.liquidity.getPoolInfoFromRpc({ poolId: raydiumPoolId });
+      setAllPoolInfo(allPoolInfo);
+    } catch (error) {
+      console.error("Failed to swap:", error);
+    } finally {
+      setSwapping(false);
+    }
   };
 
   const handleSwap = async () => {
@@ -487,6 +501,39 @@ function DemoPageContent() {
                     ) : (
                       <span className="text-white">Swap</span>
                     )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Get Pool Info</CardTitle>
+                <CardDescription>Get pool info</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="raydiumPoolId" className="text-white">
+                      Raydium Pool ID
+                    </Label>
+                    <Input
+                      id="raydiumPoolId"
+                      value={raydiumPoolId}
+                      onChange={(e) => setRaydiumPoolId(e.target.value)}
+                      placeholder="Enter Raydium pool ID"
+                      className="text-white"
+                    />
+                    {allPoolInfo && (
+                      <div className="space-y-2">
+                        <pre className="bg-gray-800 text-white p-2 rounded-md text-xs overflow-auto max-h-40">
+                          {JSON.stringify(allPoolInfo, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={getAllPoolInfo} className="w-full" variant="default">
+                    Get Pool Info
                   </Button>
                 </div>
               </CardContent>
