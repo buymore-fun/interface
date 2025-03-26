@@ -1,5 +1,5 @@
 import { ApiV3PoolInfoStandardItem, AmmV4Keys, AmmRpcData } from "@raydium-io/raydium-sdk-v2";
-import { getRaydium, initSdk, txVersion } from "./config";
+import { raydium as raydiumInstance, txVersion } from "./config";
 import BN from "bn.js";
 import { isValidAmm } from "./utils";
 import Decimal from "decimal.js";
@@ -7,7 +7,7 @@ import { NATIVE_MINT } from "@solana/spl-token";
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 
 export const swap = async () => {
-  const raydium = getRaydium()!;
+  const raydium = raydiumInstance!;
 
   const amountIn = 1 * LAMPORTS_PER_SOL;
   const inputMint = NATIVE_MINT.toBase58();
@@ -30,7 +30,7 @@ export const swap = async () => {
     // note: getPoolInfoFromRpc method only return required pool data for computing not all detail pool info
     const data = await raydium.liquidity.getPoolInfoFromRpc({ poolId });
     poolInfo = data.poolInfo;
-    console.log("🚀 ~ swap ~ poolInfo:", poolInfo);
+    // console.log("🚀 ~ swap ~ poolInfo:", poolInfo);
     poolKeys = data.poolKeys;
     rpcData = data.poolRpcData;
   }

@@ -6,7 +6,7 @@ export const connection = new Connection(clusterApiUrl("devnet")); //<YOUR_RPC_U
 export const txVersion = TxVersion.V0; // or TxVersion.LEGACY
 const cluster = "devnet";
 
-let raydium: Raydium | undefined;
+export let raydium: Raydium | undefined;
 export const initSdk = async (params?: { loadToken?: boolean; owner: PublicKey }) => {
   if (raydium && raydium.ownerPubKey.equals(params?.owner || new PublicKey(""))) return raydium;
   if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta"))
@@ -60,13 +60,4 @@ export const fetchTokenAccountData = async (owner: Keypair) => {
     },
   });
   return tokenAccountData;
-};
-
-export const getRaydium = () => {
-  return raydium;
-};
-
-export const getPoolInfo = async (poolId: string) => {
-  const data = await raydium?.liquidity.getPoolInfoFromRpc({ poolId });
-  return data;
 };

@@ -25,9 +25,11 @@ import { atomWithStorage } from "jotai/utils";
 import { OrderType } from "@/anchor/constants";
 import { useAtom } from "jotai";
 import { swap } from "@/lib/raydium/swap";
-import { connection, getPoolInfo } from "@/lib/raydium/config";
+import { connection, raydium } from "@/lib/raydium/config";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
+import { NATIVE_MINT } from "@solana/spl-token";
+import { PoolsApiReturn } from "@raydium-io/raydium-sdk-v2";
 export default function DemoPage() {
   const { address } = useParams();
 
@@ -83,13 +85,29 @@ function DemoPageContent() {
     "26auA3dMfiqK8SWBCkzShhkaSTbbWYQ3jrwhBQZCW5gT"
   );
 
+  const [tokenMintAddress, setTokenMintAddress] = useState<string>(
+    "9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U"
+  );
+  const [poolByMints, setPoolByMints] = useState<PoolsApiReturn>();
+
   const provider = useAnchorProvider();
+
+  const fetchPoolByMints = async () => {
+    const poolByMints = await raydium?.api.fetchPoolByMints({
+      mint1: NATIVE_MINT,
+      mint2: new PublicKey(tokenMintAddress),
+    });
+
+    console.log("🚀 ~ fetchPoolByMints ~ poolByMints:", poolByMints);
+    setPoolByMints(poolByMints);
+  };
 
   const handleSwap = async () => {
     try {
       setSwapping(true);
-      const poolInfo = await getPoolInfo(raydiumPoolId);
+      const poolInfo = await raydium?.liquidity.getPoolInfoFromRpc({ poolId: raydiumPoolId });
       setPoolInfo(poolInfo?.poolInfo);
+      console.log("🚀 ~ handleSwap ~ poolInfo:", poolInfo);
       const transaction = await swap();
 
       // Sign the transaction with the wallet
@@ -396,6 +414,39 @@ function DemoPageContent() {
                     ) : (
                       <span className="text-white">Cancel Order</span>
                     )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Raydium Pool By Mint Address</CardTitle>
+                <CardDescription>Raydium pool info by mint address</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tokenMintAddress" className="text-white">
+                      Token Mint Address
+                    </Label>
+                    <Input
+                      id="tokenMintAddress"
+                      value={tokenMintAddress}
+                      onChange={(e) => setTokenMintAddress(e.target.value)}
+                      placeholder="Enter token mint address"
+                      className="text-white"
+                    />
+                  </div>
+                  {poolByMints && (
+                    <div className="mt-4 p-4 bg-gray-800 rounded-md overflow-auto max-h-96">
+                      <pre className="text-xs text-white whitespace-pre-wrap">
+                        {JSON.stringify(poolByMints, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                  <Button onClick={fetchPoolByMints} className="w-full" variant="default">
+                    Fetch Pool By Mint Address
                   </Button>
                 </div>
               </CardContent>
