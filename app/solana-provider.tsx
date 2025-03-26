@@ -34,6 +34,7 @@ export function SolanaProvider({ children }: PropsWithChildren) {
        * in the npm package `@solana/wallet-adapter-wallets`.
        */
       // new UnsafeBurnerWalletAdapter(),
+      new PhantomWalletAdapter(),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [network]

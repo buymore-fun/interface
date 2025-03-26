@@ -27,6 +27,8 @@ import { useAtom } from "jotai";
 import { Switch } from "@/components/ui/switch";
 import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/slippage-button";
 import { atomWithLocalStorage } from "@/hooks/atom-with-local-storage";
+import { OrderType } from "@/anchor/constants";
+import { usePoolPrepareId } from "@/hooks/services";
 
 const slippageAtom = atomWithLocalStorage("slippage", 5);
 
@@ -41,8 +43,8 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
   const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
 
-  const [tab, setTab] = useState<Tab>(Tab.MARKET);
-  // const [tab, setTab] = useState<Tab>(Tab.ORDER);
+  // const [tab, setTab] = useState<Tab>(Tab.MARKET);
+  const [tab, setTab] = useState<Tab>(Tab.ORDER);
 
   const token = useToken(tokenAddress);
   // console.log("🚀 ~ OrderPanel ~ token:", token);
@@ -65,11 +67,6 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
   const [tokenA, tokenB] = useMemo(
     () => (isReverse ? [SOL, token] : [token, SOL]),
     [isReverse, token, SOL]
-  );
-
-  const [tokenABalance, tokenBBalance] = useMemo(
-    () => (isReverse ? [SOLBalance, tokenBalance] : [tokenBalance, SOLBalance]),
-    [isReverse, tokenBalance, SOLBalance]
   );
 
   const toggleToken = () => {
@@ -95,6 +92,41 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
     setSlippage(value);
   };
 
+  const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
+  const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
+  const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
+
+  const [tokenABalance, tokenBBalance] = useMemo(
+    () => (isReverse ? [SOLBalance, tokenBalance] : [tokenBalance, SOLBalance]),
+    [isReverse, tokenBalance, SOLBalance]
+  );
+
+  const [orderTokenA, orderTokenB] = useMemo(
+    () => (orderType === OrderType.Buy ? [SOL, token] : [token, SOL]),
+    [orderType, token, SOL]
+  );
+
+  const [orderTokenABalance, orderTokenBBalance] = useMemo(
+    () => (orderType === OrderType.Buy ? [SOLBalance, tokenBalance] : [tokenBalance, SOLBalance]),
+    [orderType, tokenBalance, SOLBalance]
+  );
+
+  const toggleOrderType = () => {
+    setOrderType(orderType === OrderType.Buy ? OrderType.Sell : OrderType.Buy);
+  };
+
+  const refreshTokenPrice = () => {
+    console.log("refresh token price");
+  };
+
+  const handleSubmitOrder = () => {
+    // const { data: poolIdData } = usePoolPrepareId({
+    //   token: tokenA.address,
+    //   order_type: orderType,
+    // });
+    // console.log("submit order");
+  };
+
   useEffect(() => {
     if (!tokenAAmount) {
       setIsQuoting(false);
@@ -110,15 +142,6 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">
-      {/* <div className="flex text-lg font-semibold">
-        <div className="flex-1 h-11 flex items-center justify-center cursor-pointer">
-          <span>Market</span>
-        </div>
-        <div className="flex-1 h-11 flex items-center justify-center text-muted-foreground bg-accent cursor-pointer">
-          <span>Order</span>
-        </div>
-      </div> */}
-
       <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
         <TabsList className="w-full grid grid-cols-2 h-11 text-lg font-semibold">
           <TabsTrigger
@@ -348,10 +371,16 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
         <TabsContent value={Tab.ORDER}>
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-muted-foreground">Order type: Buying</div>
+              <div className="text-sm text-muted-foreground">
+                Order type: {orderType === OrderType.Buy ? "Buying" : "Selling"}
+              </div>
               <div className="text-sm text-muted-foreground flex items-center gap-1 ">
                 <Image src={WalletIcon} alt="Wallet" />
-                <span>999,999 SOL</span>
+                <span>
+                  {orderType === OrderType.Buy
+                    ? `${orderTokenABalance} ${orderTokenA?.symbol}`
+                    : `${orderTokenBBalance} ${orderTokenB?.symbol}`}
+                </span>
               </div>
             </div>
 
@@ -367,7 +396,14 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                 <div className="flex flex-col items-end">
                   <div className="flex items-center gap-1">
                     <span>499.500</span>
-                    <Button variant="ghost" size="xs" className="p-0 h-auto">
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="p-0 h-auto"
+                      onClick={() => {
+                        refreshTokenPrice();
+                      }}
+                    >
                       <Icon name="refresh" className="text-primary" />
                     </Button>
                   </div>
@@ -379,10 +415,10 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
               <div className="flex items-center justify-between py-3  gap-2">
                 <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
-                  {tokenA ? (
+                  {orderTokenA ? (
                     <Button variant="ghost" className="px-0">
-                      <TokenIcon token={tokenA} size="sm" />
-                      {tokenA.symbol}
+                      <TokenIcon token={orderTokenA} size="sm" />
+                      {orderTokenA.symbol}
                     </Button>
                   ) : (
                     <Skeleton className="h-9 w-24" />
@@ -390,20 +426,26 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   <Input
                     className="border-none text-lg font-semibold text-right outline-none p-0"
                     placeholder="0.00"
-                    value={tokenAAmount}
-                    onChange={(e) => setTokenAAmount(e.target.value)}
+                    value={orderTokenAAmount}
+                    onChange={(e) => setOrderTokenAAmount(e.target.value)}
                   />
                 </div>
 
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    toggleOrderType();
+                  }}
+                >
                   <Icon name="switch" className="text-primary" />
                 </Button>
 
                 <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
-                  {tokenB ? (
+                  {orderTokenB ? (
                     <Button variant="ghost" className="px-0">
-                      <TokenIcon token={tokenB} size="sm" />
-                      {tokenB.symbol}
+                      <TokenIcon token={orderTokenB} size="sm" />
+                      {orderTokenB.symbol}
                     </Button>
                   ) : (
                     <Skeleton className="h-9 w-24" />
@@ -411,7 +453,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
                   <Input
                     className="border-none text-lg font-semibold text-right outline-none p-0 disabled:cursor-not-allowed"
                     placeholder="0.00"
-                    value={tokenBAmount}
+                    value={orderTokenBAmount}
                     disabled={true}
                   />
                 </div>
@@ -424,7 +466,12 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
 
             <div className="mt-3">
               {publicKey ? (
-                <Button className="w-full" size="lg" disabled={!tokenAAmount}>
+                <Button
+                  className="w-full"
+                  size="lg"
+                  disabled={!orderTokenAAmount}
+                  onClick={handleSubmitOrder}
+                >
                   Submit
                 </Button>
               ) : (

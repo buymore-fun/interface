@@ -123,3 +123,32 @@ export function useOrderbookDepth(params: {
     mutate,
   };
 }
+
+// https://api-test.buymore.fun/usurper/pool/prepare-id?token=9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U&order_type=buy
+export function usePoolPrepareId(params: { token: string; order_type: "buy" | "sell" }) {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/pool/prepare-id`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      return response.data?.data as {
+        pool_id: string;
+      };
+    },
+    {
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
+      revalidateOnReconnect: true,
+      refreshInterval: 0, // Disable polling
+      dedupingInterval: 0, // Disable deduping
+    }
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
