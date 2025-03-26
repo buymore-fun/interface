@@ -1,3 +1,4 @@
+import { OrderType } from "@/anchor/constants";
 import {
   IResponseActivityList,
   IResponseCommunityDetail,
@@ -125,21 +126,24 @@ export function useOrderbookDepth(params: {
 }
 
 // https://api-test.buymore.fun/usurper/pool/prepare-id?token=9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U&order_type=buy
-export function usePoolPrepareId(params: { token: string; order_type: "buy" | "sell" }) {
+export function usePoolPrepareId(params: { token: string; order_type: OrderType }) {
   const { data, error, isLoading, mutate } = useSWR(
     `/pool/prepare-id`,
     async (url: string) => {
       const response = await axiosInstance.get(url, {
-        params,
+        params: {
+          ...params,
+          order_type: params.order_type === OrderType.Buy ? "buy" : "sell",
+        },
       });
       return response.data?.data as {
         pool_id: string;
       };
     },
     {
-      revalidateOnFocus: true,
-      revalidateOnMount: true,
-      revalidateOnReconnect: true,
+      revalidateOnFocus: false,
+      revalidateOnMount: false,
+      revalidateOnReconnect: false,
       refreshInterval: 0, // Disable polling
       dedupingInterval: 0, // Disable deduping
     }

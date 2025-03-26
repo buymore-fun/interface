@@ -29,6 +29,7 @@ import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/
 import { atomWithLocalStorage } from "@/hooks/atom-with-local-storage";
 import { OrderType } from "@/anchor/constants";
 import { usePoolPrepareId } from "@/hooks/services";
+import { useParams } from "next/navigation";
 
 const slippageAtom = atomWithLocalStorage("slippage", 5);
 
@@ -38,6 +39,8 @@ enum Tab {
 }
 
 export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
+  const { address } = useParams();
+
   const [isOpen, setIsOpen] = useState(false);
   const [slippage, setSlippage] = useAtom(slippageAtom);
 
@@ -111,6 +114,11 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
     [orderType, tokenBalance, SOLBalance]
   );
 
+  const { mutate: mutatePoolId } = usePoolPrepareId({
+    token: address as string,
+    order_type: orderType,
+  });
+
   const toggleOrderType = () => {
     setOrderType(orderType === OrderType.Buy ? OrderType.Sell : OrderType.Buy);
   };
@@ -119,12 +127,18 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
     console.log("refresh token price");
   };
 
-  const handleSubmitOrder = () => {
-    // const { data: poolIdData } = usePoolPrepareId({
-    //   token: tokenA.address,
-    //   order_type: orderType,
-    // });
-    // console.log("submit order");
+  const handleSubmitOrder = async () => {
+    try {
+      const poolIdData = await mutatePoolId();
+      if (!poolIdData?.pool_id) {
+        console.error("Failed to get pool ID");
+        return;
+      }
+      console.log("Got pool ID:", poolIdData.pool_id);
+      // Continue with your order submission logic here
+    } catch (error) {
+      console.error("Error preparing pool ID:", error);
+    }
   };
 
   useEffect(() => {
