@@ -12,22 +12,23 @@ export const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
 export { HybirdTradeV2, HybirdTradeIDL };
 
 // The programId is imported from the program IDL.
-export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(HybirdTradeIDL.address);
+// export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(HybirdTradeIDL.address);
+export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey("mRky6NNEuXwzVNecYRGjXRiK3Y992JMFE38gXiMhRVw");
 
-// const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+const BUY_MORE_PROGRAM_ID = "mRky6NNEuXwzVNecYRGjXRiK3Y992JMFE38gXiMhRVw";
+
+const BUYMORE_PROGRAM = new PublicKey(BUY_MORE_PROGRAM_ID);
 
 // This is a helper function to get the Counter Anchor program.
 export function getHybirdTradeProgram(provider: AnchorProvider) {
-  return new Program<HybirdTradeV2>(HybirdTradeIDL, provider);
+  return new Program<HybirdTradeV2>(HybirdTradeIDL as any, BUYMORE_PROGRAM, provider);
 }
-
-export const programId = getHybirdTradeProgramId(WalletAdapterNetwork.Devnet);
 
 // This is a helper function to get the program ID for the Counter program depending on the cluster.
 export function getHybirdTradeProgramId(cluster: Cluster) {
   switch (cluster) {
     case WalletAdapterNetwork.Devnet:
-      return new PublicKey("2qu2RXkqye2ZcZ1eiTtWtDMa2Pnd3Q9kzDRCUdGMYHFZ");
+      return new PublicKey("mRky6NNEuXwzVNecYRGjXRiK3Y992JMFE38gXiMhRVw");
     case WalletAdapterNetwork.Testnet:
     case WalletAdapterNetwork.Mainnet:
     default:

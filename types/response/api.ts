@@ -174,3 +174,28 @@ export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> 
     address: string;
   };
 }
+
+export interface ICpmmPoolFetchAllItem {
+  poolId: string;
+  mintA: string;
+  mintB: string;
+  vaultA: string;
+  vaultB: string;
+  observationId: string;
+  mintLp: string;
+  configId: string;
+  poolCreator: string;
+  mintProgramA: string;
+  mintProgramB: string;
+  bump: number;
+  status: number;
+  lpDecimals: number;
+  mintDecimalA: number;
+  mintDecimalB: number;
+  openTime: string;
+  lpAmount: string;
+  protocolFeesMintA: string;
+  protocolFeesMintB: string;
+  fundFeesMintA: string;
+  fundFeesMintB: string;
+}

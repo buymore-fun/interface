@@ -22,7 +22,7 @@ import { BN } from "@coral-xyz/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { atomWithStorage } from "jotai/utils";
-import { OrderType } from "@/anchor/constants";
+import { OrderType } from "@/consts/order";
 import { useAtom } from "jotai";
 import { swap } from "@/lib/raydium/swap";
 import { connection, raydium } from "@/lib/raydium/config";
@@ -30,16 +30,17 @@ import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import { NATIVE_MINT } from "@solana/spl-token";
 import { PoolsApiReturn } from "@raydium-io/raydium-sdk-v2";
+
 export default function DemoPage() {
-  const { address } = useParams();
+  // const { address } = useParams();
 
-  const isVerified = useMemo(() => {
-    return PublicKey.isOnCurve(address as string);
-  }, [address]);
+  // const isVerified = useMemo(() => {
+  //   return PublicKey.isOnCurve(address as string);
+  // }, [address]);
 
-  if (!isVerified) {
-    return <div>Invalid Token Address</div>;
-  }
+  // if (!isVerified) {
+  //   return <div>Invalid Token Address</div>;
+  // }
 
   return (
     <WalletAuth>
@@ -52,6 +53,9 @@ const inAmountStorage = atomWithStorage("demo_in_amount", "");
 const outAmountStorage = atomWithStorage("demo_out_amount", "");
 const orderTypeStorage = atomWithStorage("demo_order_type", OrderType.Buy);
 const poolIdStorage = atomWithStorage("demo_pool_id", 1);
+
+const tradeInAmountStorage = atomWithStorage("demo_trade_in_amount", "");
+const tradeOutAmountStorage = atomWithStorage("demo_trade_out_amount", "");
 
 // http://localhost:3000/demo/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U
 function DemoPageContent() {
@@ -66,11 +70,14 @@ function DemoPageContent() {
   const [solAmount, setSolAmount] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [orderId, setOrderId] = useState("");
+  const [tradeAmount, setTradeAmount] = useState("");
 
   const [inAmount, setInAmount] = useAtom(inAmountStorage);
   const [outAmount, setOutAmount] = useAtom(outAmountStorage);
   const [orderType, setOrderType] = useAtom(orderTypeStorage);
   const [poolId, setPoolId] = useAtom(poolIdStorage);
+  const [tradeInAmount, setTradeInAmount] = useAtom(tradeInAmountStorage);
+  const [tradeOutAmount, setTradeOutAmount] = useAtom(tradeOutAmountStorage);
   const transactionToast = useTransactionToast();
 
   // Loading states
@@ -80,6 +87,7 @@ function DemoPageContent() {
   const [addingTokenOrder, setAddingTokenOrder] = useState(false);
   const [cancelingOrder, setCancelingOrder] = useState(false);
   const [swapping, setSwapping] = useState(false);
+  const [trading, setTrading] = useState(false);
   const [poolInfo, setPoolInfo] = useState<any>(null);
   const [raydiumPoolId, setRaydiumPoolId] = useState<string>(
     "26auA3dMfiqK8SWBCkzShhkaSTbbWYQ3jrwhBQZCW5gT"
@@ -109,6 +117,9 @@ function DemoPageContent() {
       // const allPoolInfo = await raydium?.liquidity.getRpcPoolInfos([raydiumPoolId]);
       const allPoolInfo = await raydium?.liquidity.getPoolInfoFromRpc({ poolId: raydiumPoolId });
       setAllPoolInfo(allPoolInfo);
+
+      // const poolInfo = await raydium?.liquidity.getRpcPoolInfo(raydiumPoolId);
+      console.log("🚀 ~ getAllPoolInfo ~ poolInfo:", poolInfo);
     } catch (error) {
       console.error("Failed to swap:", error);
     } finally {
@@ -535,6 +546,68 @@ function DemoPageContent() {
                   <Button onClick={getAllPoolInfo} className="w-full" variant="default">
                     Get Pool Info
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white">Trade</CardTitle>
+                <CardDescription>Trade tokens</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tradeInAmount" className="text-white">
+                      Input Amount (SOL)
+                    </Label>
+                    <Input
+                      id="tradeInAmount"
+                      value={tradeInAmount}
+                      onChange={(e) => setTradeInAmount(e.target.value)}
+                      placeholder="Enter input amount"
+                      className="text-white"
+                    />
+
+                    <Label htmlFor="tradeOutAmount" className="text-white mt-4">
+                      Output Amount (Token)
+                    </Label>
+                    <Input
+                      id="tradeOutAmount"
+                      value={tradeOutAmount}
+                      onChange={(e) => setTradeOutAmount(e.target.value)}
+                      placeholder="Enter output amount"
+                      className="text-white"
+                    />
+
+                    <Button
+                      onClick={async () => {
+                        try {
+                          setTrading(true);
+                          await hybirdTradeProgram.trade_in(
+                            Number(tradeInAmount),
+                            Number(tradeOutAmount)
+                          );
+                        } catch (error) {
+                          console.error("Failed to trade:", error);
+                        } finally {
+                          setTrading(false);
+                        }
+                      }}
+                      className="w-full mt-4"
+                      variant="default"
+                      disabled={trading || !tradeInAmount || !tradeOutAmount}
+                    >
+                      {trading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Trading...
+                        </>
+                      ) : (
+                        <span className="text-white">Trade</span>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

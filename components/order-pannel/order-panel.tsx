@@ -27,7 +27,7 @@ import { useAtom } from "jotai";
 import { Switch } from "@/components/ui/switch";
 import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/slippage-button";
 import { atomWithLocalStorage } from "@/hooks/atom-with-local-storage";
-import { OrderType } from "@/anchor/constants";
+import { OrderType } from "@/consts/order";
 import { usePoolPrepareId } from "@/hooks/services";
 import { useParams } from "next/navigation";
 

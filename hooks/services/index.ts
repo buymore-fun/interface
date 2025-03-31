@@ -1,4 +1,4 @@
-import { OrderType } from "@/anchor/constants";
+import { OrderType } from "@/consts/order";
 import {
   IResponseActivityList,
   IResponseCommunityDetail,
@@ -6,6 +6,7 @@ import {
   IResponseMyOrderList,
   IResponseOrderbookDepth,
   IResponseTradeHistoryList,
+  ICpmmPoolFetchAllItem,
 } from "@/types";
 import axios from "axios";
 import useSWR from "swr";
@@ -146,6 +147,28 @@ export function usePoolPrepareId(params: { token: string; order_type: OrderType 
       revalidateOnReconnect: false,
       refreshInterval: 0, // Disable polling
       dedupingInterval: 0, // Disable deduping
+    }
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/cpmm-pool/fetch-all
+// cache 10 minutes
+export function useCpmmPoolFetchAll() {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/cpmm-pool/fetch-all`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url);
+      return response.data?.data as ICpmmPoolFetchAllItem[];
+    },
+    {
+      dedupingInterval: 10 * 60 * 1000, // cache for 10 minutes
     }
   );
 
