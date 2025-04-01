@@ -13,11 +13,9 @@ import { usePoolPrepareId } from "@/hooks/services";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import WalletIcon from "@/public/assets/token/wallet.svg";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { usePoolInfo } from "@/hooks/use-pool-info";
-import { Spinner } from "@/components/ui/spinner";
-import { BN } from "@coral-xyz/anchor";
 import Decimal from "decimal.js";
 import { formatNumber, formatSolBalance } from "@/lib/utils";
 
@@ -27,6 +25,7 @@ interface OrderTabProps {
 
 export function OrderTab({ poolId }: OrderTabProps) {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
+  const [price, setPrice] = useState<string>("");
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo();
   // console.log(new Decimal("549851188.5306576").div(new Decimal("0.036867143")).toString());
@@ -67,6 +66,13 @@ export function OrderTab({ poolId }: OrderTabProps) {
     token: poolId,
     order_type: orderType,
   });
+
+  // Update price when poolInfo changes
+  useEffect(() => {
+    if (poolInfo?.poolInfo.price) {
+      setPrice(poolInfo.poolInfo.price.toString());
+    }
+  }, [poolInfo]);
 
   const toggleOrderType = () => {
     setOrderType(isBuy ? OrderType.Sell : OrderType.Buy);
@@ -119,26 +125,28 @@ export function OrderTab({ poolId }: OrderTabProps) {
           </div>
           <div className="flex flex-col items-end">
             <div className="flex items-center gap-1">
-              <span>499.500</span>
-              <Button
-                variant="ghost"
-                size="xs"
-                className="p-0 h-auto"
-                onClick={() => {
-                  refreshTokenPrice();
-                }}
-              >
+              <Input
+                className="border-none text-lg font-semibold text-right outline-none p-0 w-[180px]"
+                placeholder="0.00"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+              <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
                 <Icon name="refresh" className="text-primary" />
               </Button>
             </div>
-            <div className="flex items-start text-xs text-muted-foreground w-full">
-              <span>≈$0.00345</span>
+            <div className="flex items-start text-xs text-muted-foreground w-full justify-end">
+              {isPoolLoading ? (
+                <Skeleton className="w-16 h-4" />
+              ) : (
+                <span>≈${poolInfo?.poolInfo.price}</span>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-between py-3  gap-2">
-          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
+          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">
             {tokenA ? (
               <Button variant="ghost" className="px-0">
                 <TokenIcon token={tokenA} size="sm" />
@@ -148,7 +156,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
               <Skeleton className="h-9 w-24" />
             )}
             <Input
-              className="border-none text-lg font-semibold text-right outline-none p-0"
+              className="border-none text-lg font-semibold text-right outline-none p-0 "
               placeholder="0.00"
               value={orderTokenAAmount}
               onChange={(e) => setOrderTokenAAmount(e.target.value)}
@@ -165,7 +173,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
             <Icon name="switch" className="text-primary" />
           </Button>
 
-          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
+          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">
             {tokenB ? (
               <Button variant="ghost" className="px-0">
                 <TokenIcon token={tokenB} size="sm" />
