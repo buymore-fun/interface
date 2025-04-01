@@ -4,13 +4,14 @@ import { useCallback, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { connection, initSdk } from "@/lib/raydium/config";
 import { useSolBalance } from "@/hooks/use-sol-balance";
-
+import { useRaydium } from "@/hooks/use-raydium";
 /**
  * GlobalInit component handles application-wide initialization
  * and global event listeners
  */
 export function GlobalInit() {
   const { publicKey, connected } = useWallet();
+  const { initializeSdk } = useRaydium();
 
   // const initRaydium = useCallback(async () => {
   //   if (publicKey) {

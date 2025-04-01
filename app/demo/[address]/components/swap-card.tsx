@@ -6,17 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { raydium } from "@/lib/raydium/config";
 import { swap } from "@/lib/raydium/swap";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import { useAtom } from "jotai";
 import { raydiumPoolIdStorage } from "./atoms";
-
+import { useRaydium } from "@/hooks/use-raydium";
 export function SwapCard() {
   const [swapping, setSwapping] = useState(false);
   const [poolInfo, setPoolInfo] = useState<any>(null);
   const [raydiumPoolId, setRaydiumPoolId] = useAtom(raydiumPoolIdStorage);
+  const { raydium } = useRaydium();
 
   const provider = useAnchorProvider();
   const transactionToast = useTransactionToast();

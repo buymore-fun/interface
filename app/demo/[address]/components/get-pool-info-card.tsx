@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { raydium } from "@/lib/raydium/config";
 import { useAtom } from "jotai";
 import { raydiumPoolIdStorage } from "./atoms";
+import { useRaydium } from "@/hooks/use-raydium";
 
 export function GetPoolInfoCard() {
   const [raydiumPoolId, setRaydiumPoolId] = useAtom(raydiumPoolIdStorage);
   const [allPoolInfo, setAllPoolInfo] = useState<any>(null);
+  const { raydium } = useRaydium();
 
   const getAllPoolInfo = async () => {
     try {

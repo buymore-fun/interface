@@ -5,16 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { raydium } from "@/lib/raydium/config";
 import { NATIVE_MINT } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import { PoolsApiReturn } from "@raydium-io/raydium-sdk-v2";
 import { useAtom } from "jotai";
 import { tokenMintAddressStorage } from "./atoms";
+import { useRaydium } from "@/hooks/use-raydium";
 
 export function RaydiumPoolInfoCard() {
   const [tokenMintAddress, setTokenMintAddress] = useAtom(tokenMintAddressStorage);
   const [poolByMints, setPoolByMints] = useState<PoolsApiReturn>();
+  const { raydium } = useRaydium();
 
   const fetchPoolByMints = async () => {
     try {

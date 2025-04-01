@@ -31,7 +31,7 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
   const SOL = useToken(SOL_ADDRESS);
 
   const { solBalance } = useSolBalance();
-  const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintA?.address);
+  const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintB.address);
   console.log("🚀 ~ OrderTab ~ tokenBalance:", tokenBalance);
   console.log("🚀 ~ OrderTab ~ poolInfo:", poolInfo);
 

@@ -1,5 +1,5 @@
 import { ApiV3PoolInfoStandardItem, AmmV4Keys, AmmRpcData } from "@raydium-io/raydium-sdk-v2";
-import { raydium as raydiumInstance, txVersion } from "./config";
+import { txVersion } from "./config";
 import BN from "bn.js";
 import { isValidAmm } from "./utils";
 import Decimal from "decimal.js";
@@ -7,14 +7,16 @@ import { NATIVE_MINT } from "@solana/spl-token";
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 
 export const swap = async () => {
-  const raydium = raydiumInstance!;
+  // const raydium = raydiumInstance!;
+  // TODO: fix it
+  const raydium: any = {};
 
   const amountIn = 1 * LAMPORTS_PER_SOL;
   const inputMint = NATIVE_MINT.toBase58();
   // const poolId = '58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2' // SOL-USDC pool
   const poolId = "26auA3dMfiqK8SWBCkzShhkaSTbbWYQ3jrwhBQZCW5gT"; // SOL-USDC pool
 
-  let poolInfo: ApiV3PoolInfoStandardItem | undefined;
+  let poolInfo: ApiV3PoolInfoStandardItem;
   let poolKeys: AmmV4Keys | undefined;
   let rpcData: AmmRpcData;
 

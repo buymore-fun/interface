@@ -1,26 +1,29 @@
 import { useState, useEffect, useCallback } from "react";
-import { raydium } from "@/lib/raydium";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { CpmmPoolInfo } from "@/types";
 import useSWR from "swr";
 import { atom, useAtom } from "jotai";
+import { useRaydium } from "@/hooks/use-raydium";
 
 const poolInfoAtom = atom<CpmmPoolInfo | undefined>(undefined);
 
 export function usePoolInfo() {
   const [poolInfo, setPoolInfo] = useAtom(poolInfoAtom);
+  const { raydium, isSdkInitialized } = useRaydium();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const { publicKey } = useWallet();
+
   const fetchPoolInfo = useCallback(
     async (poolId: string) => {
       setIsLoading(true);
       setError(null);
 
-      if (!poolId || !publicKey || !raydium?.ownerPubKey) return;
+      if (!poolId || !isSdkInitialized) return;
 
       try {
         const poolInfo = await raydium?.cpmm.getPoolInfoFromRpc(poolId);
+
         if (poolInfo) {
           setPoolInfo(poolInfo);
         }
@@ -31,7 +34,7 @@ export function usePoolInfo() {
         setIsLoading(false);
       }
     },
-    [setPoolInfo, setIsLoading, setError, publicKey]
+    [isSdkInitialized, raydium, setPoolInfo]
   );
 
   return { poolInfo, fetchPoolInfo, isLoading, error };

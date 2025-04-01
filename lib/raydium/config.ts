@@ -6,7 +6,7 @@ export const connection = new Connection(clusterApiUrl("devnet")); //<YOUR_RPC_U
 export const txVersion = TxVersion.V0; // or TxVersion.LEGACY
 const cluster = "devnet";
 
-export let raydium: Raydium | undefined;
+let raydium: Raydium | undefined;
 export const initSdk = async (params?: { loadToken?: boolean; owner: PublicKey }) => {
   if (raydium) return raydium;
   if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta"))
