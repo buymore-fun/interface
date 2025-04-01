@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { initSdk } from "@/lib/raydium/config";
+import { connection, initSdk } from "@/lib/raydium/config";
+import { useSolBalance } from "@/hooks/use-sol-balance";
 
 /**
  * GlobalInit component handles application-wide initialization
@@ -11,11 +12,11 @@ import { initSdk } from "@/lib/raydium/config";
 export function GlobalInit() {
   const { publicKey, connected } = useWallet();
 
-  const initRaydium = async () => {
-    if (publicKey) {
-      await initSdk({ owner: publicKey });
-    }
-  };
+  // const initRaydium = useCallback(async () => {
+  //   if (publicKey) {
+  //     await initSdk({ owner: publicKey });
+  //   }
+  // }, [publicKey]);
 
   // Log wallet connection status changes
   useEffect(() => {
@@ -24,6 +25,23 @@ export function GlobalInit() {
       initSdk({ owner: publicKey! });
     }
   }, [connected, publicKey]);
+
+  const { fetchSolBalance } = useSolBalance();
+
+  useEffect(() => {
+    fetchSolBalance();
+
+    // Set up listener for balance changes
+    if (publicKey) {
+      const id = connection.onAccountChange(publicKey, () => {
+        fetchSolBalance();
+      });
+
+      return () => {
+        connection.removeAccountChangeListener(id);
+      };
+    }
+  }, [publicKey, fetchSolBalance]);
 
   return null; // This component doesn't render anything
 }

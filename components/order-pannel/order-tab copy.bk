@@ -15,7 +15,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import WalletIcon from "@/public/assets/token/wallet.svg";
 import { useMemo } from "react";
-import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
+import { useSolBalance } from "@/hooks/use-sol-balance";
 import { usePoolInfo } from "@/hooks/use-pool-info";
 interface OrderTabProps {
   poolId: string;
@@ -25,15 +25,13 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
   const { address } = useParams();
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
-  const { poolInfo, isLoading, error } = usePoolInfo();
+  const { poolInfo, fetchPoolInfo, isLoading, error } = usePoolInfo();
 
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
 
   const { solBalance } = useSolBalance();
-  const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintA?.address);
-  console.log("🚀 ~ OrderTab ~ tokenBalance:", tokenBalance);
-  console.log("🚀 ~ OrderTab ~ poolInfo:", poolInfo);
+  const tokenBalance = useTokenBalance(token);
 
   const { publicKey } = useWallet();
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
@@ -102,7 +100,9 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
             <Image src="/assets/token/price.svg" width={28} height={28} alt="Price" />
             <div className="flex flex-col">
               <span>Price</span>
-              <span className="text-xs text-muted-foreground">BOB/SOL</span>
+              <span className="text-xs text-muted-foreground">
+                {orderTokenA?.symbol}/{orderTokenB?.symbol}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-end">

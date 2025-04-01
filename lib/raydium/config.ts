@@ -8,7 +8,7 @@ const cluster = "devnet";
 
 export let raydium: Raydium | undefined;
 export const initSdk = async (params?: { loadToken?: boolean; owner: PublicKey }) => {
-  if (raydium && raydium.ownerPubKey.equals(params?.owner || new PublicKey(""))) return raydium;
+  if (raydium) return raydium;
   if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta"))
     console.warn(
       "using free rpc node might cause unexpected error, strongly suggest uses paid rpc node"

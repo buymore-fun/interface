@@ -41,9 +41,6 @@ export function useHybirdTradeProgram(mintAddress: string) {
   // const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
   const provider = useAnchorProvider();
-  // console.log("🚀 ~ useHybirdTradeProgram ~ provider:", provider.wallet.publicKey?.toBase58());
-  // log provider cluster
-  // console.log("🚀 ~ useHybirdTradeProgram ~ provider:", provider.connection.rpcEndpoint);
 
   const program = useMemo(() => getHybirdTradeProgram(provider), [provider]);
 

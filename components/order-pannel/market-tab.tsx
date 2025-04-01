@@ -21,6 +21,7 @@ import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/
 import { useToken } from "@/hooks/use-token";
 import { useTokenBalance } from "@/hooks/use-token-balance";
 import { slippageAtom } from "@/components/order-pannel/atom";
+import { useSolBalance } from "@/hooks/use-sol-balance";
 
 interface MarketTabProps {
   tokenAddress: string;
@@ -35,7 +36,7 @@ export function MarketTab({ tokenAddress, setSlippageDialogOpen }: MarketTabProp
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
 
-  const SOLBalance = useTokenBalance(SOL);
+  const { solBalance, fetchSolBalance, isLoading } = useSolBalance();
   const tokenBalance = useTokenBalance(token);
 
   const [tokenAAmount, setTokenAAmount] = useState("");
@@ -51,8 +52,9 @@ export function MarketTab({ tokenAddress, setSlippageDialogOpen }: MarketTabProp
   );
 
   const [tokenABalance, tokenBBalance] = useMemo(
-    () => (isReverse ? [SOLBalance, tokenBalance] : [tokenBalance, SOLBalance]),
-    [isReverse, tokenBalance, SOLBalance]
+    () =>
+      isReverse ? [solBalance ?? undefined, tokenBalance] : [tokenBalance, solBalance ?? undefined],
+    [isReverse, tokenBalance, solBalance]
   );
 
   const toggleToken = () => {
@@ -67,7 +69,7 @@ export function MarketTab({ tokenAddress, setSlippageDialogOpen }: MarketTabProp
 
     if (!tokenABalance) return;
 
-    const maxAmount = isReverse ? SOLBalance : tokenBalance;
+    const maxAmount = isReverse ? (solBalance ?? undefined) : tokenBalance;
     if (!maxAmount) return;
 
     const calculatedAmount = (+maxAmount * percent) / 100;

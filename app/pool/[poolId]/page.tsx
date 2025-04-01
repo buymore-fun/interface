@@ -14,35 +14,25 @@ import { ChartType } from "@/types/chart";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { raydium } from "@/lib/raydium/config";
 import { CpmmPoolInfo } from "@/types";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { usePoolInfo } from "@/hooks/use-pool-info";
 
 export default function Token() {
   const { poolId } = useParams();
-  const connection = useConnection();
+  const { publicKey } = useWallet();
   const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
   const chartData = useChartData(poolId as string, chartType);
-  const [poolInfo, setPoolInfo] = useState<CpmmPoolInfo | undefined>();
-
+  // const [poolInfo, setPoolInfo] = useState<CpmmPoolInfo | undefined>();
+  const { connection } = useConnection();
   const wallet = useWallet();
-
-  const fetchPoolInfo = useCallback(async () => {
-    console.log("🚀 ~ Token ~ poolId:", poolId);
-
-    try {
-      const poolInfo = await raydium?.cpmm.getPoolInfoFromRpc(poolId as string);
-      console.log("🚀 ~ Token ~ poolInfo:", poolInfo);
-
-      if (poolInfo) {
-        setPoolInfo(poolInfo);
-      }
-    } catch (error) {
-      console.error("🚀 ~ Token ~ error:", error);
-    }
-  }, [poolId]);
+  const { poolInfo, fetchPoolInfo, isLoading, error } = usePoolInfo();
 
   useEffect(() => {
-    if (!raydium?.ownerPubKey) return;
-    fetchPoolInfo();
-  }, [poolId, raydium?.ownerPubKey]);
+    if (wallet.publicKey) {
+      fetchPoolInfo(poolId as string);
+    }
+  }, [wallet.publicKey, fetchPoolInfo, poolId]);
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">

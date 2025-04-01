@@ -44,7 +44,7 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
         </TabsContent>
 
         <TabsContent value={Tab.ORDER}>
-          <OrderTab tokenAddress={tokenAddress} />
+          <OrderTab poolId={tokenAddress} />
         </TabsContent>
       </Tabs>
 
