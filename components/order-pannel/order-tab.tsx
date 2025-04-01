@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useToken } from "@/hooks/use-token";
-import { useTokenBalance } from "@/hooks/use-token-balance";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Button } from "../ui/button";
@@ -17,23 +16,26 @@ import WalletIcon from "@/public/assets/token/wallet.svg";
 import { useMemo } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { usePoolInfo } from "@/hooks/use-pool-info";
+import { Spinner } from "@/components/ui/spinner";
+import { BN } from "@coral-xyz/anchor";
+import Decimal from "decimal.js";
+import { formatNumber, formatSolBalance } from "@/lib/utils";
+
 interface OrderTabProps {
   poolId: string;
 }
 
-export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
-  const { address } = useParams();
+export function OrderTab({ poolId }: OrderTabProps) {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
-  const { poolInfo, isLoading, error } = usePoolInfo();
+  const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo();
+  // console.log(new Decimal("549851188.5306576").div(new Decimal("0.036867143")).toString());
 
-  const token = useToken(tokenAddress);
+  const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
 
   const { solBalance } = useSolBalance();
   const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintB.address);
-  console.log("🚀 ~ OrderTab ~ tokenBalance:", tokenBalance);
-  console.log("🚀 ~ OrderTab ~ poolInfo:", poolInfo);
 
   const { publicKey } = useWallet();
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
@@ -42,19 +44,27 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
 
   const isBuy = orderType === OrderType.Buy;
 
-  const [orderTokenA, orderTokenB] = useMemo(
+  const [tokenA, tokenB] = useMemo(
     () => (isBuy ? [SOL, token] : [token, SOL]),
     [isBuy, token, SOL]
   );
 
-  const [orderTokenABalance, orderTokenBBalance] = useMemo(
+  const [mintA, mintB] = useMemo(
     () =>
-      isBuy ? [solBalance ?? undefined, tokenBalance] : [tokenBalance, solBalance ?? undefined],
+      isBuy
+        ? [poolInfo?.poolInfo.mintA, poolInfo?.poolInfo.mintB]
+        : [poolInfo?.poolInfo.mintB, poolInfo?.poolInfo.mintA],
+    [isBuy, poolInfo]
+  );
+
+  const [tokenABalance, tokenBBalance] = useMemo(
+    () =>
+      isBuy ? [solBalance, tokenBalance?.amount || 0] : [tokenBalance?.amount || 0, solBalance],
     [isBuy, tokenBalance, solBalance]
   );
 
   const { mutate: mutatePoolId } = usePoolPrepareId({
-    token: address as string,
+    token: poolId,
     order_type: orderType,
   });
 
@@ -63,7 +73,8 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
   };
 
   const refreshTokenPrice = () => {
-    console.log("refresh token price");
+    if (isPoolLoading) return;
+    fetchPoolInfo(poolId);
   };
 
   const handleSubmitOrder = async () => {
@@ -74,7 +85,6 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
         return;
       }
       console.log("Got pool ID:", poolIdData.pool_id);
-      // Continue with your order submission logic here
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     }
@@ -90,8 +100,8 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
           <Image src={WalletIcon} alt="Wallet" />
           <span>
             {isBuy
-              ? `${orderTokenABalance} ${orderTokenA?.symbol}`
-              : `${orderTokenBBalance} ${orderTokenB?.symbol}`}
+              ? `${formatSolBalance(solBalance)} SOL`
+              : `${tokenBalance?.uiAmountString} ${poolInfo?.poolInfo.mintB?.symbol}`}
           </span>
         </div>
       </div>
@@ -102,7 +112,9 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
             <Image src="/assets/token/price.svg" width={28} height={28} alt="Price" />
             <div className="flex flex-col">
               <span>Price</span>
-              <span className="text-xs text-muted-foreground">BOB/SOL</span>
+              <span className="text-xs text-muted-foreground">
+                {tokenA?.symbol}/{tokenB?.symbol}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-end">
@@ -127,10 +139,10 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
 
         <div className="flex items-center justify-between py-3  gap-2">
           <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
-            {orderTokenA ? (
+            {tokenA ? (
               <Button variant="ghost" className="px-0">
-                <TokenIcon token={orderTokenA} size="sm" />
-                {orderTokenA.symbol}
+                <TokenIcon token={tokenA} size="sm" />
+                {tokenA.symbol}
               </Button>
             ) : (
               <Skeleton className="h-9 w-24" />
@@ -154,10 +166,10 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
           </Button>
 
           <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px]">
-            {orderTokenB ? (
+            {tokenB ? (
               <Button variant="ghost" className="px-0">
-                <TokenIcon token={orderTokenB} size="sm" />
-                {orderTokenB.symbol}
+                <TokenIcon token={tokenB} size="sm" />
+                {tokenB.symbol}
               </Button>
             ) : (
               <Skeleton className="h-9 w-24" />
@@ -181,10 +193,11 @@ export function OrderTab({ poolId: tokenAddress }: OrderTabProps) {
           <Button
             className="w-full"
             size="lg"
-            disabled={!orderTokenAAmount}
+            disabled={!orderTokenAAmount || isPoolLoading}
             onClick={handleSubmitOrder}
           >
-            Submit
+            {/* {isPoolLoading ? <Spinner size="small" /> : "Submit"} */}
+            {"Submit"}
           </Button>
         ) : (
           <Button className="w-full" size="lg" onClick={() => setConnectWalletModalOpen(true)}>

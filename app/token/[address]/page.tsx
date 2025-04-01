@@ -50,7 +50,7 @@ export default function Token() {
         </div>
       </div>
       <div className="sm:max-w-[420px] w-full flex flex-col space-y-4">
-        <OrderPanel tokenAddress={address as string} />
+        {/* <OrderPanel tokenAddress={address as string} /> */}
         <Community />
       </div>
     </div>

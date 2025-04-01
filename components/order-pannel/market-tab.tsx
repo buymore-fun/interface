@@ -24,16 +24,16 @@ import { slippageAtom } from "@/components/order-pannel/atom";
 import { useSolBalance } from "@/hooks/use-sol-balance";
 
 interface MarketTabProps {
-  tokenAddress: string;
+  poolId: string;
   setSlippageDialogOpen: (open: boolean) => void;
 }
 
-export function MarketTab({ tokenAddress, setSlippageDialogOpen }: MarketTabProps) {
+export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [slippage, setSlippage] = useAtom(slippageAtom);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
-  const token = useToken(tokenAddress);
+  const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
 
   const { solBalance, fetchSolBalance, isLoading } = useSolBalance();

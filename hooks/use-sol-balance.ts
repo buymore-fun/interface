@@ -82,10 +82,12 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
           const tokenInfo = await connection.getTokenAccountBalance(associatedTokenAccount);
           console.log("🚀 ~ fetchSolBalance ~ tokenInfo:", tokenInfo.value);
           setTokenBalance(tokenInfo.value);
+        } else {
+          setTokenBalance(tokenAmount);
         }
       } catch (error) {
         console.error("Error fetching token balance:", error);
-        setTokenBalance(undefined);
+        setTokenBalance(tokenAmount);
       } finally {
         setIsLoading(false);
       }

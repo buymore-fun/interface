@@ -1,3 +1,5 @@
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+
 function getFormatterRule(input: number) {
   const rules = [
     {
@@ -86,5 +88,23 @@ export function formatNumber(input: number | string | undefined, placeholder = "
   const { input: hardCodedInputValue, prefix } = hardCodedInput;
   if (hardCodedInputValue === undefined) return placeholder;
 
-  return (prefix ?? "") + new Intl.NumberFormat(locale, formatterOptions as any).format(hardCodedInputValue);
+  return (
+    (prefix ?? "") +
+    new Intl.NumberFormat(locale, formatterOptions as any).format(hardCodedInputValue)
+  );
+}
+
+export function formatSolBalance(
+  balance: number,
+  decimals: number = LAMPORTS_PER_SOL,
+  toFixed: number = 2
+): string {
+  const solBalance = balance / decimals;
+
+  const formattedBalance = solBalance.toFixed(toFixed);
+
+  const parts = formattedBalance.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  return `${parts.join(".")}`;
 }

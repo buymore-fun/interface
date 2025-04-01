@@ -61,7 +61,7 @@ export default function Token() {
         </div>
       </div>
       <div className="sm:max-w-[420px] w-full flex flex-col space-y-4">
-        <OrderPanel tokenAddress={poolId as string} />
+        <OrderPanel poolId={poolId as string} />
         <Community />
       </div>
     </div>

@@ -12,7 +12,7 @@ enum Tab {
   ORDER = "order",
 }
 
-export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
+export function OrderPanel({ poolId }: { poolId: string }) {
   const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
   const [tab, setTab] = useState<Tab>(Tab.ORDER);
 
@@ -40,11 +40,11 @@ export function OrderPanel({ tokenAddress }: { tokenAddress: string }) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value={Tab.MARKET}>
-          <MarketTab tokenAddress={tokenAddress} setSlippageDialogOpen={setSlippageDialogOpen} />
+          <MarketTab poolId={poolId} setSlippageDialogOpen={setSlippageDialogOpen} />
         </TabsContent>
 
         <TabsContent value={Tab.ORDER}>
-          <OrderTab poolId={tokenAddress} />
+          <OrderTab poolId={poolId} />
         </TabsContent>
       </Tabs>
 
