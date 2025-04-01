@@ -267,17 +267,9 @@ export function useHybirdTradeProgram(mintAddress: string) {
       input_token_program
     );
 
-    // check input_token_account is initialized
-    try {
-      const account = await getAccount(
-        program.provider.connection,
-        input_token_account,
-        undefined,
-        input_token_program
-      );
-      console.log(`Input token account: ${account}`);
-    } catch (e) {
-      console.log(`Begin to create input token account: ${input_token_account.toBase58()}`);
+    const inputAccountInfo = await program.provider.connection.getAccountInfo(input_token_account);
+    console.log(`Input token account: ${inputAccountInfo}`);
+    if (!inputAccountInfo) {
       const ix = createAssociatedTokenAccountInstruction(
         wallet.publicKey!,
         input_token_mint,
@@ -286,18 +278,6 @@ export function useHybirdTradeProgram(mintAddress: string) {
         ATA_PROGRAM_ID
       );
       tx.add(ix);
-
-      // const v = await createAssociatedTokenAccount(
-      //   program.provider.connection,
-      //   wallet.payer,
-      //   input_token_mint,
-      //   wallet.publicKey,
-      //   {},
-      //   input_token_program,
-      //   ATA_PROGRAM_ID,
-      //   false
-      // );
-      // console.log(`Created Input token account `, v);
     }
 
     const output_token_account = getAssociatedTokenAddressSync(
@@ -307,39 +287,19 @@ export function useHybirdTradeProgram(mintAddress: string) {
       output_token_program
     );
 
-    try {
-      const account = await getAccount(
-        program.provider.connection,
-        output_token_account,
-        undefined,
-        output_token_program
-      );
-      console.log(`Output token account: ${account}`);
-    } catch (e) {
-      console.log(`Begin to create output token account: ${output_token_account.toBase58()}`);
+    const outputAccountInfo =
+      await program.provider.connection.getAccountInfo(output_token_account);
+    console.log(`Output token account: ${outputAccountInfo}`);
 
+    if (!outputAccountInfo) {
       const ix = createAssociatedTokenAccountInstruction(
         wallet.publicKey!,
         output_token_mint,
         wallet.publicKey!,
-        input_token_program,
+        output_token_program,
         ATA_PROGRAM_ID
       );
       tx.add(ix);
-
-      // const v = await createAssociatedTokenAccount(
-      //   program.provider.connection,
-      //   wallet as unknown as Signer,
-      //   output_token_mint,
-      //   wallet.publicKey!,
-      //   {},
-      //   input_token_program,
-      //   ATA_PROGRAM_ID,
-      //   false
-      // );
-      // console.log(`Created output token account `, v);
-      // const sig = await send_and_config(program.provider.connection, tx, [wallet.payer]);
-      // console.log('33. Create input token account tx: ', sig);
     }
 
     const [input_vault_account] = await getPoolVaultAddress(
@@ -363,25 +323,6 @@ export function useHybirdTradeProgram(mintAddress: string) {
 
     const in_amount = new BN(in_v);
     const out_amount = new BN(out_v);
-
-    // console.log({
-    //     cpSwapProgram: raydium_pubkey.toBase58(),
-    //     payer: wallet.publicKey.toBase58(),
-    //     poolState: pool_state.toBase58(),
-    //     authority: POOL_AUTH_PUBKEY.toBase58(),
-    //     ammConfig: configAddress.toBase58(),
-    //     // raydiumCpSwap: raydium_pubkey,
-    //     inputTokenAccount: input_token_account.toBase58(),
-    //     outputTokenAccount: output_token_account.toBase58(),
-    //     inputVault: input_vault_account.toBase58(),
-    //     outputVault: output_vault_account.toBase58(),
-    //     inputTokenProgram: input_token_program.toBase58(),
-    //     outputTokenProgram: output_token_program.toBase58(),
-    //     inputTokenMint: input_token_mint.toBase58(),
-    //     outputTokenMint: output_token_mint.toBase58(),
-    //     observationState: OB_STATE_ADDRESS.toBase58()
-    //     // tokenProgram: TOKEN_2022_PROGRAM_ID,
-    // })
 
     // await delay(20 * 1000);
 

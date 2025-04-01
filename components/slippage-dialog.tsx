@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { z } from "zod";
+import { useAtom } from "jotai";
+import { slippageAtom } from "./order-pannel/atom";
 
 const slippageSchema = z
   .number()
@@ -19,15 +21,14 @@ const slippageSchema = z
   .max(100, "Slippage cannot exceed 100%");
 
 interface SlippageDialogProps {
-  onSlippageChange: (slippage: number) => void;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }
 
-export function SlippageDialog({ onSlippageChange, open, onOpenChange }: SlippageDialogProps) {
+export function SlippageDialog({ open, onOpenChange }: SlippageDialogProps) {
+  const [_, setSlippage] = useAtom(slippageAtom);
   const [customSlippage, setCustomSlippage] = useState("");
   const [error, setError] = useState<string | null>(null);
-
   const handleSlippageSubmit = (e) => {
     e.preventDefault();
     const slippage = parseFloat(customSlippage);
@@ -35,7 +36,7 @@ export function SlippageDialog({ onSlippageChange, open, onOpenChange }: Slippag
     try {
       slippageSchema.parse(slippage);
       setError(null);
-      onSlippageChange(slippage);
+      setSlippage(slippage);
       onOpenChange(false);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -52,9 +53,9 @@ export function SlippageDialog({ onSlippageChange, open, onOpenChange }: Slippag
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="xs" className="text-muted-foreground">
+        {/* <Button variant="secondary" size="xs" className="text-muted-foreground">
           Custom
-        </Button>
+        </Button> */}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
