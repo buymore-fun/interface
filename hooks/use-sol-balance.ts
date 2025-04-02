@@ -3,6 +3,8 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, TokenAmount, PublicKey } from "@solana/web3.js";
 import { atom, useAtom } from "jotai";
 import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { useRaydium } from "@/hooks/use-raydium";
+import redstone from "redstone-api";
 
 export const solBalanceAtom = atom<number>(0);
 
@@ -36,10 +38,10 @@ export function useSolBalance() {
     }
   }, [connection, wallet.publicKey, setSolBalance]);
 
-  const fetchTokenBalance = useCallback(async () => {
-    if (!wallet.publicKey) return;
-    setIsLoading(true);
-  }, [wallet.publicKey]);
+  // const fetchTokenBalance = useCallback(async () => {
+  //   if (!wallet.publicKey) return;
+  //   setIsLoading(true);
+  // }, [wallet.publicKey]);
 
   return {
     solBalance,
@@ -61,6 +63,7 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
   const wallet = useWallet();
   const [tokenBalance, setTokenBalance] = useState<TokenAmount>();
   const [isLoading, setIsLoading] = useState(false);
+  const { raydium } = useRaydium();
 
   const fetchTokenBalance = useCallback(
     async (tokenAddress: string) => {
@@ -75,6 +78,11 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
 
       // const tokenAccount = await getAccount(connection, associatedTokenAccount);
       // console.log("🚀 ~ fetchTokenBalance ~ tokenAccount:", tokenAccount);
+
+      const tokenInfo = await raydium?.api.getTokenInfo([
+        new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U"),
+      ]);
+      console.log("🚀 ~ fetchTokenBalance ~ tokenInfo:", tokenInfo);
 
       try {
         const tokenAccountInfo = await connection.getAccountInfo(associatedTokenAccount);
@@ -92,7 +100,7 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
         setIsLoading(false);
       }
     },
-    [connection, wallet.publicKey]
+    [connection, wallet.publicKey, raydium]
   );
 
   useEffect(() => {

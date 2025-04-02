@@ -28,8 +28,8 @@ export function useRaydium() {
 
   // Initialize Raydium SDK
   const initializeSdk = useCallback(async () => {
-    if (!connected || !publicKey) return;
-    // console.log("initializing sdk");
+    if (!connected || !publicKey || isLoading || raydiumInstance) return;
+    console.log("initializing sdk");
 
     try {
       setIsLoading(true);
@@ -43,7 +43,7 @@ export function useRaydium() {
     } finally {
       setIsLoading(false);
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, isLoading, raydiumInstance]);
 
   // Initialize SDK when wallet is connected
   useEffect(() => {
@@ -75,14 +75,15 @@ export function useRaydium() {
 
   // Listen to account changes
   useEffect(() => {
-    if (!publicKey || !isSdkInitialized || !raydiumInstance) return;
+    if (!publicKey || !isSdkInitialized) return;
 
     // Listen to SOL balance changes
     const solAccountId = connection.onAccountChange(publicKey, async () => {
       try {
         // Note: This is a simplified version since we can't create a Keypair from just a PublicKey
         // In a real application, you would need to handle this differently
-        console.log("Account balance changed:", publicKey.toString());
+        // console.log("Account balance changed:", publicKey.toString());
+        raydiumInstance?.setOwner(publicKey);
       } catch (err) {
         console.error("Error updating token account:", err);
       }

@@ -18,7 +18,9 @@ import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { usePoolInfo } from "@/hooks/use-pool-info";
 import Decimal from "decimal.js";
 import { formatNumber, formatSolBalance } from "@/lib/utils";
-
+import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
+import { BN } from "@coral-xyz/anchor";
+import { useSolPrice } from "@/hooks/use-sol-price";
 interface OrderTabProps {
   poolId: string;
 }
@@ -26,6 +28,7 @@ interface OrderTabProps {
 export function OrderTab({ poolId }: OrderTabProps) {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const [price, setPrice] = useState<string>("");
+  const { solPrice } = useSolPrice("order");
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo();
   // console.log(new Decimal("549851188.5306576").div(new Decimal("0.036867143")).toString());
@@ -35,6 +38,8 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
   const { solBalance } = useSolBalance();
   const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintB.address);
+
+  // const hybirdTradeProgram = useHybirdTradeProgram("");
 
   const { publicKey } = useWallet();
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
@@ -90,6 +95,20 @@ export function OrderTab({ poolId }: OrderTabProps) {
         console.error("Failed to get pool ID");
         return;
       }
+
+      // try {
+      //   await hybirdTradeProgram.addOrder(
+      //     // new BN(Number(inAmount) * 10000),
+      //     // new BN(Number(outAmount) * 1000),
+      //     new BN(10000),
+      //     new BN(1000),
+      //     orderType,
+      //     new BN(poolIdData.pool_id)
+      //   );
+      // } catch (error) {
+      //   console.error("Failed to add order:", error);
+      // }
+
       console.log("Got pool ID:", poolIdData.pool_id);
     } catch (error) {
       console.error("Error preparing pool ID:", error);

@@ -116,7 +116,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     pool_id: BN,
     expiryTime?: number
   ) => {
-    const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 365; // 1day by default
+    const now = expiryTime || Math.floor(Date.now() / 1000) + 60 * 60 * 365;
 
     const now_v = new BN(now);
 

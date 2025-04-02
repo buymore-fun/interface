@@ -4157,6 +4157,13 @@ aptos@=1.8.5:
     form-data "4.0.0"
     tweetnacl "1.0.3"
 
+ar-gql@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.npmmirror.com/ar-gql/-/ar-gql-0.0.6.tgz#ebb313195c092f27a997440a2835060feaf8df81"
+  integrity sha512-eXKsXGQcx8uwxwlFJzBXA17Qsg+Gty6tcp85IB5SX1iop7NsXLQ/iH2WEz69NCz2/Zcb81C1QryIiNTgw0/4aA==
+  dependencies:
+    axios "^0.21.1"
+
 arbundles@^0.10.0:
   version "0.10.1"
   resolved "https://registry.npmmirror.com/arbundles/-/arbundles-0.10.1.tgz#1f542d9edf185a8a272994aef501a8ee12aaaa46"
@@ -4180,6 +4187,13 @@ arbundles@^0.10.0:
     arweave-stream-tx "^1.1.0"
     multistream "^4.1.0"
     tmp-promise "^3.0.2"
+
+arconnect@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.npmmirror.com/arconnect/-/arconnect-0.4.2.tgz#83de7638fb46183e82d7ec7efb5594c5f7cdc806"
+  integrity sha512-Jkpd4QL3TVqnd3U683gzXmZUVqBUy17DdJDuL/3D9rkysLgX6ymJ2e+sR+xyZF5Rh42CBqDXWNMmCjBXeP7Gbw==
+  dependencies:
+    arweave "^1.10.13"
 
 arg@^5.0.2:
   version "5.0.2"
@@ -4291,12 +4305,30 @@ arraybuffer.prototype.slice@^1.0.4:
     get-intrinsic "^1.2.6"
     is-array-buffer "^3.0.4"
 
+arweave-multihost@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmmirror.com/arweave-multihost/-/arweave-multihost-0.1.0.tgz#6f5dd1f42638dad8414cb20c0a19fee0a6a59844"
+  integrity sha512-biIkzQ3oc4RLV1MORQnqWz51IazP++K/8SsYMjUokK0cUfBLqom4pufKFCjTkGQIZMWWanXxnZqL66hHPgTCgA==
+  dependencies:
+    arweave "^1.10.15"
+    axios "^0.21.1"
+
 arweave-stream-tx@^1.1.0:
   version "1.2.2"
   resolved "https://registry.npmmirror.com/arweave-stream-tx/-/arweave-stream-tx-1.2.2.tgz#2d5c66554301baacd02586a152fbb198b422112f"
   integrity sha512-bNt9rj0hbAEzoUZEF2s6WJbIz8nasZlZpxIw03Xm8fzb9gRiiZlZGW3lxQLjfc9Z0VRUWDzwtqoYeEoB/JDToQ==
   dependencies:
     exponential-backoff "^3.1.0"
+
+arweave@^1.10.13, arweave@^1.10.15, arweave@^1.10.16:
+  version "1.15.7"
+  resolved "https://registry.npmmirror.com/arweave/-/arweave-1.15.7.tgz#d09265d128e93a471203649de083ba7fec52cb29"
+  integrity sha512-F+Y4iWU1qea9IsKQ/YNmLsY4DHQVsaJBuhEbFxQn9cfGHOmtXE+bwo14oY8xqymsqSNf/e1PeIfLk7G7qN/hVA==
+  dependencies:
+    arconnect "^0.4.2"
+    asn1.js "^5.4.1"
+    base64-js "^1.5.1"
+    bignumber.js "^9.0.2"
 
 asn1.js@^4.10.1:
   version "4.10.1"
@@ -4382,7 +4414,14 @@ axios@0.27.2:
     follow-redirects "^1.14.9"
     form-data "^4.0.0"
 
-axios@^1.1.3, axios@^1.4.0:
+axios@^0.21.1:
+  version "0.21.4"
+  resolved "https://registry.npmmirror.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
+  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
+  dependencies:
+    follow-redirects "^1.14.0"
+
+axios@^1.1.3, axios@^1.4.0, axios@^1.6.0:
   version "1.8.4"
   resolved "https://registry.npmmirror.com/axios/-/axios-1.8.4.tgz#78990bb4bc63d2cae072952d374835950a82f447"
   integrity sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==
@@ -5236,14 +5275,9 @@ decimal.js-light@^2.5.1:
   resolved "https://registry.npmmirror.com/decimal.js-light/-/decimal.js-light-2.5.1.tgz#134fd32508f19e208f4fb2f8dac0d2626a867934"
   integrity sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==
 
-decimal.js@^10.2.0:
+decimal.js@^10.2.0, decimal.js@^10.5.0:
   version "10.5.0"
   resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.5.0.tgz#0f371c7cf6c4898ce0afb09836db73cd82010f22"
-  integrity sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==
-
-decimal.js@^10.5.0:
-  version "10.5.0"
-  resolved "https://registry.npmmirror.com/decimal.js/-/decimal.js-10.5.0.tgz#0f371c7cf6c4898ce0afb09836db73cd82010f22"
   integrity sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==
 
 decode-uri-component@^0.2.2:
@@ -5255,6 +5289,13 @@ deep-is@^0.1.3:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.4.tgz#a6f2dce612fadd2ef1f519b73551f17e85199831"
   integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
+
+deep-sort-object@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/deep-sort-object/-/deep-sort-object-1.0.2.tgz#3892dcef5dfd0efc2d6fa96beabccb33cd8ef91f"
+  integrity sha512-Ko2XVMhRhz5Mxyb+QhLX13SHgcK1vuxc6XEfOyTMlbRbv7bhSmMqUw4ywqRwKgV25W+FDIaZjPWQrdblHCTwdA==
+  dependencies:
+    is-plain-object "^2.0.1"
 
 defaults@^1.0.3:
   version "1.0.4"
@@ -6108,7 +6149,7 @@ flatted@^3.2.9:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.3.3.tgz#67c8fad95454a7c7abebf74bb78ee74a44023358"
   integrity sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==
 
-follow-redirects@^1.14.9, follow-redirects@^1.15.6:
+follow-redirects@^1.14.0, follow-redirects@^1.14.9, follow-redirects@^1.15.6:
   version "1.15.9"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.9.tgz#a604fa10e443bf98ca94228d9eebcc2e8a2c8ee1"
   integrity sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==
@@ -6680,6 +6721,13 @@ is-plain-obj@^2.1.0:
   resolved "https://registry.yarnpkg.com/is-plain-obj/-/is-plain-obj-2.1.0.tgz#45e42e37fccf1f40da8e5f76ee21515840c09287"
   integrity sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==
 
+is-plain-object@^2.0.1:
+  version "2.0.4"
+  resolved "https://registry.npmmirror.com/is-plain-object/-/is-plain-object-2.0.4.tgz#2c163b3fafb1b606d9d17928f05c2a1c38e07677"
+  integrity sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==
+  dependencies:
+    isobject "^3.0.1"
+
 is-regex@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/is-regex/-/is-regex-1.2.1.tgz#76d70a3ed10ef9be48eb577887d74205bf0cad22"
@@ -6770,6 +6818,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
+
+isobject@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.npmmirror.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
+  integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
 
 isomorphic-ws@^4.0.1:
   version "4.0.1"
@@ -8176,6 +8229,19 @@ real-require@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/real-require/-/real-require-0.1.0.tgz#736ac214caa20632847b7ca8c1056a0767df9381"
   integrity sha512-r/H9MzAWtrv8aSVjPCMFpDMl5q66GqtmmRkRjpHTsp4zBAa+snZyiQNlMONiUmEJcsnaw0wCauJ2GWODr/aFkg==
+
+redstone-api@^0.4.13:
+  version "0.4.13"
+  resolved "https://registry.npmmirror.com/redstone-api/-/redstone-api-0.4.13.tgz#28819546f35de62eda61351d76f3dd86214d3840"
+  integrity sha512-PNPo9NZpTVEARAAtcbCs7B+ys9nLdcDDtw0fIl+5+RHGtvBEP99wR3W84f/Leazn0esn4ttRAL9SjMaLzS4zbA==
+  dependencies:
+    ar-gql "^0.0.6"
+    arweave "^1.10.16"
+    arweave-multihost "^0.1.0"
+    axios "^1.6.0"
+    deep-sort-object "^1.0.2"
+    lodash "^4.17.21"
+    pako "^2.0.3"
 
 reflect.getprototypeof@^1.0.6, reflect.getprototypeof@^1.0.9:
   version "1.0.10"
