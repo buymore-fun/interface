@@ -30,7 +30,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const [price, setPrice] = useState<string>("");
   const { solPrice } = useSolPrice();
 
-  const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo();
+  const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
   // console.log(new Decimal("549851188.5306576").div(new Decimal("0.036867143")).toString());
 
   const token = useToken(poolId);
@@ -85,7 +85,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
   const refreshTokenPrice = () => {
     if (isPoolLoading) return;
-    fetchPoolInfo(poolId);
+    fetchPoolInfo();
   };
 
   const handleSubmitOrder = async () => {

@@ -11,12 +11,14 @@ import {
 } from "@raydium-io/raydium-sdk-v2";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-
+import { atom, useAtom } from "jotai";
 type PoolInfo = {
   poolInfo: ApiV3PoolInfoStandardItem;
   poolKeys: AmmV4Keys;
   poolRpcData: AmmRpcData;
 };
+
+const raydiumInstanceAtom = atom<Raydium | null>(null);
 
 export function useRaydium() {
   const { publicKey, connected } = useWallet();
@@ -24,7 +26,7 @@ export function useRaydium() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const [raydiumInstance, setRaydiumInstance] = useState<Raydium | null>(null);
+  const [raydiumInstance, setRaydiumInstance] = useAtom(raydiumInstanceAtom);
 
   // Listen to account changes
   useEffect(() => {

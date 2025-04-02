@@ -6,36 +6,41 @@ import { useRaydium } from "@/hooks/use-raydium";
 
 const poolInfoAtom = atom<CpmmPoolInfo | undefined>(undefined);
 
-export function usePoolInfo() {
+export function usePoolInfo(poolId: string) {
   const [poolInfo, setPoolInfo] = useAtom(poolInfoAtom);
   const { raydium } = useRaydium();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const { publicKey } = useWallet();
 
-  const fetchPoolInfo = useCallback(
-    async (poolId: string) => {
-      setIsLoading(true);
-      setError(null);
+  const fetchPoolInfo = useCallback(async () => {
+    if (!raydium || !poolId) {
+      return;
+    }
 
-      if (!poolId) return;
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        const poolInfo = await raydium?.cpmm.getPoolInfoFromRpc(poolId);
+    try {
+      const poolInfo = await raydium.cpmm.getPoolInfoFromRpc(poolId);
 
-        console.log("🚀 ~ poolInfo:", raydium?.ownerPubKey, poolInfo);
-        if (poolInfo) {
-          setPoolInfo(poolInfo);
-        }
-      } catch (err) {
-        console.error("Error fetching pool info:", err);
-        setError(err instanceof Error ? err : new Error(String(err)));
-      } finally {
-        setIsLoading(false);
+      console.log("🚀 ~ poolInfo:", raydium.ownerPubKey, poolInfo);
+      if (poolInfo) {
+        setPoolInfo(poolInfo);
       }
-    },
-    [raydium, setPoolInfo]
-  );
+    } catch (err) {
+      console.error("Error fetching pool info:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [raydium, poolId, setPoolInfo, setIsLoading, setError]);
+
+  useEffect(() => {
+    if (raydium && publicKey) {
+      fetchPoolInfo();
+    }
+  }, [raydium, publicKey, fetchPoolInfo, poolId]);
 
   return { poolInfo, fetchPoolInfo, isLoading, error };
 

@@ -42,17 +42,18 @@ export function GlobalInit() {
   }, [connected, publicKey, isInitialized]);
 
   // Initialize SDK when wallet is connected
-  useEffect(() => {
-    initializeSdkCallback();
-  }, [initializeSdkCallback]);
+  // useEffect(() => {
+  //   initializeSdkCallback();
+  // }, [initializeSdkCallback]);
 
   // Log wallet connection status changes
   useEffect(() => {
     if (connected && publicKey) {
       console.log("Wallet connected:", publicKey?.toString());
       // initSdk({ owner: publicKey! });
+      initializeSdkCallback();
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, initializeSdkCallback]);
 
   useEffect(() => {
     fetchSolBalance();
