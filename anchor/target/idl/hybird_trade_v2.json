@@ -5,7 +5,7 @@
     {
       "name": "AUTHORITY_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 48]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 49]"
     },
     {
       "name": "MAX_ORDER_LIMIT",
@@ -15,22 +15,27 @@
     {
       "name": "ORDER_BOOK_WITH_TOKEN_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 48]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 49]"
     },
     {
       "name": "ORDER_CONFIG_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 48]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 49]"
     },
     {
       "name": "ORDER_COUNTER_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 48]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 49]"
+    },
+    {
+      "name": "SETTLE_POOL_SEED",
+      "type": "bytes",
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 49]"
     },
     {
       "name": "SOL_VAULT_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 48]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 49]"
     }
   ],
   "instructions": [
@@ -74,18 +79,28 @@
           "isSigner": true
         },
         {
-          "name": "tokenMint",
+          "name": "token0Mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "token1Mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "token0Vault",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "solVault",
+          "name": "token1Vault",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "tokenVault",
-          "isMut": true,
+          "name": "poolState",
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -135,33 +150,38 @@
           "isSigner": true
         },
         {
+          "name": "orderBookDetail",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "orderBook",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "fromAta",
+          "name": "inputTokenAta",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "solVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenVault",
+          "name": "inputTokenVault",
           "isMut": true,
           "isSigner": false
         },
         {
           "name": "poolAuthority",
           "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mint",
-          "isMut": true,
           "isSigner": false
         },
         {
@@ -191,10 +211,6 @@
           "type": "u64"
         },
         {
-          "name": "typeV",
-          "type": "u8"
-        },
-        {
           "name": "inAmount",
           "type": "u64"
         },
@@ -218,7 +234,7 @@
         },
         {
           "name": "payer",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true,
           "docs": [
             "The user performing the swap"
@@ -316,6 +332,46 @@
           "docs": [
             "The program account for the most recent oracle observation"
           ]
+        },
+        {
+          "name": "orderBook0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderBook1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookToken0Vault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookToken1Vault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookDetail",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "settlePool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -325,6 +381,18 @@
         },
         {
           "name": "minimumAmountOut",
+          "type": "u64"
+        },
+        {
+          "name": "trades",
+          "type": {
+            "vec": {
+              "defined": "Trade"
+            }
+          }
+        },
+        {
+          "name": "settleId",
           "type": "u64"
         }
       ]
@@ -338,17 +406,22 @@
           "isSigner": true
         },
         {
+          "name": "orderBookDetail",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "orderBook",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "solVault",
-          "isMut": true,
+          "name": "inputTokenMint",
+          "isMut": false,
           "isSigner": false
         },
         {
-          "name": "tokenVault",
+          "name": "inputTokenVault",
           "isMut": true,
           "isSigner": false
         },
@@ -358,27 +431,12 @@
           "isSigner": false
         },
         {
-          "name": "tokenMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "toAta",
+          "name": "inputTokenAccount",
           "isMut": true,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -392,10 +450,6 @@
         {
           "name": "poolId",
           "type": "u64"
-        },
-        {
-          "name": "typeV",
-          "type": "u8"
         },
         {
           "name": "orderId",
@@ -524,7 +578,11 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "tokenMint",
+            "name": "token0Mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "token1Mint",
             "type": "publicKey"
           },
           {
@@ -566,6 +624,34 @@
           {
             "name": "value",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderSettlementPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tokenMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "count",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "settlements",
+            "type": {
+              "vec": {
+                "defined": "OrderSettlement"
+              }
+            }
           }
         ]
       }
@@ -899,15 +985,21 @@
       }
     },
     {
-      "name": "OrderType",
+      "name": "OrderSettlement",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "Buy"
+            "name": "orderId",
+            "type": "u64"
           },
           {
-            "name": "Sell"
+            "name": "maker",
+            "type": "publicKey"
+          },
+          {
+            "name": "makerAmount",
+            "type": "u64"
           }
         ]
       }
@@ -918,12 +1010,12 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "orderId",
+            "name": "poolIndex",
             "type": "u64"
           },
           {
-            "name": "owner",
-            "type": "publicKey"
+            "name": "orderId",
+            "type": "u64"
           }
         ]
       }
@@ -966,12 +1058,22 @@
       "name": "CancelOrder",
       "fields": [
         {
+          "name": "poolPubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
           "name": "poolId",
           "type": "u64",
           "index": false
         },
         {
           "name": "orderId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "amount",
           "type": "u64",
           "index": false
         },
@@ -996,19 +1098,12 @@
           "index": false
         },
         {
-          "name": "token",
+          "name": "owner",
           "type": "publicKey",
           "index": false
         },
         {
-          "name": "orderType",
-          "type": {
-            "defined": "OrderType"
-          },
-          "index": false
-        },
-        {
-          "name": "owner",
+          "name": "inputToken",
           "type": "publicKey",
           "index": false
         },
@@ -1018,12 +1113,117 @@
           "index": false
         },
         {
+          "name": "outputToken",
+          "type": "publicKey",
+          "index": false
+        },
+        {
           "name": "outAmount",
           "type": "u64",
           "index": false
         },
         {
           "name": "deadline",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "NewSettlement",
+      "fields": [
+        {
+          "name": "settleId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "settlePubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "count",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "PoolInitialized",
+      "fields": [
+        {
+          "name": "poolPubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "token0Mint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "token1Mint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "max",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "sysReceiver",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "comReceiver",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "feeRate",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UsedOrder",
+      "fields": [
+        {
+          "name": "poolPubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "orderId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "settlePool",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "usedAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "afterInAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "afterOutAmount",
           "type": "u64",
           "index": false
         }
@@ -1043,11 +1243,16 @@
     },
     {
       "code": 6002,
+      "name": "InvalidTokenMint",
+      "msg": "Invalid token mint"
+    },
+    {
+      "code": 6003,
       "name": "NotOwner",
       "msg": "Not owner"
     },
     {
-      "code": 6003,
+      "code": 6004,
       "name": "OrderNotFound",
       "msg": "Order not found"
     }

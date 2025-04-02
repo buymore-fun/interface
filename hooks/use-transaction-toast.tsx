@@ -10,7 +10,10 @@ export function useTransactionToast() {
           label={"View Transaction"}
           className="btn btn-xs btn-primary"
         />
-      </div>
+      </div>,
+      {
+        duration: 3000,
+      }
     );
   };
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useToken } from "@/hooks/use-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { SOL_ADDRESS } from "@/lib/constants";
@@ -31,7 +31,6 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const { solPrice } = useSolPrice();
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
-  // console.log(new Decimal("549851188.5306576").div(new Decimal("0.036867143")).toString());
 
   const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
@@ -39,7 +38,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const { solBalance } = useSolBalance();
   const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintB.address);
 
-  // const hybirdTradeProgram = useHybirdTradeProgram("");
+  const hybirdTradeProgram = useHybirdTradeProgram("");
 
   const { publicKey } = useWallet();
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
@@ -72,6 +71,16 @@ export function OrderTab({ poolId }: OrderTabProps) {
     order_type: orderType,
   });
 
+  // 计算当前池子中 1 个 SOL 的价格 (以山寨币计价)
+  const getCurrentPriceSolToShit = useCallback((sol: number, shit: number): number => {
+    return new Decimal(sol).div(new Decimal(shit)).toNumber();
+  }, []);
+
+  // 计算当前池子中 1 个山寨币的价格 (以 SOL 计价)
+  const getCurrentPriceShitToSol = useCallback((shit: number, sol: number): number => {
+    return new Decimal(shit).div(new Decimal(sol)).toNumber();
+  }, []);
+
   // Update price when poolInfo changes
   useEffect(() => {
     if (poolInfo?.poolInfo.price) {
@@ -95,6 +104,39 @@ export function OrderTab({ poolId }: OrderTabProps) {
         console.error("Failed to get pool ID");
         return;
       }
+
+      const pool_state_env = {
+        poolId: "427aCk5aRuXpUshfiaD9xewC3RRkj9uZDnzM4eUQ3bPm",
+        mintA: "So11111111111111111111111111111111111111112",
+        mintB: "H8RAUbA1PH8Gjaxj7awyf53TMrjBKNTQRQMM6TqGLQV8",
+        vaultA: "HPnzZnEBeoRSSAMysZdWH3yWuaH96xmJ2sTXD727KPaA",
+        vaultB: "CJ8zGLhDx5vxwYvYtba9t38h2MPjzhLVJAADAhzEotkT",
+        observationId: "7f5yJ7stjZ876dZY2uYMrp5qzdER15RDjorXKbxn9wKM",
+        mintLp: "9DhJcmNAEjBij8uXuAZMSaio3t3J9imsWdLwDaRzy4zZ",
+        configId: "9zSzfkYy6awexsHvmggeH36pfVUdDGyCcwmjT3AQPBj6",
+        poolCreator: "panACusRPNRs9Q2hTSzCnCSiWG8ysK5KeA5Nyib43SR",
+        mintProgramA: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        mintProgramB: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        bump: 255,
+        status: 0,
+        lpDecimals: 9,
+        mintDecimalA: 9,
+        mintDecimalB: 9,
+        openTime: "674d886b",
+        lpAmount: "04184ac7c225",
+        protocolFeesMintA: "00",
+        protocolFeesMintB: "00",
+        fundFeesMintA: "00",
+        fundFeesMintB: "00",
+      };
+
+      await hybirdTradeProgram.add_order_v1(
+        new BN(1000000),
+        new BN(10000),
+        // new BN(poolIdData.pool_id),
+        new BN(1),
+        pool_state_env
+      );
 
       // try {
       //   await hybirdTradeProgram.addOrder(

@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { ChartType } from "@/types/chart";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { CpmmPoolInfo } from "@/types";
+
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { usePoolInfo } from "@/hooks/use-pool-info";
