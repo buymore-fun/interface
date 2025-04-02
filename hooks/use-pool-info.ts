@@ -23,8 +23,8 @@ export function usePoolInfo() {
       try {
         const poolInfo = await raydium?.cpmm.getPoolInfoFromRpc(poolId);
 
+        console.log("🚀 ~ poolInfo:", raydium?.ownerPubKey, poolInfo);
         if (poolInfo) {
-          console.log("🚀 ~ poolInfo:", poolInfo);
           setPoolInfo(poolInfo);
         }
       } catch (err) {

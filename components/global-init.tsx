@@ -29,7 +29,7 @@ export function GlobalInit() {
 
     try {
       console.log("Initializing Raydium SDK...");
-      const instance = await initSdk({ owner: publicKey, loadToken: true });
+      const instance = await initSdk({ owner: publicKey });
       globalRaydiumInstance = instance;
       globalIsInitialized = true;
       setIsInitialized(true);
@@ -38,6 +38,7 @@ export function GlobalInit() {
     } catch (err) {
       console.error("Error initializing Raydium SDK:", err);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected, publicKey, isInitialized]);
 
   // Initialize SDK when wallet is connected
@@ -49,7 +50,7 @@ export function GlobalInit() {
   useEffect(() => {
     if (connected && publicKey) {
       console.log("Wallet connected:", publicKey?.toString());
-      initSdk({ owner: publicKey! });
+      // initSdk({ owner: publicKey! });
     }
   }, [connected, publicKey]);
 
