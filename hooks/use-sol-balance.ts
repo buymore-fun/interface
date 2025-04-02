@@ -28,7 +28,6 @@ export function useSolBalance() {
 
     try {
       const balance = await connection.getBalance(wallet.publicKey);
-      console.log("🚀 ~ fetchSolBalance ~ balance:", balance);
       setSolBalance(balance);
     } catch (error) {
       console.error("Error fetching SOL balance:", error);
@@ -37,11 +36,6 @@ export function useSolBalance() {
       setIsLoading(false);
     }
   }, [connection, wallet.publicKey, setSolBalance]);
-
-  // const fetchTokenBalance = useCallback(async () => {
-  //   if (!wallet.publicKey) return;
-  //   setIsLoading(true);
-  // }, [wallet.publicKey]);
 
   return {
     solBalance,
@@ -63,7 +57,7 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
   const wallet = useWallet();
   const [tokenBalance, setTokenBalance] = useState<TokenAmount>();
   const [isLoading, setIsLoading] = useState(false);
-  const { raydium } = useRaydium();
+  // const { raydium } = useRaydium();
 
   const fetchTokenBalance = useCallback(
     async (tokenAddress: string) => {
@@ -79,10 +73,10 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
       // const tokenAccount = await getAccount(connection, associatedTokenAccount);
       // console.log("🚀 ~ fetchTokenBalance ~ tokenAccount:", tokenAccount);
 
-      const tokenInfo = await raydium?.api.getTokenInfo([
-        new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U"),
-      ]);
-      console.log("🚀 ~ fetchTokenBalance ~ tokenInfo:", tokenInfo);
+      // const tokenInfo = await raydium?.api.getTokenInfo([
+      //   new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U"),
+      // ]);
+      // console.log("🚀 ~ fetchTokenBalance ~ tokenInfo:", tokenInfo);
 
       try {
         const tokenAccountInfo = await connection.getAccountInfo(associatedTokenAccount);
@@ -100,7 +94,7 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
         setIsLoading(false);
       }
     },
-    [connection, wallet.publicKey, raydium]
+    [connection, wallet.publicKey]
   );
 
   useEffect(() => {

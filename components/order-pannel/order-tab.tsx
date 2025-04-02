@@ -28,7 +28,7 @@ interface OrderTabProps {
 export function OrderTab({ poolId }: OrderTabProps) {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const [price, setPrice] = useState<string>("");
-  const { solPrice } = useSolPrice("order");
+  const { solPrice } = useSolPrice();
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo();
   // console.log(new Decimal("549851188.5306576").div(new Decimal("0.036867143")).toString());
