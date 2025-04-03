@@ -10,6 +10,7 @@ import {
   Transaction,
   Signer,
   LAMPORTS_PER_SOL,
+  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -21,8 +22,9 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { OrderType } from "@/consts/order";
 import {
   // TODO  default is TOKEN_PROGRAM_ID, add dynamic params
-  TOKEN_PROGRAM_ID as TOKEN_2022_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID as ATA_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   createSyncNativeInstruction,
   getAssociatedTokenAddressSync,
   getAccount,
@@ -82,8 +84,8 @@ export function useHybirdTradeProgram(mintAddress: string) {
     );
 
     const [token_vault] = PublicKey.findProgramAddressSync(
-      [pool_authority.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
-      ATA_PROGRAM_ID
+      [pool_authority.toBytes(), TOKEN_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
+      ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
     return { counter, order_config, pool_authority, sol_vault, token_vault };
@@ -91,8 +93,8 @@ export function useHybirdTradeProgram(mintAddress: string) {
 
   const getPayerATA = () => {
     const [payer_ata] = PublicKey.findProgramAddressSync(
-      [wallet.publicKey!.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
-      ATA_PROGRAM_ID
+      [wallet.publicKey!.toBytes(), TOKEN_PROGRAM_ID.toBytes(), USDC_MINT.toBytes()],
+      ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
     return { payer_ata };
@@ -115,7 +117,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
       initialize_pool_authority,
       true,
       token_0_program,
-      ATA_PROGRAM_ID
+      ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
     const token_1_vault = getAssociatedTokenAddressSync(
@@ -123,7 +125,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
       initialize_pool_authority,
       true,
       token_1_program,
-      ATA_PROGRAM_ID
+      ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
     const [order_book_detail] = PublicKey.findProgramAddressSync(
@@ -149,7 +151,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
         orderBookDetail: order_book_detail,
         // tokenVault: pool_account,
         config: order_config,
-        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        tokenProgram: TOKEN_PROGRAM_ID,
         // associatedTokenProgram: ATA_PROGRAM_ID,
         // systemProgram: SystemProgram.programId,
       })
@@ -181,24 +183,43 @@ export function useHybirdTradeProgram(mintAddress: string) {
   //   throw signature;
   // };
 
-  const sol_to_wsol = async (amount: number) => {
+  const solToWsol = async (amount: number) => {
     const tx = new Transaction();
 
-    const to = await getAssociatedTokenAddress(NATIVE_MINT, wallet.publicKey!);
+    const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, wallet.publicKey!);
+
+    const associatedTokenAccountInfo =
+      await program.provider.connection.getAccountInfo(associatedTokenAccount);
+
+    if (!associatedTokenAccountInfo) {
+      console.log(
+        "Warning: WSOL ATA not found, will attempt to create. If this is not the first conversion, please check previous operations."
+      );
+
+      tx.add(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey!,
+          associatedTokenAccount,
+          wallet.publicKey!,
+          NATIVE_MINT
+        )
+      );
+    }
 
     tx.add(
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey!,
-        toPubkey: to,
+        toPubkey: associatedTokenAccount,
         lamports: amount,
       }),
-      createSyncNativeInstruction(to, TOKEN_2022_PROGRAM_ID)
+      createSyncNativeInstruction(associatedTokenAccount)
     );
 
     const signature = await provider.sendAndConfirm(tx);
-    console.log("Your transaction signature", signature);
+    // console.log("Your transaction signature", signature);
     transactionToast(signature);
-    throw signature;
+    // throw signature;
+    return tx;
   };
 
   const cancelOrder = async (poolId: number, orderType: number, orderId: number) => {
@@ -216,7 +237,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     //     to: wallet.publicKey!,
     //     toAta: payer_ata,
     //     tokenMint: USDC_MINT,
-    //     tokenProgram: TOKEN_2022_PROGRAM_ID,
+    //     tokenProgram: TOKEN_PROGRAM_ID,
     //   })
     //   .instruction();
     // tx.add(ix);
@@ -308,7 +329,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
         input_token_mint,
         wallet.publicKey!,
         input_token_program,
-        ATA_PROGRAM_ID
+        ASSOCIATED_TOKEN_PROGRAM_ID
       );
       tx.add(ix);
     }
@@ -330,7 +351,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
         output_token_mint,
         wallet.publicKey!,
         output_token_program,
-        ATA_PROGRAM_ID
+        ASSOCIATED_TOKEN_PROGRAM_ID
       );
       tx.add(ix);
     }
@@ -396,7 +417,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     //     inputTokenMint: input_token_mint,
     //     outputTokenMint: output_token_mint,
     //     observationState: OB_STATE_ADDRESS
-    //     // tokenProgram: TOKEN_2022_PROGRAM_ID,
+    //     // tokenProgram: TOKEN_PROGRAM_ID,
     // }).instruction();
 
     // tx.add(ix);
@@ -429,9 +450,9 @@ export function useHybirdTradeProgram(mintAddress: string) {
 
   async function add_order_v1(in_amount: BN, out_amount: BN, pool_id: BN, cfg: any) {
     const { counter } = getProgramAddress();
+    const tx = new Transaction();
 
-    // await sol_to_wsol_official(wallet.publicKey!, 1 * LAMPORTS_PER_SOL);
-    // await sol_to_wsol(1 * LAMPORTS_PER_SOL);
+    // await sol_to_wsol(tx, in_amount);
 
     const token_0_mint = new PublicKey(cfg.mintA);
     const token_1_mint = new PublicKey(cfg.mintB);
@@ -446,9 +467,8 @@ export function useHybirdTradeProgram(mintAddress: string) {
       token_0_program
     );
 
-    const tx = new Transaction();
-
     const accountInfo = await program.provider.connection.getAccountInfo(input_token_ata);
+    console.log("🚀 ~ add_order_v1 ~ accountInfo:", !!accountInfo);
     if (!accountInfo) {
       // const tx = new Transaction();
       const ix = createAssociatedTokenAccountInstruction(
@@ -533,6 +553,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     initializePool,
     cancelOrder,
     trade_in,
+    solToWsol,
   };
 }
 

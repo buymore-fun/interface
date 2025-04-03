@@ -22,13 +22,14 @@ import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-ac
 import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";
 import { CpmmPoolInfo } from "@/types/raydium";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 interface OrderTabProps {
   poolId: string;
 }
 
 export function OrderTab({ poolId }: OrderTabProps) {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
-  const [price, setPrice] = useState<string>("");
+  const [orderPrice, setOrderPrice] = useState<string>("");
   const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
@@ -77,41 +78,6 @@ export function OrderTab({ poolId }: OrderTabProps) {
     [isBuy, poolInfo]
   );
 
-  // ### 当前池子状态
-
-  // - mintA是Sol: 0.036867143 SOL
-  // - mintB是山寨币: 549851188.5306576 代币
-  // - SOL价格: 124.7473490625 USD
-
-  // ### 计算当前代币价格
-
-  // 当前代币价格 = mintAmountA / mintAmountB
-  // = 0.036867143 / 549851188.5306576
-  // = 0.00000006704 SOL/代币
-
-  // 以USD计价：
-  // 代币价格 = 0.00000006704 \* 124.7473490625 = 0.00000836 USD/代币
-
-  // ### Buy操作（用SOL购买代币）
-
-  // 当用户用SOL购买代币时：
-
-  // 1. 输入SOL数量(x)
-  // 2. 计算可获得的代币数量(y)
-
-  // 假设用户输入x SOL，则可获得的代币数量为：
-  // y = (mintAmountB / mintAmountA) \* x
-
-  // ### Sell操作（用代币兑换SOL）
-
-  // 当用户用代币兑换SOL时：
-
-  // 1. 输入代币数量(y)
-  // 2. 计算可获得的SOL数量(x)
-
-  // 假设用户输入y代币，则可获得的SOL数量为：
-  // x = (mintAmountA / mintAmountB) \* y
-
   const { mutate: mutatePoolId } = usePoolPrepareId({
     input_token: inputToken || "",
     output_token: outputToken || "",
@@ -124,6 +90,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
     const amountB = new Decimal(poolInfo.mintAmountB).mul(10 ** poolInfo.mintB.decimals);
 
     const price = isReverse ? amountA.div(amountB).toNumber() : amountB.div(amountA).toNumber();
+    console.log("🚀 ~ getCurrentPrice ~ price:", price);
 
     return price;
   };
@@ -133,7 +100,6 @@ export function OrderTab({ poolId }: OrderTabProps) {
     const priceInUSD = new Intl.NumberFormat("en-US", {
       maximumFractionDigits: 9,
     }).format(price * solPrice);
-    console.log("🚀 ~ getCurrentPrice ~ price:", priceInUSD);
 
     return priceInUSD;
   };
@@ -141,17 +107,17 @@ export function OrderTab({ poolId }: OrderTabProps) {
   useEffect(() => {
     if (poolInfo?.poolInfo) {
       const price = getCurrentPriceInUSD(poolInfo);
-      setPrice(price);
+      setOrderPrice(price);
     }
   }, [poolInfo]);
 
   useEffect(() => {
-    if (orderTokenAAmount && price) {
-      const amount = new Decimal(orderTokenAAmount).div(new Decimal(price)).toString();
+    if (orderTokenAAmount && orderPrice) {
+      const amount = new Decimal(orderTokenAAmount).div(new Decimal(orderPrice)).toString();
       console.log("🚀 ~ useEffect ~ amount:", amount);
       setOrderTokenBAmount(amount);
     }
-  }, [orderTokenAAmount, price, setOrderTokenBAmount]);
+  }, [orderTokenAAmount, orderPrice, setOrderTokenBAmount]);
 
   const toggleOrderType = () => {
     setOrderType(isBuy ? OrderType.Sell : OrderType.Buy);
@@ -203,7 +169,10 @@ export function OrderTab({ poolId }: OrderTabProps) {
         .toString();
 
       console.group("add_order_v1");
-      console.log("Got pool ID:", poolIdData.pool_id);
+      console.log("orderPrice", orderPrice);
+      console.log("getCurrentPrice", getCurrentPrice(poolInfo));
+      console.log("getCurrentPriceInUSD", getCurrentPriceInUSD(poolInfo));
+      console.log("Got pool ID", poolIdData.pool_id);
       console.log(`orderTokenAAmount`, orderTokenAAmount);
       console.log(`orderTokenBAmount`, orderTokenBAmount);
       console.log(`inAmount`, inAmount);
@@ -219,6 +188,10 @@ export function OrderTab({ poolId }: OrderTabProps) {
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     }
+  };
+
+  const handleSolToWsol = async () => {
+    await hybirdTradeProgram.solToWsol(1 * LAMPORTS_PER_SOL);
   };
 
   return (
@@ -279,12 +252,12 @@ export function OrderTab({ poolId }: OrderTabProps) {
                   type="number"
                   className="border-none text-lg font-semibold text-right outline-none p-0 w-[110px]"
                   placeholder="0.00"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={orderPrice}
+                  onChange={(e) => setOrderPrice(e.target.value)}
                 />
               )}
               <span className="text-xs text-muted-foreground">
-                {poolInfo?.poolInfo.mintB.symbol || "BOB"}
+                {poolInfo?.poolInfo.mintB.symbol}
               </span>
               <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
                 <Icon name="refresh" className="text-primary" />
@@ -295,7 +268,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
                 <Skeleton className="w-16 h-4" />
               ) : (
                 <span>
-                  ${poolInfo?.poolInfo.mintB.symbol || "BOB"}≈${getCurrentPriceInUSD(poolInfo)}
+                  ${poolInfo?.poolInfo.mintB.symbol}≈${getCurrentPriceInUSD(poolInfo)}
                 </span>
               )}
             </div>
@@ -371,15 +344,21 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
       <div className="mt-3">
         {publicKey ? (
-          <Button
-            className="w-full"
-            size="lg"
-            disabled={!orderTokenAAmount || isPoolLoading}
-            onClick={handleSubmitOrder}
-          >
-            {/* {isPoolLoading ? <Spinner size="small" /> : "Submit"} */}
-            {"Submit"}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button className="w-full" size="lg" onClick={handleSolToWsol}>
+              {"Sol to Wsol"}
+            </Button>
+
+            <Button
+              className="w-full"
+              size="lg"
+              disabled={!orderTokenAAmount || isPoolLoading}
+              onClick={handleSubmitOrder}
+            >
+              {/* {isPoolLoading ? <Spinner size="small" /> : "Submit"} */}
+              {"Submit"}
+            </Button>
+          </div>
         ) : (
           <Button className="w-full" size="lg" onClick={() => setConnectWalletModalOpen(true)}>
             Connect Wallet
