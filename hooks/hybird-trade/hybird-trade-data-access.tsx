@@ -32,7 +32,6 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { getPoolVaultAddress } from "@/hooks/hybird-trade/pda";
-import { createAssociatedLedgerAccountInstruction } from "@raydium-io/raydium-sdk-v2";
 
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
@@ -449,11 +448,11 @@ export function useHybirdTradeProgram(mintAddress: string) {
       token_0_program
     );
 
-    const accountInfo = await program.provider.connection.getAccountInfo(input_token_ata);
-    console.log(`Input token account: ${accountInfo}`);
-    if (!accountInfo) {
-      const tx = new Transaction();
+    const tx = new Transaction();
 
+    const accountInfo = await program.provider.connection.getAccountInfo(input_token_ata);
+    if (!accountInfo) {
+      // const tx = new Transaction();
       const ix = createAssociatedTokenAccountInstruction(
         wallet.publicKey!,
         input_token_ata,
@@ -463,10 +462,10 @@ export function useHybirdTradeProgram(mintAddress: string) {
       );
 
       tx.add(ix);
-      const sig = await provider.sendAndConfirm(tx);
-      console.log("Your transaction signature", sig);
-      transactionToast(sig);
-      return;
+      // const sig = await provider.sendAndConfirm(tx);
+      // console.log("Your transaction signature", sig);
+      // transactionToast(sig);
+      // return;
     }
 
     const [initialize_pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
@@ -488,7 +487,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     // const out_amount = new anchor.BN( 1000 )
     const now_v = new BN(now);
 
-    const tx = new Transaction();
+    // const tx = new Transaction();
 
     const ix = await program.methods
       .addOrderToPool(pool_id, in_amount, out_amount, now_v)

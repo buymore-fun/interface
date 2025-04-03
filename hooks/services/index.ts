@@ -127,14 +127,13 @@ export function useOrderbookDepth(params: {
 }
 
 // https://api-test.buymore.fun/usurper/pool/prepare-id?token=9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U&order_type=buy
-export function usePoolPrepareId(params: { token: string; order_type: OrderType }) {
+export function usePoolPrepareId(params: { input_token: string; output_token: string }) {
   const { data, error, isLoading, mutate } = useSWR(
     `/pool/prepare-id`,
     async (url: string) => {
       const response = await axiosInstance.get(url, {
         params: {
           ...params,
-          order_type: params.order_type === OrderType.Buy ? "buy" : "sell",
         },
       });
       return response.data?.data as {

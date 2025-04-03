@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { use, useCallback, useState } from "react";
 import { useToken } from "@/hooks/use-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { SOL_ADDRESS } from "@/lib/constants";
@@ -17,10 +17,11 @@ import { useMemo, useEffect } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { usePoolInfo } from "@/hooks/use-pool-info";
 import Decimal from "decimal.js";
-import { formatNumber, formatSolBalance } from "@/lib/utils";
+import { formatNumber, formatBalance } from "@/lib/utils";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";
+import { CpmmPoolInfo } from "@/types/raydium";
 interface OrderTabProps {
   poolId: string;
 }
@@ -28,9 +29,11 @@ interface OrderTabProps {
 export function OrderTab({ poolId }: OrderTabProps) {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const [price, setPrice] = useState<string>("");
-  const { solPrice } = useSolPrice();
+  const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
+
+  const isLoading = isSolPriceLoading || isPoolLoading;
 
   const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
@@ -66,27 +69,89 @@ export function OrderTab({ poolId }: OrderTabProps) {
     [isBuy, tokenBalance, solBalance]
   );
 
+  const [inputToken, outputToken] = useMemo(
+    () =>
+      isBuy
+        ? [poolInfo?.poolInfo.mintA.address, poolInfo?.poolInfo.mintB.address]
+        : [poolInfo?.poolInfo.mintB.address, poolInfo?.poolInfo.mintA.address],
+    [isBuy, poolInfo]
+  );
+
+  // ### 当前池子状态
+
+  // - mintA是Sol: 0.036867143 SOL
+  // - mintB是山寨币: 549851188.5306576 代币
+  // - SOL价格: 124.7473490625 USD
+
+  // ### 计算当前代币价格
+
+  // 当前代币价格 = mintAmountA / mintAmountB
+  // = 0.036867143 / 549851188.5306576
+  // = 0.00000006704 SOL/代币
+
+  // 以USD计价：
+  // 代币价格 = 0.00000006704 \* 124.7473490625 = 0.00000836 USD/代币
+
+  // ### Buy操作（用SOL购买代币）
+
+  // 当用户用SOL购买代币时：
+
+  // 1. 输入SOL数量(x)
+  // 2. 计算可获得的代币数量(y)
+
+  // 假设用户输入x SOL，则可获得的代币数量为：
+  // y = (mintAmountB / mintAmountA) \* x
+
+  // ### Sell操作（用代币兑换SOL）
+
+  // 当用户用代币兑换SOL时：
+
+  // 1. 输入代币数量(y)
+  // 2. 计算可获得的SOL数量(x)
+
+  // 假设用户输入y代币，则可获得的SOL数量为：
+  // x = (mintAmountA / mintAmountB) \* y
+
   const { mutate: mutatePoolId } = usePoolPrepareId({
-    token: poolId,
-    order_type: orderType,
+    input_token: inputToken || "",
+    output_token: outputToken || "",
   });
 
-  // 计算当前池子中 1 个 SOL 的价格 (以山寨币计价)
-  const getCurrentPriceSolToShit = useCallback((sol: number, shit: number): number => {
-    return new Decimal(sol).div(new Decimal(shit)).toNumber();
-  }, []);
+  const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
+    if (!cpmmPoolInfo) return 0;
+    const poolInfo = cpmmPoolInfo.poolInfo;
+    const amountA = new Decimal(poolInfo.mintAmountA).mul(10 ** poolInfo.mintA.decimals);
+    const amountB = new Decimal(poolInfo.mintAmountB).mul(10 ** poolInfo.mintB.decimals);
 
-  // 计算当前池子中 1 个山寨币的价格 (以 SOL 计价)
-  const getCurrentPriceShitToSol = useCallback((shit: number, sol: number): number => {
-    return new Decimal(shit).div(new Decimal(sol)).toNumber();
-  }, []);
+    const price = isReverse ? amountA.div(amountB).toNumber() : amountB.div(amountA).toNumber();
 
-  // Update price when poolInfo changes
+    return price;
+  };
+
+  const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo) => {
+    const price = getCurrentPrice(cpmmPoolInfo);
+    const priceInUSD = new Intl.NumberFormat("en-US", {
+      maximumFractionDigits: 9,
+    }).format(price * solPrice);
+    console.log("🚀 ~ getCurrentPrice ~ price:", priceInUSD);
+
+    return priceInUSD;
+  };
+
   useEffect(() => {
-    if (poolInfo?.poolInfo.price) {
-      setPrice(poolInfo.poolInfo.price.toString());
+    if (poolInfo?.poolInfo) {
+      const price = getCurrentPriceInUSD(poolInfo);
+      setPrice(price);
     }
   }, [poolInfo]);
+
+  useEffect(() => {
+    if (orderTokenAAmount && price) {
+      const amount = new Decimal(orderTokenAAmount).div(new Decimal(price)).toString();
+      console.log("🚀 ~ useEffect ~ amount:", amount);
+      setOrderTokenBAmount(amount);
+    }
+  }, [orderTokenAAmount, price, setOrderTokenBAmount]);
 
   const toggleOrderType = () => {
     setOrderType(isBuy ? OrderType.Sell : OrderType.Buy);
@@ -130,28 +195,27 @@ export function OrderTab({ poolId }: OrderTabProps) {
         fundFeesMintB: "00",
       };
 
+      const inAmount = new Decimal(orderTokenAAmount)
+        .mul(10 ** pool_state_env.mintDecimalA)
+        .toString();
+      const outAmount = new Decimal(orderTokenBAmount)
+        .mul(10 ** pool_state_env.mintDecimalB)
+        .toString();
+
+      console.group("add_order_v1");
+      console.log("Got pool ID:", poolIdData.pool_id);
+      console.log(`orderTokenAAmount`, orderTokenAAmount);
+      console.log(`orderTokenBAmount`, orderTokenBAmount);
+      console.log(`inAmount`, inAmount);
+      console.log(`outAmount`, outAmount);
+      console.groupEnd();
+
       await hybirdTradeProgram.add_order_v1(
-        new BN(1000000),
-        new BN(10000),
-        // new BN(poolIdData.pool_id),
-        new BN(1),
+        new BN(inAmount),
+        new BN(outAmount),
+        new BN(poolIdData.pool_id),
         pool_state_env
       );
-
-      // try {
-      //   await hybirdTradeProgram.addOrder(
-      //     // new BN(Number(inAmount) * 10000),
-      //     // new BN(Number(outAmount) * 1000),
-      //     new BN(10000),
-      //     new BN(1000),
-      //     orderType,
-      //     new BN(poolIdData.pool_id)
-      //   );
-      // } catch (error) {
-      //   console.error("Failed to add order:", error);
-      // }
-
-      console.log("Got pool ID:", poolIdData.pool_id);
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     }
@@ -167,7 +231,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
           <Image src={WalletIcon} alt="Wallet" />
           <span>
             {isBuy
-              ? `${formatSolBalance(solBalance)} SOL`
+              ? `${formatBalance(solBalance)} SOL`
               : `${tokenBalance?.uiAmountString} ${poolInfo?.poolInfo.mintB?.symbol}`}
           </span>
         </div>
@@ -179,19 +243,48 @@ export function OrderTab({ poolId }: OrderTabProps) {
             <Image src="/assets/token/price.svg" width={28} height={28} alt="Price" />
             <div className="flex flex-col">
               <span>Price</span>
-              <span className="text-xs text-muted-foreground">
-                {tokenA?.symbol}/{tokenB?.symbol}
-              </span>
+              <div className="flex items-center gap-1">
+                {/* <span className="text-xs text-muted-foreground">
+                  {tokenA?.symbol}/{tokenB?.symbol}
+                </span> */}
+                {/* {isLoading ? (
+                  <Skeleton className="w-16 h-4" />
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    ≈${getCurrentPriceInUSD(poolInfo)}
+                  </span>
+                )} */}
+                {/* ≈${formatNumber(getCurrentPriceInUSD(poolInfo))} */}
+                {/* {formatNumber(getCurrentPriceInUSD(poolInfo))}$ */}
+                {/* ≈${getCurrentPriceInUSD(poolInfo)} */}
+                {/* <Button
+                  variant="ghost"
+                  size="xs"
+                  className="p-0 h-[15px] w-[15px]"
+                  onClick={refreshTokenPrice}
+                >
+                  <Icon name="refresh" className="text-primary" />
+                </Button> */}
+              </div>
             </div>
           </div>
           <div className="flex flex-col items-end">
-            <div className="flex items-center gap-1">
-              <Input
-                className="border-none text-lg font-semibold text-right outline-none p-0 w-[180px]"
-                placeholder="0.00"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
+            <div className="flex flex-row items-center gap-1">
+              <span className="text-xs text-muted-foreground">1 SOL =</span>
+              {isLoading ? (
+                <Skeleton className="w-[120px] h-4" />
+              ) : (
+                <Input
+                  id="price"
+                  className="border-none text-lg font-semibold text-right outline-none p-0 w-[110px]"
+                  placeholder="0.00"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+              )}
+              <span className="text-xs text-muted-foreground">
+                {poolInfo?.poolInfo.mintB.symbol || "BOB"}
+              </span>
               <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
                 <Icon name="refresh" className="text-primary" />
               </Button>
@@ -200,9 +293,21 @@ export function OrderTab({ poolId }: OrderTabProps) {
               {isPoolLoading ? (
                 <Skeleton className="w-16 h-4" />
               ) : (
-                <span>≈${poolInfo?.poolInfo.price}</span>
+                <span>
+                  ${poolInfo?.poolInfo.mintB.symbol || "BOB"}≈${getCurrentPriceInUSD(poolInfo)}
+                </span>
               )}
             </div>
+            {/* <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
+              <Icon name="refresh" className="text-primary" />
+            </Button>
+            <div className="flex items-start text-xs text-muted-foreground w-full justify-end">
+              {isPoolLoading ? (
+                <Skeleton className="w-16 h-4" />
+              ) : (
+                <span>≈${poolInfo?.poolInfo.price}</span>
+              )}
+            </div> */}
           </div>
         </div>
 
@@ -217,10 +322,14 @@ export function OrderTab({ poolId }: OrderTabProps) {
               <Skeleton className="h-9 w-24" />
             )}
             <Input
-              className="border-none text-lg font-semibold text-right outline-none p-0 "
+              id="tokenA"
+              className="border-none text-lg font-semibold text-right outline-none p-0"
               placeholder="0.00"
               value={orderTokenAAmount}
-              onChange={(e) => setOrderTokenAAmount(e.target.value)}
+              disabled={isLoading}
+              onChange={(e) => {
+                setOrderTokenAAmount(e.target.value);
+              }}
             />
           </div>
 
@@ -244,6 +353,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
               <Skeleton className="h-9 w-24" />
             )}
             <Input
+              id="tokenB"
               className="border-none text-lg font-semibold text-right outline-none p-0 disabled:cursor-not-allowed"
               placeholder="0.00"
               value={orderTokenBAmount}

@@ -1,4 +1,5 @@
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import Decimal from "decimal.js";
 
 function getFormatterRule(input: number) {
   const rules = [
@@ -94,17 +95,17 @@ export function formatNumber(input: number | string | undefined, placeholder = "
   );
 }
 
-export function formatSolBalance(
+export function formatBalance(
   balance: number,
   decimals: number = LAMPORTS_PER_SOL,
-  toFixed: number = 2
+  toFixed: number = 3
 ): string {
-  const solBalance = balance / decimals;
+  const solBalance = new Decimal(balance).div(new Decimal(decimals)).toNumber();
 
-  const formattedBalance = solBalance.toFixed(toFixed);
+  const formattedBalance = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: toFixed,
+    maximumFractionDigits: toFixed,
+  }).format(solBalance);
 
-  const parts = formattedBalance.split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-  return `${parts.join(".")}`;
+  return formattedBalance;
 }
