@@ -26,19 +26,19 @@ export function AddOrderCard() {
   const hybirdTradeProgram = useHybirdTradeProgram(address as string);
 
   const handleAddOrder = async () => {
-    setAddingSOLOrder(true);
-    try {
-      await hybirdTradeProgram.addOrder(
-        new BN(Number(inAmount) * 10000),
-        new BN(Number(outAmount) * 1000),
-        orderType,
-        new BN(poolId)
-      );
-    } catch (error) {
-      console.error("Failed to add order:", error);
-    } finally {
-      setAddingSOLOrder(false);
-    }
+    // setAddingSOLOrder(true);
+    // try {
+    //   await hybirdTradeProgram.addOrder(
+    //     new BN(Number(inAmount) * 10000),
+    //     new BN(Number(outAmount) * 1000),
+    //     orderType,
+    //     new BN(poolId)
+    //   );
+    // } catch (error) {
+    //   console.error("Failed to add order:", error);
+    // } finally {
+    //   setAddingSOLOrder(false);
+    // }
   };
 
   return (

@@ -202,33 +202,28 @@ export function useHybirdTradeProgram(mintAddress: string) {
   };
 
   const cancelOrder = async (poolId: number, orderType: number, orderId: number) => {
-    const { token_vault } = getProgramAddress();
-    const { payer_ata } = getPayerATA();
-
-    const pool_id = new BN(1);
-    const order_type = OrderType.Sell;
-    const cancel_order_id = new BN(3);
-
-    const tx = new Transaction();
-
-    const ix = await program.methods
-      .cancelOrder(pool_id, order_type, cancel_order_id)
-      .accounts({
-        payer: wallet.publicKey!,
-        tokenVault: token_vault,
-        to: wallet.publicKey!,
-        toAta: payer_ata,
-        tokenMint: USDC_MINT,
-        tokenProgram: TOKEN_2022_PROGRAM_ID,
-      })
-      .instruction();
-
-    tx.add(ix);
-
-    const signature = await provider.sendAndConfirm(tx);
-    console.log("Your transaction signature", signature);
-    transactionToast(signature);
-    return signature;
+    // const { token_vault } = getProgramAddress();
+    // const { payer_ata } = getPayerATA();
+    // const pool_id = new BN(1);
+    // const order_type = OrderType.Sell;
+    // const cancel_order_id = new BN(3);
+    // const tx = new Transaction();
+    // const ix = await program.methods
+    //   .cancelOrder(pool_id, order_type, cancel_order_id)
+    //   .accounts({
+    //     payer: wallet.publicKey!,
+    //     tokenVault: token_vault,
+    //     to: wallet.publicKey!,
+    //     toAta: payer_ata,
+    //     tokenMint: USDC_MINT,
+    //     tokenProgram: TOKEN_2022_PROGRAM_ID,
+    //   })
+    //   .instruction();
+    // tx.add(ix);
+    // const signature = await provider.sendAndConfirm(tx);
+    // console.log("Your transaction signature", signature);
+    // transactionToast(signature);
+    // return signature;
   };
 
   async function trade_in(in_v: number, out_v: number) {
@@ -364,27 +359,27 @@ export function useHybirdTradeProgram(mintAddress: string) {
 
     // await delay(20 * 1000);
 
-    console.log(input_token_account.toBase58());
-    console.log(output_token_account.toBase58());
-    const ix = await program.methods
-      .proxySwapBaseInput(in_amount, out_amount)
-      .accounts({
-        cpSwapProgram: raydium_pubkey,
-        payer: wallet.publicKey!,
-        poolState: pool_state,
-        authority: POOL_AUTH_PUBKEY,
-        ammConfig: configAddress,
-        inputTokenAccount: input_token_account,
-        outputTokenAccount: output_token_account,
-        inputVault: new PublicKey(env.vaultA),
-        outputVault: new PublicKey(env.vaultB),
-        inputTokenMint: input_token_mint,
-        outputTokenMint: output_token_mint,
-        inputTokenProgram: input_token_program,
-        outputTokenProgram: output_token_program,
-        observationState: new PublicKey(env.observationId),
-      })
-      .instruction();
+    // console.log(input_token_account.toBase58());
+    // console.log(output_token_account.toBase58());
+    // const ix = await program.methods
+    //   .proxySwapBaseInput(in_amount, out_amount)
+    //   .accounts({
+    //     cpSwapProgram: raydium_pubkey,
+    //     payer: wallet.publicKey!,
+    //     poolState: pool_state,
+    //     authority: POOL_AUTH_PUBKEY,
+    //     ammConfig: configAddress,
+    //     inputTokenAccount: input_token_account,
+    //     outputTokenAccount: output_token_account,
+    //     inputVault: new PublicKey(env.vaultA),
+    //     outputVault: new PublicKey(env.vaultB),
+    //     inputTokenMint: input_token_mint,
+    //     outputTokenMint: output_token_mint,
+    //     inputTokenProgram: input_token_program,
+    //     outputTokenProgram: output_token_program,
+    //     observationState: new PublicKey(env.observationId),
+    //   })
+    //   .instruction();
     // .accounts({
     //     cpSwapProgram: raydium_pubkey,
     //     payer: wallet.publicKey,
@@ -404,12 +399,12 @@ export function useHybirdTradeProgram(mintAddress: string) {
     //     // tokenProgram: TOKEN_2022_PROGRAM_ID,
     // }).instruction();
 
-    tx.add(ix);
+    // tx.add(ix);
 
-    const sig = await provider.sendAndConfirm(tx);
-    console.log("Your transaction signature", sig);
-    transactionToast(sig);
-    console.log(`Trade In: ${in_v} SOL -> ${out_v} USD`);
+    // const sig = await provider.sendAndConfirm(tx);
+    // console.log("Your transaction signature", sig);
+    // transactionToast(sig);
+    // console.log(`Trade In: ${in_v} SOL -> ${out_v} USD`);
   }
 
   const make_pool_authority = (token_0_mint, token_1_mint) => {
@@ -472,6 +467,19 @@ export function useHybirdTradeProgram(mintAddress: string) {
     }
 
     const [initialize_pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
+
+    const poolAccount = await program.provider.connection.getAccountInfo(initialize_pool_authority);
+    console.log("🚀 ~ add_order_v1 ~ poolAccount:", poolAccount);
+    // if (!poolAccount) {
+    //   const ix = createAssociatedTokenAccountInstruction(
+    //     wallet.publicKey!,
+    //     initialize_pool_authority,
+    //     wallet.publicKey!,
+    //     token_0_mint,
+    //     token_0_program
+    //   );
+    //   tx.add(ix);
+    // }
 
     const token_vault = getAssociatedTokenAddressSync(
       token_0_mint,
