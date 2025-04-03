@@ -90,13 +90,12 @@ export function OrderTab({ poolId }: OrderTabProps) {
     const amountB = new Decimal(poolInfo.mintAmountB).mul(10 ** poolInfo.mintB.decimals);
 
     const price = isReverse ? amountA.div(amountB).toNumber() : amountB.div(amountA).toNumber();
-    console.log("🚀 ~ getCurrentPrice ~ price:", price);
 
     return price;
   };
 
-  const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo) => {
-    const price = getCurrentPrice(cpmmPoolInfo);
+  const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true) => {
+    const price = getCurrentPrice(cpmmPoolInfo, isReverse);
     const priceInUSD = new Intl.NumberFormat("en-US", {
       maximumFractionDigits: 9,
     }).format(price * solPrice);
@@ -106,16 +105,18 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
   useEffect(() => {
     if (poolInfo?.poolInfo) {
-      const price = getCurrentPriceInUSD(poolInfo);
-      setOrderPrice(price);
+      const price = getCurrentPrice(poolInfo, false);
+      setOrderPrice(price.toString());
     }
   }, [poolInfo]);
 
   useEffect(() => {
     if (orderTokenAAmount && orderPrice) {
-      const amount = new Decimal(orderTokenAAmount).div(new Decimal(orderPrice)).toString();
-      console.log("🚀 ~ useEffect ~ amount:", amount);
-      setOrderTokenBAmount(amount);
+      const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+        .mul(new Decimal(orderPrice))
+        .toString();
+      console.log("🚀 ~ useEffect ~ _orderTokenBAmount:", _orderTokenBAmount);
+      setOrderTokenBAmount(_orderTokenBAmount);
     }
   }, [orderTokenAAmount, orderPrice, setOrderTokenBAmount]);
 
@@ -175,6 +176,8 @@ export function OrderTab({ poolId }: OrderTabProps) {
       console.log("Got pool ID", poolIdData.pool_id);
       console.log(`orderTokenAAmount`, orderTokenAAmount);
       console.log(`orderTokenBAmount`, orderTokenBAmount);
+      console.log(`mintAmountA`, poolInfo?.poolInfo.mintAmountA);
+      console.log(`mintAmountB`, poolInfo?.poolInfo.mintAmountB);
       console.log(`inAmount`, inAmount);
       console.log(`outAmount`, outAmount);
       console.groupEnd();

@@ -162,27 +162,6 @@ export function useHybirdTradeProgram(mintAddress: string) {
     return ix;
   };
 
-  // const sol_to_wsol_official = async (to: PublicKey, amount: number) => {
-  //   const tx = new Transaction();
-
-  //   const ata = await getAssociatedTokenAddress(NATIVE_MINT, wallet.publicKey!);
-  //   console.log("🚀 ~ constsol_to_wsol_official= ~ ata:", ata.toBase58());
-
-  //   tx.add(
-  //     SystemProgram.transfer({
-  //       fromPubkey: wallet.publicKey!,
-  //       toPubkey: to,
-  //       lamports: amount,
-  //     }),
-  //     createSyncNativeInstruction(ata, new PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"))
-  //   );
-
-  //   const signature = await provider.sendAndConfirm(tx, [wallet.payer]);
-  //   console.log("Your transaction signature", signature);
-  //   transactionToast(signature);
-  //   throw signature;
-  // };
-
   const solToWsol = async (amount: number) => {
     const tx = new Transaction();
 
