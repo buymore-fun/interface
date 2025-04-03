@@ -276,6 +276,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
               ) : (
                 <Input
                   id="price"
+                  type="number"
                   className="border-none text-lg font-semibold text-right outline-none p-0 w-[110px]"
                   placeholder="0.00"
                   value={price}
@@ -323,6 +324,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
             )}
             <Input
               id="tokenA"
+              type="number"
               className="border-none text-lg font-semibold text-right outline-none p-0"
               placeholder="0.00"
               value={orderTokenAAmount}
