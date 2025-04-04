@@ -213,7 +213,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
   };
 
   const handleSolToWsol = async () => {
-    await hybirdTradeProgram.solToWsol(5 * LAMPORTS_PER_SOL);
+    await hybirdTradeProgram.solToWsol(1 * LAMPORTS_PER_SOL);
   };
 
   return (

@@ -451,6 +451,8 @@ export function useHybirdTradeProgram(mintAddress: string) {
     pool_id: BN,
     cfg: IResponsePoolInfoItem
   ) {
+    console.log("🚀 ~ useHybirdTradeProgram ~ pool_id:", pool_id.toString());
+
     const { counter, getOrderBookDetail } = getProgramAddress();
     const tx = new Transaction();
 
