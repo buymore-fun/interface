@@ -541,19 +541,16 @@ export function useHybirdTradeProgram(mintAddress: string) {
     tx.add(ix);
 
     console.group("add_order_v1");
-    console.log("🚀 ~ add_order_v1 ~ wallet.publicKey!:", wallet.publicKey!.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ token_0_mint:", token_0_mint.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ token_1_mint:", token_1_mint.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ order_book_detail:", order_book_detail.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ orderBook:", orderBook.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ input_token_ata:", input_token_ata.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ token_vault:", token_vault.toBase58());
-    console.log(
-      "🚀 ~ add_order_v1 ~ initialize_pool_authority:",
-      initialize_pool_authority.toBase58()
-    );
-    console.log("🚀 ~ add_order_v1 ~ counter:", counter.toBase58());
-    console.log("🚀 ~ add_order_v1 ~ input_token_program:", input_token_program.toBase58());
+    console.log("wallet.publicKey!:", wallet.publicKey!.toBase58());
+    console.log("token_0_mint:", token_0_mint.toBase58());
+    console.log("token_1_mint:", token_1_mint.toBase58());
+    console.log("order_book_detail:", order_book_detail.toBase58());
+    console.log("orderBook:", orderBook.toBase58());
+    console.log("input_token_ata:", input_token_ata.toBase58());
+    console.log("token_vault:", token_vault.toBase58());
+    console.log("initialize_pool_authority:", initialize_pool_authority.toBase58());
+    console.log("counter:", counter.toBase58());
+    console.log("input_token_program:", input_token_program.toBase58());
     console.groupEnd();
 
     const sig1 = await provider.sendAndConfirm(tx);
