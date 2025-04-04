@@ -22,7 +22,7 @@ import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-ac
 import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";
 import { CpmmPoolInfo } from "@/types/raydium";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { IResponsePoolInfoItem } from "@/types/response";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useBoolean } from "@/hooks/use-boolean";
@@ -66,7 +66,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
     [isBuy, token, SOL]
   );
 
-  const [mintA, mintB] = useMemo(
+  const [poolMintA, poolMintB] = useMemo(
     () =>
       isBuy
         ? [poolInfo?.poolInfo.mintA, poolInfo?.poolInfo.mintB]
@@ -80,17 +80,9 @@ export function OrderTab({ poolId }: OrderTabProps) {
     [isBuy, tokenBalance, solBalance]
   );
 
-  const [inputToken, outputToken] = useMemo(
-    () =>
-      isBuy
-        ? [poolInfo?.poolInfo.mintA.address, poolInfo?.poolInfo.mintB.address]
-        : [poolInfo?.poolInfo.mintB.address, poolInfo?.poolInfo.mintA.address],
-    [isBuy, poolInfo]
-  );
-
   const { mutate: mutatePoolId } = usePoolPrepareId({
-    input_token: inputToken || "",
-    output_token: outputToken || "",
+    input_token: poolMintA?.address || "",
+    output_token: poolMintB?.address || "",
   });
 
   const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
@@ -190,12 +182,23 @@ export function OrderTab({ poolId }: OrderTabProps) {
       console.log(`outAmount`, outAmount);
       console.groupEnd();
 
+      const [inputTokenMint, outputTokenMint] = isBuy
+        ? [poolMintA?.address, poolMintB?.address]
+        : [poolMintB?.address, poolMintA?.address];
+
+      const [inputTokenProgram, outputTokenProgram] = isBuy
+        ? [poolMintA?.programId, poolMintB?.programId]
+        : [poolMintB?.programId, poolMintA?.programId];
+
       await hybirdTradeProgram.add_order_v1(
+        new PublicKey(inputTokenMint!),
+        new PublicKey(outputTokenMint!),
+        new PublicKey(inputTokenProgram!),
+        new PublicKey(outputTokenProgram!),
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData.pool_id),
-        poolInfoData,
-        isBuy
+        poolInfoData
       );
     } catch (error) {
       console.error("Error preparing pool ID:", error);

@@ -15,14 +15,14 @@ export function InitializePoolCard() {
   const hybirdTradeProgram = useHybirdTradeProgram(address as string);
 
   const handleInitializePool = async () => {
-    setInitializingPool(true);
-    try {
-      await hybirdTradeProgram.initializePool(10);
-    } catch (error) {
-      console.error("Failed to initialize pool:", error);
-    } finally {
-      setInitializingPool(false);
-    }
+    // setInitializingPool(true);
+    // try {
+    //   await hybirdTradeProgram.initializePool(10);
+    // } catch (error) {
+    //   console.error("Failed to initialize pool:", error);
+    // } finally {
+    //   setInitializingPool(false);
+    // }
   };
 
   return (

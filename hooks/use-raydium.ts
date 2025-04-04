@@ -9,8 +9,6 @@ import {
   Raydium,
   parseTokenAccountResp,
 } from "@raydium-io/raydium-sdk-v2";
-import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { atom, useAtom } from "jotai";
 type PoolInfo = {
   poolInfo: ApiV3PoolInfoStandardItem;
