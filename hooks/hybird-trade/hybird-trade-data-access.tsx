@@ -521,6 +521,10 @@ export function useHybirdTradeProgram(mintAddress: string) {
     // const tx = new Transaction();
 
     const orderBook = order_book(order_book_detail, pool_id, input_token_mint, output_token_mint);
+    console.log("🚀 ~ useHybirdTradeProgram ~ output_token_mint:", output_token_mint.toBase58());
+    console.log("🚀 ~ useHybirdTradeProgram ~ input_token_mint:", input_token_mint.toBase58());
+    console.log("🚀 ~ useHybirdTradeProgram ~ pool_id:", pool_id.toString());
+    console.log("🚀 ~ useHybirdTradeProgram ~ order_book_detail:", order_book_detail.toBase58());
 
     const ix = await program.methods
       .addOrderToPool(pool_id, in_amount, out_amount, now_v)
