@@ -454,6 +454,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     console.log("🚀 ~ useHybirdTradeProgram ~ pool_id:", pool_id.toString());
 
     const { counter, getOrderBookDetail } = getProgramAddress();
+    const order_book_detail = getOrderBookDetail(cfg);
     const tx = new Transaction();
 
     const token_0_mint = new PublicKey(cfg.cpmm.mintA);
@@ -470,6 +471,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     );
 
     const accountInfo = await program.provider.connection.getAccountInfo(input_token_ata);
+
     console.log("🚀 ~ add_order_v1 ~ accountInfo:", !!accountInfo);
     if (!accountInfo) {
       // const tx = new Transaction();
@@ -491,6 +493,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     const [initialize_pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
 
     const poolAccount = await program.provider.connection.getAccountInfo(initialize_pool_authority);
+
     // console.log("🚀 ~ add_order_v1 ~ poolAccount:", poolAccount);
     // if (!poolAccount) {
     //   const ix = createAssociatedTokenAccountInstruction(
@@ -510,13 +513,14 @@ export function useHybirdTradeProgram(mintAddress: string) {
       token_0_program
     );
 
-    const order_book_detail = getOrderBookDetail(cfg);
     const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
     // const in_amount = new anchor.BN( 10000 )
     // const out_amount = new anchor.BN( 1000 )
     const now_v = new BN(now);
 
     // const tx = new Transaction();
+
+    const orderBook = order_book(order_book_detail, pool_id, input_token_mint, output_token_mint);
 
     const ix = await program.methods
       .addOrderToPool(pool_id, in_amount, out_amount, now_v)
@@ -525,7 +529,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
         inputTokenMint: token_0_mint,
         outputTokenMint: token_1_mint,
         orderBookDetail: order_book_detail,
-        orderBook: order_book(order_book_detail, pool_id, input_token_mint, output_token_mint),
+        orderBook: orderBook,
         inputTokenAta: input_token_ata,
         inputTokenVault: token_vault,
         poolAuthority: initialize_pool_authority,
@@ -535,6 +539,22 @@ export function useHybirdTradeProgram(mintAddress: string) {
       .instruction();
 
     tx.add(ix);
+
+    console.group("add_order_v1");
+    console.log("🚀 ~ add_order_v1 ~ wallet.publicKey!:", wallet.publicKey!.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ token_0_mint:", token_0_mint.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ token_1_mint:", token_1_mint.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ order_book_detail:", order_book_detail.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ orderBook:", orderBook.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ input_token_ata:", input_token_ata.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ token_vault:", token_vault.toBase58());
+    console.log(
+      "🚀 ~ add_order_v1 ~ initialize_pool_authority:",
+      initialize_pool_authority.toBase58()
+    );
+    console.log("🚀 ~ add_order_v1 ~ counter:", counter.toBase58());
+    console.log("🚀 ~ add_order_v1 ~ input_token_program:", input_token_program.toBase58());
+    console.groupEnd();
 
     const sig1 = await provider.sendAndConfirm(tx);
     console.log("Your transaction signature", sig1);
