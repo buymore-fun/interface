@@ -150,14 +150,14 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const handleSubmitOrder = async () => {
     try {
       const poolIdData = await mutatePoolId();
-      if (!poolIdData?.pool_id || !poolInfoData) {
+      if (!poolIdData?.pool_id || !poolInfo || !poolInfoData) {
         console.error("Failed to get pool ID");
         return;
       }
 
       const [mintDecimalA, mintDecimalB] = isBuy
-        ? [poolInfoData.mintDecimalA, poolInfoData.mintDecimalB]
-        : [poolInfoData.mintDecimalB, poolInfoData.mintDecimalA];
+        ? [poolInfo.poolInfo.mintA.decimals, poolInfo.poolInfo.mintB.decimals]
+        : [poolInfo.poolInfo.mintB.decimals, poolInfo.poolInfo.mintA.decimals];
 
       const inAmount = new Decimal(orderTokenAAmount)
         .mul(new Decimal(10).pow(mintDecimalA))
@@ -168,9 +168,8 @@ export function OrderTab({ poolId }: OrderTabProps) {
         .mul(new Decimal(10).pow(mintDecimalB))
         .floor()
         .toString();
-      // 133106
 
-      await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, poolInfoData);
+      await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, poolInfoData!);
 
       console.group("add_order_v1");
       console.log("poolInfoData", poolInfoData);

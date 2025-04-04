@@ -176,26 +176,40 @@ export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> 
 }
 
 export interface IResponsePoolInfoItem {
-  poolId: string;
-  mintA: string;
-  mintB: string;
-  vaultA: string;
-  vaultB: string;
-  observationId: string;
-  mintLp: string;
-  configId: string;
-  poolCreator: string;
-  mintProgramA: string;
-  mintProgramB: string;
-  bump: number;
-  status: number;
-  lpDecimals: number;
-  mintDecimalA: number;
-  mintDecimalB: number;
-  openTime: string;
-  lpAmount: string;
-  protocolFeesMintA: string;
-  protocolFeesMintB: string;
-  fundFeesMintA: string;
-  fundFeesMintB: string;
+  buymore: {
+    pool_pubkey: string;
+    token_0_mint: string;
+    token_1_mint: string;
+    token_0_vault: string;
+    token_1_vault: string;
+    order_book_detail: string;
+    max: number;
+    sys_receiver: string;
+    com_receiver: string;
+    fee_rate: number;
+  };
+  cpmm: {
+    poolId: string;
+    mintA: string;
+    mintB: string;
+    vaultA: string;
+    vaultB: string;
+    observationId: string;
+    mintLp: string;
+    configId: string;
+    poolCreator: string;
+    mintProgramA: string;
+    mintProgramB: string;
+    bump: number;
+    status: number;
+    lpDecimals: number;
+    mintDecimalA: number;
+    mintDecimalB: number;
+    openTime: string;
+    lpAmount: string;
+    protocolFeesMintA: string;
+    protocolFeesMintB: string;
+    fundFeesMintA: string;
+    fundFeesMintB: string;
+  };
 }

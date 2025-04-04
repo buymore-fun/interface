@@ -429,14 +429,14 @@ export function useHybirdTradeProgram(mintAddress: string) {
 
   async function initialize_pool(poolId: number, cfg: IResponsePoolInfoItem) {
     const { order_config } = getProgramAddress();
-    console.log(`Initialize pool (${cfg.mintA} <-> ${cfg.mintB}) `);
+    console.log(`Initialize pool (${cfg.cpmm.mintA} <-> ${cfg.cpmm.mintB}) `);
 
-    const pool_state = new PublicKey(cfg.poolId);
-    const token_0_mint = new PublicKey(cfg.mintA);
-    const token_1_mint = new PublicKey(cfg.mintB);
+    const pool_state = new PublicKey(cfg.cpmm.poolId);
+    const token_0_mint = new PublicKey(cfg.cpmm.mintA);
+    const token_1_mint = new PublicKey(cfg.cpmm.mintB);
 
-    const token_0_program = new PublicKey(cfg.mintProgramA);
-    const token_1_program = new PublicKey(cfg.mintProgramB);
+    const token_0_program = new PublicKey(cfg.cpmm.mintProgramA);
+    const token_1_program = new PublicKey(cfg.cpmm.mintProgramB);
 
     const [initialize_pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
 
@@ -506,14 +506,14 @@ export function useHybirdTradeProgram(mintAddress: string) {
     // await sol_to_wsol(tx, in_amount);
 
     const [token_0_mint, token_1_mint] = isBuy
-      ? [new PublicKey(cfg.mintA), new PublicKey(cfg.mintB)]
-      : [new PublicKey(cfg.mintB), new PublicKey(cfg.mintA)];
+      ? [new PublicKey(cfg.cpmm.mintA), new PublicKey(cfg.cpmm.mintB)]
+      : [new PublicKey(cfg.cpmm.mintB), new PublicKey(cfg.cpmm.mintA)];
     // const token_0_mint = new PublicKey(cfg.mintA);
     // const token_1_mint = new PublicKey(cfg.mintB);
 
     const [token_0_program, token_1_program] = isBuy
-      ? [new PublicKey(cfg.mintProgramA), new PublicKey(cfg.mintProgramB)]
-      : [new PublicKey(cfg.mintProgramB), new PublicKey(cfg.mintProgramA)];
+      ? [new PublicKey(cfg.cpmm.mintProgramA), new PublicKey(cfg.cpmm.mintProgramB)]
+      : [new PublicKey(cfg.cpmm.mintProgramB), new PublicKey(cfg.cpmm.mintProgramA)];
 
     // const token_0_program = new PublicKey(cfg.mintProgramA);
     // const token_1_program = new PublicKey(cfg.mintProgramB);
