@@ -6,7 +6,7 @@ import {
   IResponseMyOrderList,
   IResponseOrderbookDepth,
   IResponseTradeHistoryList,
-  ICpmmPoolFetchAllItem,
+  IResponsePoolInfoItem,
 } from "@/types";
 import axios from "axios";
 import useSWR from "swr";
@@ -164,12 +164,27 @@ export function useCpmmPoolFetchAll() {
     `/cpmm-pool/fetch-all`,
     async (url: string) => {
       const response = await axiosInstance.get(url);
-      return response.data?.data as ICpmmPoolFetchAllItem[];
+      return response.data?.data as IResponsePoolInfoItem[];
     },
     {
       dedupingInterval: 10 * 60 * 1000, // cache for 10 minutes
     }
   );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+// https://api-test.buymore.fun/usurper/cpmm-pool/fetch-one?pool_id=HDHtKXvFQBXeteQWPRDo8Q7LvPUXJ8XCLEhv6cCHQdcm
+export function useCpmmPoolFetchOne(params: { pool_id: string }) {
+  const { data, error, isLoading, mutate } = useSWR(`/cpmm-pool/fetch-one`, async (url: string) => {
+    const response = await axiosInstance.get(url, { params });
+    return response.data?.data as IResponsePoolInfoItem;
+  });
 
   return {
     data,

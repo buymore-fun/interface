@@ -17,6 +17,7 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { usePoolInfo } from "@/hooks/use-pool-info";
 import { useRaydium } from "@/hooks/use-raydium";
+import { useCpmmPoolFetchOne } from "@/hooks/services";
 export default function Token() {
   const { poolId } = useParams();
   const { publicKey } = useWallet();
@@ -27,6 +28,7 @@ export default function Token() {
   const wallet = useWallet();
   const { raydium } = useRaydium();
   const { poolInfo, isLoading, error } = usePoolInfo(poolId as string);
+  const { data: poolInfoData } = useCpmmPoolFetchOne({ pool_id: poolId as string });
 
   return (
     <div className="flex gap-6 flex-col sm:flex-row">

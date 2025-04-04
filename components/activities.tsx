@@ -101,7 +101,6 @@ const ActivitiesList = () => {
             </span>
           </div>
           <div className="col-span-2">
-            {/* <span className="text-[#9ad499]"> */}
             <span className="text-muted-foreground">
               {item.buymore.amount} {item.buymore.symbol}
             </span>

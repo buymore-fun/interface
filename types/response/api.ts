@@ -175,7 +175,7 @@ export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> 
   };
 }
 
-export interface ICpmmPoolFetchAllItem {
+export interface IResponsePoolInfoItem {
   poolId: string;
   mintA: string;
   mintB: string;

@@ -23,6 +23,7 @@ import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";
 import { CpmmPoolInfo } from "@/types/raydium";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { IResponsePoolInfoItem } from "@/types/response";
 interface OrderTabProps {
   poolId: string;
 }
@@ -112,16 +113,25 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
   useEffect(() => {
     if (orderTokenAAmount && orderPrice) {
-      const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-        .mul(new Decimal(orderPrice))
-        .toString();
-      console.log("🚀 ~ useEffect ~ _orderTokenBAmount:", _orderTokenBAmount);
-      setOrderTokenBAmount(_orderTokenBAmount);
+      if (isBuy) {
+        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+          .mul(new Decimal(orderPrice))
+          .toString();
+
+        setOrderTokenBAmount(_orderTokenBAmount);
+      } else {
+        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+          .div(new Decimal(orderPrice))
+          .toString();
+
+        setOrderTokenBAmount(_orderTokenBAmount);
+      }
     }
-  }, [orderTokenAAmount, orderPrice, setOrderTokenBAmount]);
+  }, [orderTokenAAmount, orderPrice, setOrderTokenBAmount, isBuy]);
 
   const toggleOrderType = () => {
     setOrderType(isBuy ? OrderType.Sell : OrderType.Buy);
+    setOrderTokenAAmount("");
   };
 
   const refreshTokenPrice = () => {
@@ -154,17 +164,18 @@ export function OrderTab({ poolId }: OrderTabProps) {
         lpDecimals: 9,
         mintDecimalA: 9,
         mintDecimalB: 9,
-        openTime: "674d886b",
-        lpAmount: "04184ac7c225",
-        protocolFeesMintA: "00",
-        protocolFeesMintB: "00",
-        fundFeesMintA: "00",
-        fundFeesMintB: "00",
-      };
+        openTime: "1733134443",
+        lpAmount: "4502380331557",
+        protocolFeesMintA: "3",
+        protocolFeesMintB: "0",
+        fundFeesMintA: "1",
+        fundFeesMintB: "0",
+      } as IResponsePoolInfoItem;
 
       const inAmount = new Decimal(orderTokenAAmount)
         .mul(10 ** pool_state_env.mintDecimalA)
         .toString();
+
       const outAmount = new Decimal(orderTokenBAmount)
         .mul(10 ** pool_state_env.mintDecimalB)
         .toString();
@@ -186,7 +197,8 @@ export function OrderTab({ poolId }: OrderTabProps) {
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData.pool_id),
-        pool_state_env
+        pool_state_env,
+        isBuy
       );
     } catch (error) {
       console.error("Error preparing pool ID:", error);

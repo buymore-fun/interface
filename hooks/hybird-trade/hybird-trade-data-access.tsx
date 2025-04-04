@@ -34,7 +34,7 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { getPoolVaultAddress } from "@/hooks/hybird-trade/pda";
-
+import { IResponsePoolInfoItem } from "@/types/response";
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
@@ -427,17 +427,30 @@ export function useHybirdTradeProgram(mintAddress: string) {
     )[0];
   };
 
-  async function add_order_v1(in_amount: BN, out_amount: BN, pool_id: BN, cfg: any) {
+  async function add_order_v1(
+    in_amount: BN,
+    out_amount: BN,
+    pool_id: BN,
+    cfg: IResponsePoolInfoItem,
+    isBuy: boolean
+  ) {
     const { counter } = getProgramAddress();
     const tx = new Transaction();
 
     // await sol_to_wsol(tx, in_amount);
 
-    const token_0_mint = new PublicKey(cfg.mintA);
-    const token_1_mint = new PublicKey(cfg.mintB);
+    const [token_0_mint, token_1_mint] = isBuy
+      ? [new PublicKey(cfg.mintA), new PublicKey(cfg.mintB)]
+      : [new PublicKey(cfg.mintB), new PublicKey(cfg.mintA)];
+    // const token_0_mint = new PublicKey(cfg.mintA);
+    // const token_1_mint = new PublicKey(cfg.mintB);
 
-    const token_0_program = new PublicKey(cfg.mintProgramA);
-    const token_1_program = new PublicKey(cfg.mintProgramB);
+    const [token_0_program, token_1_program] = isBuy
+      ? [new PublicKey(cfg.mintProgramA), new PublicKey(cfg.mintProgramB)]
+      : [new PublicKey(cfg.mintProgramB), new PublicKey(cfg.mintProgramA)];
+
+    // const token_0_program = new PublicKey(cfg.mintProgramA);
+    // const token_1_program = new PublicKey(cfg.mintProgramB);
 
     const input_token_ata = getAssociatedTokenAddressSync(
       token_0_mint,
