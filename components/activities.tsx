@@ -4,7 +4,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletAuth } from "@/components/wallet-auth";
 import { getExplorerUrlFromAddress, getExplorerUrlFromTransaction } from "@/config";
 import { useActivityList, useMyOrderList, useTradeHistoryList } from "@/hooks/services";
-import { cn, formatAddress, formatNumber, formatTime, formatTimeAgo } from "@/lib/utils";
+import {
+  cn,
+  formatAddress,
+  formatBalance,
+  formatNumber,
+  formatNumberCompact,
+  formatPrice,
+  formatTime,
+  formatTimeAgo,
+} from "@/lib/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +22,7 @@ import { useState } from "react";
 
 export function Activities() {
   return (
-    <Tabs defaultValue="activities">
+    <Tabs defaultValue="myOrders">
       <TabsList className="w-full bg-transparent justify-start gap-4">
         <TabsTrigger value="activities" className="px-0 text-lg font-semibold">
           Activities
@@ -159,11 +168,11 @@ const MyOrders = () => {
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground"}>
-              {formatNumber(item.receive.amount)} ${item.receive.symbol}
+              {formatNumberCompact(item.receive.amount)} ${item.receive.symbol}
             </span>
           </div>
           <div className="col-span-2">
-            <span className="text-muted-foreground">${formatNumber(item.price)}</span>
+            <span className="text-muted-foreground">${formatPrice(item.price)}</span>
           </div>
           <div className="col-span-1">
             <Link

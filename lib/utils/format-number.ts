@@ -96,9 +96,9 @@ export function formatNumber(input: number | string | undefined, placeholder = "
 }
 
 export function formatBalance(
-  balance: number,
-  decimals: number = LAMPORTS_PER_SOL,
-  toFixed: number = 3
+  balance: number | string,
+  toFixed: number = 3,
+  decimals: number = LAMPORTS_PER_SOL
 ): string {
   const solBalance = new Decimal(balance).div(new Decimal(decimals)).toNumber();
 
@@ -108,4 +108,102 @@ export function formatBalance(
   }).format(solBalance);
 
   return formattedBalance;
+}
+
+export function formatPrice(price: number | string, toFixed: number = 12) {
+  const formattedPrice = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: toFixed,
+  }).format(+price);
+
+  return formattedPrice;
+}
+
+function getFormatterRuleCompact(input: number) {
+  const rules = [
+    {
+      exact: 0,
+      formatterOptions: {
+        notation: "standard",
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+      },
+    },
+    {
+      upperBound: 1,
+      formatterOptions: {
+        notation: "standard",
+        maximumFractionDigits: 5,
+        minimumFractionDigits: 3,
+      },
+    },
+    {
+      upperBound: 1e3, // Up to 1,000 (K)
+      formatterOptions: {
+        notation: "standard",
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      },
+    },
+    {
+      upperBound: 1e6, // Up to 1,000,000 (M)
+      formatterOptions: {
+        notation: "compact",
+        compactDisplay: "short", // Shows K for thousands
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      },
+    },
+    {
+      upperBound: 1e9, // Up to 1,000,000,000 (B)
+      formatterOptions: {
+        notation: "compact",
+        compactDisplay: "short", // Shows M for millions
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      },
+    },
+    {
+      upperBound: 1e12, // Up to 1,000,000,000,000 (T)
+      formatterOptions: {
+        notation: "compact",
+        compactDisplay: "short", // Shows B for billions
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      },
+    },
+    {
+      upperBound: 1e15, // Up to quadrillion
+      formatterOptions: {
+        notation: "compact",
+        compactDisplay: "short", // Shows T for trillions
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      },
+    },
+    {
+      upperBound: Infinity,
+      hardCodedInput: { input: 999_000_000_000_000, prefix: ">" },
+      formatterOptions: {
+        notation: "compact",
+        compactDisplay: "short",
+        maximumFractionDigits: 2,
+      },
+    },
+  ];
+  for (const rule of rules) {
+    if (
+      (rule.exact !== undefined && input === rule.exact) ||
+      (rule.upperBound !== undefined && input < rule.upperBound)
+    ) {
+      return rule;
+    }
+  }
+
+  return { hardCodedInput: undefined, formatterOptions: undefined };
+}
+
+export function formatNumberCompact(input: number | string) {
+  const { formatterOptions } = getFormatterRuleCompact(+input);
+
+  return new Intl.NumberFormat("en-US", formatterOptions as any).format(+input);
 }
