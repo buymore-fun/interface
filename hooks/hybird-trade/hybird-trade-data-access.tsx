@@ -364,14 +364,19 @@ export function useHybirdTradeProgram(mintAddress: string) {
     );
   };
 
-  const order_book = (order_book_detail, pool_id, input_token_mint, output_token_mint) => {
+  const order_book = (
+    order_book_detail: PublicKey,
+    pool_id: BN,
+    input_token_mint: PublicKey,
+    output_token_mint: PublicKey
+  ) => {
     return PublicKey.findProgramAddressSync(
       [
         Buffer.from("buymore_order_with_token_v1"),
-        order_book_detail.toBuffer(),
+        order_book_detail.toBytes(),
         new Uint8Array(pool_id.toArray("le", 8)),
-        input_token_mint.toBuffer(),
-        output_token_mint.toBuffer(),
+        input_token_mint.toBytes(),
+        output_token_mint.toBytes(),
       ],
       program.programId
     )[0];
