@@ -344,12 +344,12 @@ export type HybirdTradeV2 = {
           "isSigner": false
         },
         {
-          "name": "orderBookToken0Vault",
+          "name": "orderBookInputVault",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "orderBookToken1Vault",
+          "name": "orderBookOutputVault",
           "isMut": true,
           "isSigner": false
         },
@@ -376,6 +376,10 @@ export type HybirdTradeV2 = {
       ],
       "args": [
         {
+          "name": "settleId",
+          "type": "u64"
+        },
+        {
           "name": "amountIn",
           "type": "u64"
         },
@@ -390,10 +394,6 @@ export type HybirdTradeV2 = {
               "defined": "Trade"
             }
           }
-        },
-        {
-          "name": "settleId",
-          "type": "u64"
         }
       ]
     },
@@ -535,6 +535,61 @@ export type HybirdTradeV2 = {
         {
           "name": "deadline",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The user performing the swap"
+          ]
+        },
+        {
+          "name": "inputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "settlePool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "settleId",
+          "type": "u64"
+        },
+        {
+          "name": "amountIn",
+          "type": "u64"
+        },
+        {
+          "name": "minimumAmountOut",
+          "type": "u64"
+        },
+        {
+          "name": "trades",
+          "type": {
+            "vec": {
+              "defined": "Trade"
+            }
+          }
         }
       ]
     }
@@ -1169,6 +1224,21 @@ export type HybirdTradeV2 = {
         },
         {
           "name": "token1Mint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "token0Vault",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "token1Vault",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "orderBookDetail",
           "type": "publicKey",
           "index": false
         },
@@ -1605,12 +1675,12 @@ export const IDL: HybirdTradeV2 = {
           "isSigner": false
         },
         {
-          "name": "orderBookToken0Vault",
+          "name": "orderBookInputVault",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "orderBookToken1Vault",
+          "name": "orderBookOutputVault",
           "isMut": true,
           "isSigner": false
         },
@@ -1637,6 +1707,10 @@ export const IDL: HybirdTradeV2 = {
       ],
       "args": [
         {
+          "name": "settleId",
+          "type": "u64"
+        },
+        {
           "name": "amountIn",
           "type": "u64"
         },
@@ -1651,10 +1725,6 @@ export const IDL: HybirdTradeV2 = {
               "defined": "Trade"
             }
           }
-        },
-        {
-          "name": "settleId",
-          "type": "u64"
         }
       ]
     },
@@ -1796,6 +1866,61 @@ export const IDL: HybirdTradeV2 = {
         {
           "name": "deadline",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The user performing the swap"
+          ]
+        },
+        {
+          "name": "inputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "settlePool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "settleId",
+          "type": "u64"
+        },
+        {
+          "name": "amountIn",
+          "type": "u64"
+        },
+        {
+          "name": "minimumAmountOut",
+          "type": "u64"
+        },
+        {
+          "name": "trades",
+          "type": {
+            "vec": {
+              "defined": "Trade"
+            }
+          }
         }
       ]
     }
@@ -2430,6 +2555,21 @@ export const IDL: HybirdTradeV2 = {
         },
         {
           "name": "token1Mint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "token0Vault",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "token1Vault",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "orderBookDetail",
           "type": "publicKey",
           "index": false
         },
