@@ -24,6 +24,8 @@ import { useSolPrice } from "@/hooks/use-sol-price";
 import { CpmmPoolInfo } from "@/types/raydium";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IResponsePoolInfoItem } from "@/types/response";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { useBoolean } from "@/hooks/use-boolean";
 
 interface OrderTabProps {
   poolId: string;
@@ -35,6 +37,8 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
+
+  const submitOrderLoading = useBoolean(false);
 
   const { data: poolInfoData, isLoading: isPoolInfoLoading } = useCpmmPoolFetchOne({
     pool_id: poolId,
@@ -98,7 +102,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
     const amountB = new Decimal(poolInfo.mintAmountB);
 
     const price = isReverse ? amountA.div(amountB).toNumber() : amountB.div(amountA).toNumber();
-    console.log("🚀 ~ getCurrentPrice ~ price:", price);
+    // console.log("🚀 ~ getCurrentPrice ~ price:", price);
 
     return price;
   };
@@ -149,6 +153,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
   const handleSubmitOrder = async () => {
     try {
+      submitOrderLoading.setTrue();
       const poolIdData = await mutatePoolId();
       if (!poolIdData?.pool_id || !poolInfo || !poolInfoData) {
         console.error("Failed to get pool ID");
@@ -194,6 +199,8 @@ export function OrderTab({ poolId }: OrderTabProps) {
       );
     } catch (error) {
       console.error("Error preparing pool ID:", error);
+    } finally {
+      submitOrderLoading.setFalse();
     }
   };
 
@@ -356,15 +363,16 @@ export function OrderTab({ poolId }: OrderTabProps) {
               {"Sol to Wsol"}
             </Button>
 
-            <Button
+            <LoadingButton
               className="w-full"
               size="lg"
               disabled={!orderTokenAAmount || isPoolLoading}
+              loading={submitOrderLoading.value}
               onClick={handleSubmitOrder}
             >
               {/* {isPoolLoading ? <Spinner size="small" /> : "Submit"} */}
               {"Submit"}
-            </Button>
+            </LoadingButton>
           </div>
         ) : (
           <Button className="w-full" size="lg" onClick={() => setConnectWalletModalOpen(true)}>
