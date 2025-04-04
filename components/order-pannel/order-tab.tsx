@@ -9,7 +9,7 @@ import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { OrderType } from "@/consts/order";
-import { usePoolPrepareId } from "@/hooks/services";
+import { useCpmmPoolFetchAll, useCpmmPoolFetchOne, usePoolPrepareId } from "@/hooks/services";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import WalletIcon from "@/public/assets/token/wallet.svg";
@@ -35,7 +35,11 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
   const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
 
-  const isLoading = isSolPriceLoading || isPoolLoading;
+  const { data: poolInfoData, isLoading: isPoolInfoLoading } = useCpmmPoolFetchOne({
+    pool_id: poolId,
+  });
+
+  const isLoading = isSolPriceLoading || isPoolLoading || isPoolInfoLoading;
 
   const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
@@ -142,45 +146,30 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const handleSubmitOrder = async () => {
     try {
       const poolIdData = await mutatePoolId();
-      if (!poolIdData?.pool_id) {
+      if (!poolIdData?.pool_id || !poolInfoData) {
         console.error("Failed to get pool ID");
         return;
       }
 
-      const pool_state_env = {
-        poolId: "427aCk5aRuXpUshfiaD9xewC3RRkj9uZDnzM4eUQ3bPm",
-        mintA: "So11111111111111111111111111111111111111112",
-        mintB: "H8RAUbA1PH8Gjaxj7awyf53TMrjBKNTQRQMM6TqGLQV8",
-        vaultA: "HPnzZnEBeoRSSAMysZdWH3yWuaH96xmJ2sTXD727KPaA",
-        vaultB: "CJ8zGLhDx5vxwYvYtba9t38h2MPjzhLVJAADAhzEotkT",
-        observationId: "7f5yJ7stjZ876dZY2uYMrp5qzdER15RDjorXKbxn9wKM",
-        mintLp: "9DhJcmNAEjBij8uXuAZMSaio3t3J9imsWdLwDaRzy4zZ",
-        configId: "9zSzfkYy6awexsHvmggeH36pfVUdDGyCcwmjT3AQPBj6",
-        poolCreator: "panACusRPNRs9Q2hTSzCnCSiWG8ysK5KeA5Nyib43SR",
-        mintProgramA: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-        mintProgramB: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-        bump: 255,
-        status: 0,
-        lpDecimals: 9,
-        mintDecimalA: 9,
-        mintDecimalB: 9,
-        openTime: "1733134443",
-        lpAmount: "4502380331557",
-        protocolFeesMintA: "3",
-        protocolFeesMintB: "0",
-        fundFeesMintA: "1",
-        fundFeesMintB: "0",
-      } as IResponsePoolInfoItem;
+      const [mintDecimalA, mintDecimalB] = isBuy
+        ? [poolInfoData.mintDecimalA, poolInfoData.mintDecimalB]
+        : [poolInfoData.mintDecimalB, poolInfoData.mintDecimalA];
 
       const inAmount = new Decimal(orderTokenAAmount)
-        .mul(10 ** pool_state_env.mintDecimalA)
+        .mul(new Decimal(10).pow(mintDecimalA))
+        .floor()
         .toString();
 
       const outAmount = new Decimal(orderTokenBAmount)
-        .mul(10 ** pool_state_env.mintDecimalB)
+        .mul(new Decimal(10).pow(mintDecimalB))
+        .floor()
         .toString();
+      // 133106
+
+      await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, poolInfoData);
 
       console.group("add_order_v1");
+      console.log("poolInfoData", poolInfoData);
       console.log("orderPrice", orderPrice);
       console.log("getCurrentPrice", getCurrentPrice(poolInfo));
       console.log("getCurrentPriceInUSD", getCurrentPriceInUSD(poolInfo));
@@ -197,7 +186,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData.pool_id),
-        pool_state_env,
+        poolInfoData,
         isBuy
       );
     } catch (error) {

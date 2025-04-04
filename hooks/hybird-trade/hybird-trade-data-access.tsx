@@ -407,7 +407,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     // console.log(`Trade In: ${in_v} SOL -> ${out_v} USD`);
   }
 
-  const make_pool_authority = (token_0_mint, token_1_mint) => {
+  const make_pool_authority = (token_0_mint: PublicKey, token_1_mint: PublicKey) => {
     return PublicKey.findProgramAddressSync(
       [SEEDS["AUTHORITY_SEED"], token_0_mint.toBytes(), token_1_mint.toBytes()],
       program.programId
@@ -426,6 +426,72 @@ export function useHybirdTradeProgram(mintAddress: string) {
       program.programId
     )[0];
   };
+
+  async function initialize_pool(poolId: number, cfg: IResponsePoolInfoItem) {
+    const { order_config } = getProgramAddress();
+    console.log(`Initialize pool (${cfg.mintA} <-> ${cfg.mintB}) `);
+
+    const pool_state = new PublicKey(cfg.poolId);
+    const token_0_mint = new PublicKey(cfg.mintA);
+    const token_1_mint = new PublicKey(cfg.mintB);
+
+    const token_0_program = new PublicKey(cfg.mintProgramA);
+    const token_1_program = new PublicKey(cfg.mintProgramB);
+
+    const [initialize_pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
+
+    const token_0_vault = getAssociatedTokenAddressSync(
+      token_0_mint,
+      initialize_pool_authority,
+      true,
+      token_0_program,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const token_1_vault = getAssociatedTokenAddressSync(
+      token_1_mint,
+      initialize_pool_authority,
+      true,
+      token_1_program,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const token_0_account = await program.provider.connection.getAccountInfo(token_0_mint);
+    const token_1_account = await program.provider.connection.getAccountInfo(token_1_mint);
+
+    if (token_0_account && token_1_account) {
+      console.log("Pool already initialized");
+      return;
+    }
+
+    const [order_book_detail] = PublicKey.findProgramAddressSync(
+      [Buffer.from("buymore_order_detail_v1"), token_0_mint.toBytes(), token_1_mint.toBytes()],
+      program.programId
+    );
+
+    const tx = new Transaction();
+
+    const ix = await program.methods
+      .initializePool(new BN(poolId))
+      .accounts({
+        payer: wallet.publicKey!,
+        token0Mint: token_0_mint,
+        token1Mint: token_1_mint,
+        token0Vault: token_0_vault,
+        token1Vault: token_1_vault,
+        poolState: pool_state,
+        poolAuthority: initialize_pool_authority,
+        orderBookDetail: order_book_detail,
+        config: order_config,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+      })
+      .instruction();
+
+    tx.add(ix);
+
+    const sig = await provider.sendAndConfirm(tx);
+    console.log("Your transaction signature", sig);
+  }
 
   async function add_order_v1(
     in_amount: BN,
@@ -540,6 +606,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
 
   return {
     add_order_v1,
+    initialize_pool,
     program,
     // fetchPoolData,
     initializePool,

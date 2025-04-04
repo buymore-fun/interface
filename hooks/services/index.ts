@@ -137,7 +137,7 @@ export function usePoolPrepareId(params: { input_token: string; output_token: st
         },
       });
       return response.data?.data as {
-        pool_id: string;
+        pool_id: number;
       };
     },
     {
