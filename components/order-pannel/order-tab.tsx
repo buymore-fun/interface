@@ -202,7 +202,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
         new PublicKey(outputTokenProgram!),
         new BN(inAmount),
         new BN(outAmount),
-        new BN(4),
+        new BN(poolIdData?.pool_id),
         poolInfoData
       );
     } catch (error) {
