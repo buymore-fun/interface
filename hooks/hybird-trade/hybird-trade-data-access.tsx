@@ -541,6 +541,10 @@ export function useHybirdTradeProgram(mintAddress: string) {
     tx.add(ix);
 
     console.group("add_order_v1");
+    console.log("pool_id:", pool_id.toString());
+    console.log("in_amount:", in_amount.toString());
+    console.log("out_amount:", out_amount.toString());
+    console.log("now_v:", now_v.toString());
     console.log("wallet.publicKey!:", wallet.publicKey!.toBase58());
     console.log("token_0_mint:", token_0_mint.toBase58());
     console.log("token_1_mint:", token_1_mint.toBase58());

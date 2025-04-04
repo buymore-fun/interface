@@ -170,7 +170,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
       await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, poolInfoData!);
 
-      console.group("add_order_v1");
+      console.group("handleSubmitOrder");
       console.log("poolInfoData", poolInfoData);
       console.log("orderPrice", orderPrice);
       console.log("getCurrentPrice", getCurrentPrice(poolInfo));
@@ -202,7 +202,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
         new PublicKey(outputTokenProgram!),
         new BN(inAmount),
         new BN(outAmount),
-        new BN(poolIdData.pool_id),
+        new BN(4),
         poolInfoData
       );
     } catch (error) {
