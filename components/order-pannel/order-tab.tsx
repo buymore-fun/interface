@@ -59,6 +59,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
   const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
 
+  // TO BUY SHIT COIN
   const isBuy = orderType === OrderType.Buy;
 
   const [tokenA, tokenB] = useMemo(
@@ -152,9 +153,10 @@ export function OrderTab({ poolId }: OrderTabProps) {
         return;
       }
 
-      const [mintDecimalA, mintDecimalB] = isBuy
-        ? [poolInfo.poolInfo.mintA.decimals, poolInfo.poolInfo.mintB.decimals]
-        : [poolInfo.poolInfo.mintB.decimals, poolInfo.poolInfo.mintA.decimals];
+      // const [mintDecimalA, mintDecimalB] = isBuy
+      //   ? [poolMint!.decimals, poolMintB!.decimals]
+      //   : [poolMintB!.decimals, poolMintA!.decimals];
+      const [mintDecimalA, mintDecimalB] = [poolMintA!.decimals, poolMintB!.decimals];
 
       const inAmount = new Decimal(orderTokenAAmount)
         .mul(new Decimal(10).pow(mintDecimalA))
@@ -182,13 +184,16 @@ export function OrderTab({ poolId }: OrderTabProps) {
       console.log(`outAmount`, outAmount);
       console.groupEnd();
 
-      const [inputTokenMint, outputTokenMint] = isBuy
-        ? [poolMintA?.address, poolMintB?.address]
-        : [poolMintB?.address, poolMintA?.address];
+      // const [inputTokenMint, outputTokenMint] = isBuy
+      //   ? [poolMintA!.address, poolMintB!.address]
+      //   : [poolMintB!.address, poolMintA!.address];
+      const [inputTokenMint, outputTokenMint] = [poolMintA!.address, poolMintB!.address];
 
-      const [inputTokenProgram, outputTokenProgram] = isBuy
-        ? [poolMintA?.programId, poolMintB?.programId]
-        : [poolMintB?.programId, poolMintA?.programId];
+      // const [inputTokenProgram, outputTokenProgram] = isBuy
+      //   ? [poolMintA!.programId, poolMintB!.programId]
+      //   : [poolMintB!.programId, poolMintA!.programId];
+
+      const [inputTokenProgram, outputTokenProgram] = [poolMintA!.programId, poolMintB!.programId];
 
       await hybirdTradeProgram.add_order_v1(
         new PublicKey(inputTokenMint!),
