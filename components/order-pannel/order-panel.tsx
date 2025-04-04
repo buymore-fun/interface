@@ -6,7 +6,7 @@ import Image from "next/image";
 import { SlippageDialog } from "@/components/slippage-dialog";
 import { MarketTab } from "./market-tab";
 import { OrderTab } from "./order-tab";
-
+import { useCpmmPoolFetchOne } from "@/hooks/services";
 enum Tab {
   MARKET = "market",
   ORDER = "order",
@@ -15,6 +15,8 @@ enum Tab {
 export function OrderPanel({ poolId }: { poolId: string }) {
   const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
   const [tab, setTab] = useState<Tab>(Tab.ORDER);
+
+  const { data: poolInfoData } = useCpmmPoolFetchOne({ pool_id: poolId });
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">

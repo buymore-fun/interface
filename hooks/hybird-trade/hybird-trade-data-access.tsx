@@ -88,7 +88,19 @@ export function useHybirdTradeProgram(mintAddress: string) {
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
-    return { counter, order_config, pool_authority, sol_vault, token_vault };
+    const getOrderBookDetail = (cfg: IResponsePoolInfoItem) => {
+      const token_0_mint = new PublicKey(cfg.cpmm.mintA);
+      const token_1_mint = new PublicKey(cfg.cpmm.mintB);
+
+      const [order_book_detail] = PublicKey.findProgramAddressSync(
+        [Buffer.from("buymore_order_detail_v1"), token_0_mint.toBytes(), token_1_mint.toBytes()],
+        program.programId
+      );
+
+      return order_book_detail;
+    };
+
+    return { counter, order_config, pool_authority, sol_vault, token_vault, getOrderBookDetail };
   };
 
   const getPayerATA = () => {
@@ -100,15 +112,15 @@ export function useHybirdTradeProgram(mintAddress: string) {
     return { payer_ata };
   };
 
-  const initializePool = async (cfg: any) => {
-    const { order_config } = getProgramAddress();
+  const initializePool = async (cfg: IResponsePoolInfoItem) => {
+    const { order_config, getOrderBookDetail } = getProgramAddress();
 
-    const pool_state = new PublicKey(cfg.poolId);
-    const token_0_mint = new PublicKey(cfg.mintA);
-    const token_1_mint = new PublicKey(cfg.mintB);
+    const pool_state = new PublicKey(cfg.cpmm.poolId);
+    const token_0_mint = new PublicKey(cfg.cpmm.mintA);
+    const token_1_mint = new PublicKey(cfg.cpmm.mintB);
 
-    const token_0_program = new PublicKey(cfg.mintProgramA);
-    const token_1_program = new PublicKey(cfg.mintProgramB);
+    const token_0_program = new PublicKey(cfg.cpmm.mintProgramA);
+    const token_1_program = new PublicKey(cfg.cpmm.mintProgramB);
 
     const [initialize_pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
 
@@ -128,11 +140,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
-    const [order_book_detail] = PublicKey.findProgramAddressSync(
-      [Buffer.from("buymore_order_detail_v1"), token_0_mint.toBytes(), token_1_mint.toBytes()],
-      program.programId
-    );
-
+    const order_book_detail = getOrderBookDetail(cfg);
     // const tx = new Transaction();
 
     const ix = await program.methods
@@ -428,6 +436,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
   };
 
   async function initialize_pool(poolId: number, cfg: IResponsePoolInfoItem) {
+    const { getOrderBookDetail } = getProgramAddress();
     const { order_config } = getProgramAddress();
     console.log(`Initialize pool (${cfg.cpmm.mintA} <-> ${cfg.cpmm.mintB}) `);
 
@@ -464,10 +473,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
       return;
     }
 
-    const [order_book_detail] = PublicKey.findProgramAddressSync(
-      [Buffer.from("buymore_order_detail_v1"), token_0_mint.toBytes(), token_1_mint.toBytes()],
-      program.programId
-    );
+    const order_book_detail = getOrderBookDetail(cfg);
 
     const tx = new Transaction();
 
@@ -500,7 +506,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     cfg: IResponsePoolInfoItem,
     isBuy: boolean
   ) {
-    const { counter } = getProgramAddress();
+    const { counter, getOrderBookDetail } = getProgramAddress();
     const tx = new Transaction();
 
     // await sol_to_wsol(tx, in_amount);
@@ -566,11 +572,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
       token_0_program
     );
 
-    const [order_book_detail] = PublicKey.findProgramAddressSync(
-      [Buffer.from("buymore_order_detail_v1"), token_0_mint.toBytes(), token_1_mint.toBytes()],
-      program.programId
-    );
-
+    const order_book_detail = getOrderBookDetail(cfg);
     const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
     // const in_amount = new anchor.BN( 10000 )
     // const out_amount = new anchor.BN( 1000 )
