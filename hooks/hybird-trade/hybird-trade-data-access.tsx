@@ -574,8 +574,95 @@ export function useHybirdTradeProgram(mintAddress: string) {
     );
   }
 
+  async function add_order_v2(
+    input_token_mint: PublicKey,
+    in_amount: BN,
+    min_out_amount: BN,
+    pool_id: BN,
+    cfg: IResponsePoolInfoItem
+  ) {
+    const { counter, getOrderBookDetail } = getProgramAddress();
+    const order_book_detail = getOrderBookDetail(cfg);
+    const tx = new Transaction();
+
+    const token_0_mint = new PublicKey(cfg.cpmm.mintA);
+    const token_1_mint = new PublicKey(cfg.cpmm.mintB);
+
+    const token_0_program = new PublicKey(cfg.cpmm.mintProgramA);
+    const token_1_program = new PublicKey(cfg.cpmm.mintProgramB);
+
+    const input_token_program =
+      input_token_mint.toBase58() === token_0_mint.toBase58() ? token_0_program : token_1_program;
+
+    const input_token_ata = getAssociatedTokenAddressSync(
+      input_token_mint,
+      wallet.publicKey!,
+      false,
+      input_token_program
+    );
+
+    const output_token_mint =
+      input_token_mint.toBase58() === token_0_mint.toBase58() ? token_1_mint : token_0_mint;
+
+    const [pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
+
+    const input_token_vault = getAssociatedTokenAddressSync(
+      input_token_mint,
+      pool_authority,
+      true,
+      input_token_program
+    );
+    const orderBook = order_book(order_book_detail, pool_id, input_token_mint, output_token_mint);
+
+    const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
+
+    const now_v = new BN(now);
+
+    const ix = await program.methods
+      .addOrderToPool(pool_id, in_amount, min_out_amount, now_v)
+      .accounts({
+        payer: wallet.publicKey!,
+        inputTokenMint: input_token_mint,
+        outputTokenMint: output_token_mint,
+        orderBookDetail: order_book_detail,
+        orderBook: orderBook,
+        inputTokenAta: input_token_ata,
+        inputTokenVault: input_token_vault,
+        poolAuthority: pool_authority,
+        counter,
+        tokenProgram: input_token_program,
+      })
+      .instruction();
+
+    tx.add(ix);
+
+    console.group("add_order_v2");
+    console.log("input_token_mint:", input_token_mint.toBase58());
+    console.log("pool_id:", pool_id.toString());
+    console.log("in_amount:", in_amount.toString());
+    console.log("min_out_amount:", min_out_amount.toString());
+    console.log("now_v:", now_v.toString());
+    console.log("wallet.publicKey!:", wallet.publicKey!.toBase58());
+    console.log("token_0_mint:", token_0_mint.toBase58());
+    console.log("token_1_mint:", token_1_mint.toBase58());
+    console.log("order_book_detail:", order_book_detail.toBase58());
+    console.log("orderBook:", orderBook.toBase58());
+    console.log("input_token_ata:", input_token_ata.toBase58());
+    console.log("input_token_vault:", input_token_vault.toBase58());
+    console.log("pool_authority:", pool_authority.toBase58());
+    console.log("counter:", counter.toBase58());
+    console.log("input_token_program:", input_token_program.toBase58());
+    console.groupEnd();
+
+    const sig1 = await provider.sendAndConfirm(tx);
+    console.log("Your transaction signature", sig1);
+    transactionToast(sig1);
+    console.log(`Generate Buy Order ID: 1 , pool_id: ${pool_id} in_amount: ${in_amount}, `);
+  }
+
   return {
     add_order_v1,
+    add_order_v2,
     initialize_pool,
     program,
     cancelOrder,

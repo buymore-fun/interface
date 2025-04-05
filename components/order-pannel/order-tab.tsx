@@ -170,7 +170,10 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
       await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, poolInfoData!);
 
+      const [inputTokenMint, outputTokenMint] = [poolMintA!.address, poolMintB!.address];
+
       console.group("handleSubmitOrder");
+      console.log("inputTokenMint", inputTokenMint);
       console.log("poolInfoData", poolInfoData);
       console.log("orderPrice", orderPrice);
       console.log("getCurrentPrice", getCurrentPrice(poolInfo));
@@ -187,19 +190,27 @@ export function OrderTab({ poolId }: OrderTabProps) {
       // const [inputTokenMint, outputTokenMint] = isBuy
       //   ? [poolMintA!.address, poolMintB!.address]
       //   : [poolMintB!.address, poolMintA!.address];
-      const [inputTokenMint, outputTokenMint] = [poolMintA!.address, poolMintB!.address];
 
       // const [inputTokenProgram, outputTokenProgram] = isBuy
       //   ? [poolMintA!.programId, poolMintB!.programId]
       //   : [poolMintB!.programId, poolMintA!.programId];
 
-      const [inputTokenProgram, outputTokenProgram] = [poolMintA!.programId, poolMintB!.programId];
+      // const [inputTokenProgram, outputTokenProgram] = [poolMintA!.programId, poolMintB!.programId];
 
-      await hybirdTradeProgram.add_order_v1(
+      // await hybirdTradeProgram.add_order_v1(
+      //   new PublicKey(inputTokenMint!),
+      //   new PublicKey(outputTokenMint!),
+      //   new PublicKey(inputTokenProgram!),
+      //   new PublicKey(outputTokenProgram!),
+      //   new BN(inAmount),
+      //   new BN(outAmount),
+      //   new BN(poolIdData?.pool_id),
+      //   poolInfoData
+      // );
+
+      //
+      await hybirdTradeProgram.add_order_v2(
         new PublicKey(inputTokenMint!),
-        new PublicKey(outputTokenMint!),
-        new PublicKey(inputTokenProgram!),
-        new PublicKey(outputTokenProgram!),
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData?.pool_id),
