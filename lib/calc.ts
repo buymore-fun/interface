@@ -1,6 +1,9 @@
 // 输出
 // 用户需要只输入selling中sol或者coin的数量，就可以得出：
 
+import { CpmmPoolInfo } from "@/types";
+import Decimal from "decimal.js";
+
 // buying中预期coin或者sol的数量；
 // Routing：dex和orderbook中buying结果占比（DEX: X%, ORDER: Y%）；
 // Dex Comparison：假设资金全部在dex中成交后得到的结果（产品上有个小问号文案：Results of all buy in DEX.）
@@ -69,6 +72,7 @@ const calculateDex = (Δy: number, dex: DexParams): { Δx: number; price: number
 };
 
 function calculateNewLogic(
+  currentPrice: number,
   inputΔy: number,
   dexParams: DexParams,
   orderbook: OrderbookOrder[]
@@ -120,3 +124,17 @@ function calculateNewLogic(
     avgPriceOrder: ΔyUsedOrder / ΔxOrder,
   };
 }
+
+export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
+  if (!cpmmPoolInfo) return 0;
+  const poolInfo = cpmmPoolInfo.poolInfo;
+  // const amountA = new Decimal(poolInfo.mintAmountA).mul(10 ** poolInfo.mintA.decimals);
+  // const amountB = new Decimal(poolInfo.mintAmountB).mul(10 ** poolInfo.mintB.decimals);
+  const amountA = new Decimal(poolInfo.mintAmountA);
+  const amountB = new Decimal(poolInfo.mintAmountB);
+
+  const price = isReverse ? amountA.div(amountB).toNumber() : amountB.div(amountA).toNumber();
+  // console.log("🚀 ~ getCurrentPrice ~ price:", price);
+
+  return price;
+};

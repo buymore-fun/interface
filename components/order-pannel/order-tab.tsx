@@ -26,6 +26,7 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { IResponsePoolInfoItem } from "@/types/response";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useBoolean } from "@/hooks/use-boolean";
+import { getCurrentPrice } from "@/lib/calc";
 
 interface OrderTabProps {
   poolId: string;
@@ -85,20 +86,6 @@ export function OrderTab({ poolId }: OrderTabProps) {
     input_token: poolMintA?.address || "",
     output_token: poolMintB?.address || "",
   });
-
-  const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
-    if (!cpmmPoolInfo) return 0;
-    const poolInfo = cpmmPoolInfo.poolInfo;
-    // const amountA = new Decimal(poolInfo.mintAmountA).mul(10 ** poolInfo.mintA.decimals);
-    // const amountB = new Decimal(poolInfo.mintAmountB).mul(10 ** poolInfo.mintB.decimals);
-    const amountA = new Decimal(poolInfo.mintAmountA);
-    const amountB = new Decimal(poolInfo.mintAmountB);
-
-    const price = isReverse ? amountA.div(amountB).toNumber() : amountB.div(amountA).toNumber();
-    // console.log("🚀 ~ getCurrentPrice ~ price:", price);
-
-    return price;
-  };
 
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true) => {
     const price = getCurrentPrice(cpmmPoolInfo, isReverse);
@@ -175,6 +162,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
       console.group("handleSubmitOrder");
       console.log("inputTokenMint", inputTokenMint);
       console.log("poolInfoData", poolInfoData);
+      console.log("poolInfo", poolInfo);
       console.log("orderPrice", orderPrice);
       console.log("getCurrentPrice", getCurrentPrice(poolInfo));
       console.log("getCurrentPriceInUSD", getCurrentPriceInUSD(poolInfo));
@@ -210,7 +198,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
       //
       await hybirdTradeProgram.add_order_v2(
-        new PublicKey(inputTokenMint!),
+        new PublicKey(poolInfo.poolInfo.mintA.address!),
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData?.pool_id),

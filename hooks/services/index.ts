@@ -4,9 +4,9 @@ import {
   IResponseCommunityDetail,
   IResponseDashboardIndex,
   IResponseMyOrderList,
-  IResponseOrderbookDepth,
   IResponseTradeHistoryList,
   IResponsePoolInfoItem,
+  IOrderbookDepthItem,
 } from "@/types";
 import axios from "axios";
 import useSWR from "swr";
@@ -105,18 +105,21 @@ export function useCommunityDetail(params: { inputMint: string }) {
   };
 }
 
-// https://api-test.buymore.fun/usurper/orderbook/depth?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&output_mint=So11111111111111111111111111111111111111112&price=142.7
+// https://api-test.buymore.fun/usurper/orderbook/depth?input_token=So11111111111111111111111111111111111111112&output_token=Ge7idPM1KBtu8Dzt5QsrWRxMNmv2KYSwzesXiCdkn84u&price=100000.000000000000000
 export function useOrderbookDepth(params: {
-  inputMint: string;
-  outputMint: string;
-  price: number;
+  input_token?: string;
+  output_token?: string;
+  price?: number;
 }) {
-  const { data, error, isLoading, mutate } = useSWR(`/orderbook/depth`, async (url: string) => {
-    const response = await axiosInstance.get(url, {
-      params,
-    });
-    return response.data?.data as IResponseOrderbookDepth;
-  });
+  const { data, error, isLoading, mutate } = useSWR(
+    Object.values(params).every((value) => value !== undefined) ? `/orderbook/depth` : null,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      return response.data?.data as IOrderbookDepthItem[];
+    }
+  );
 
   return {
     data,

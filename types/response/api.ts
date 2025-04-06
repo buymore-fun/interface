@@ -134,18 +134,25 @@ export interface IResponseTradeHistoryList extends IResponseCommonList<ITradeHis
   };
 }
 
-interface IOrderbookDepthItem {
-  amount: string;
+export interface IOrderbookDepthItem {
+  order_id: number;
+  pool_id: number;
+  owner: string;
+  input_token: string;
+  in_amount: string;
+  output_token: string;
+  out_amount: string;
   price: string;
-  total: string;
-  type: "sell" | "buy";
+  deadline: number;
+  tx_sign: string;
+  block_time: number;
 }
 
-export interface IResponseOrderbookDepth extends IResponseCommonList<IOrderbookDepthItem> {
-  query?: {
-    input_mint: string;
-  };
-}
+// export interface IResponseOrderbookDepth extends IResponseCommonList<IOrderbookDepthItem> {
+//   query?: {
+//     input_mint: string;
+//   };
+// }
 
 interface IMyOrderItem {
   amount: {

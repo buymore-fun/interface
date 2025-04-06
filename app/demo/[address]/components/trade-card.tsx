@@ -22,7 +22,7 @@ export function TradeCard() {
   const handleTrade = async () => {
     try {
       setTrading(true);
-      await hybirdTradeProgram.trade_in(Number(tradeInAmount), Number(tradeOutAmount));
+      // await hybirdTradeProgram.trade_in(Number(tradeInAmount), Number(tradeOutAmount));
     } catch (error) {
       console.error("Failed to trade:", error);
     } finally {

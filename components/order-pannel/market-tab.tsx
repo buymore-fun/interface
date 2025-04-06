@@ -6,7 +6,7 @@ import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { formatNumber } from "@/lib/utils";
+import { formatBalance, formatNumber } from "@/lib/utils";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import Image from "next/image";
 import { ChevronsUpDown } from "../ui/icon";
@@ -22,6 +22,12 @@ import { useToken } from "@/hooks/use-token";
 import { useTokenBalance } from "@/hooks/use-token-balance";
 import { slippageAtom } from "@/components/order-pannel/atom";
 import { useSolBalance } from "@/hooks/use-sol-balance";
+import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
+import { useCpmmPoolFetchOne, useOrderbookDepth } from "@/hooks/services";
+import { usePoolInfo } from "@/hooks/use-pool-info";
+import { getCurrentPrice } from "@/lib/calc";
+import Decimal from "decimal.js";
+import { BN } from "@coral-xyz/anchor";
 
 interface MarketTabProps {
   poolId: string;
@@ -33,23 +39,87 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const [slippage, setSlippage] = useAtom(slippageAtom);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
+  const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
+  const { data: poolInfoData, isLoading: isPoolInfoLoading } = useCpmmPoolFetchOne({
+    pool_id: poolId,
+  });
+
   const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
 
   const { solBalance, fetchSolBalance, isLoading } = useSolBalance();
   const tokenBalance = useTokenBalance(token);
 
-  const [tokenAAmount, setTokenAAmount] = useState("");
-  const [tokenBAmount, setTokenBAmount] = useState("");
+  const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
+  const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
 
   const { publicKey } = useWallet();
   const [isQuoting, setIsQuoting] = useState(false);
-  const [isReverse, setIsReverse] = useState(false);
+  const [isReverse, setIsReverse] = useState(true);
 
   const [tokenA, tokenB] = useMemo(
     () => (isReverse ? [SOL, token] : [token, SOL]),
     [isReverse, token, SOL]
   );
+
+  const [inputToken, outputToken] = useMemo(
+    () =>
+      isReverse
+        ? [poolInfo?.poolInfo.mintA, poolInfo?.poolInfo.mintB]
+        : [poolInfo?.poolInfo.mintB, poolInfo?.poolInfo.mintA],
+    [isReverse, poolInfo]
+  );
+
+  const [mintDecimalA, mintDecimalB] = isReverse
+    ? [poolInfo?.poolInfo.mintA.decimals, poolInfo?.poolInfo.mintB.decimals]
+    : [poolInfo?.poolInfo.mintB.decimals, poolInfo?.poolInfo.mintA.decimals];
+
+  const [inputTokenAmount, outputTokenAmount] = useMemo(() => {
+    if (!poolInfo?.poolInfo || !orderTokenAAmount || !orderTokenBAmount) {
+      return [0, 0];
+    }
+
+    const inAmount = new Decimal(orderTokenAAmount)
+      .mul(new Decimal(10).pow(mintDecimalA!))
+      .floor()
+      .toString();
+
+    const outAmount = new Decimal(orderTokenBAmount)
+      .mul(new Decimal(10).pow(mintDecimalB!))
+      .floor()
+      .toString();
+
+    return [inAmount, outAmount];
+  }, [poolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
+
+  useEffect(() => {
+    if (orderTokenAAmount && poolInfo?.poolInfo.price) {
+      if (isReverse) {
+        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+          .mul(new Decimal(poolInfo?.poolInfo.price))
+          .toString();
+
+        setOrderTokenBAmount(_orderTokenBAmount);
+      } else {
+        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+          .div(new Decimal(poolInfo?.poolInfo.price))
+          .toString();
+
+        setOrderTokenBAmount(_orderTokenBAmount);
+      }
+    }
+  }, [orderTokenAAmount, poolInfo?.poolInfo.price, setOrderTokenBAmount, isReverse]);
+
+  // const price = getCurrentPrice(poolInfo, false);
+
+  console.log(getCurrentPrice(poolInfo, !isReverse));
+
+  // should reverse input and output token
+  const { data: orderbookDepthData, mutate } = useOrderbookDepth({
+    input_token: outputToken?.address,
+    output_token: inputToken?.address,
+    price: getCurrentPrice(poolInfo, !isReverse),
+  });
 
   const [tokenABalance, tokenBBalance] = useMemo(
     () =>
@@ -72,26 +142,66 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     const maxAmount = isReverse ? (solBalance ?? undefined) : tokenBalance;
     if (!maxAmount) return;
 
-    const calculatedAmount = (+maxAmount * percent) / 100;
-    setTokenAAmount(calculatedAmount.toString());
+    const calculatedAmount = new Decimal(+maxAmount)
+      .mul(new Decimal(percent))
+      .div(new Decimal(100))
+      .div(new Decimal(10).pow(mintDecimalA!))
+      .toString();
+
+    setOrderTokenAAmount(calculatedAmount);
   };
 
   const onSlippageClick = (value: number) => {
     setSlippage(value);
   };
 
-  useEffect(() => {
-    if (!tokenAAmount) {
-      setIsQuoting(false);
-      setTokenBAmount("");
-      return;
-    }
-    setIsQuoting(true);
-    setTimeout(() => {
-      setTokenBAmount("0.01");
-      setIsQuoting(false);
-    }, 2000);
-  }, [tokenAAmount]);
+  // useEffect(() => {
+  //   if (!orderTokenAAmount) {
+  //     setIsQuoting(false);
+  //     setOrderTokenBAmount("");
+  //     return;
+  //   }
+  //   // setIsQuoting(true);
+  //   // setTimeout(() => {
+  //   //   setTokenBAmount("0.01");
+  //   //   setIsQuoting(false);
+  //   // }, 2000);
+  // }, [orderTokenAAmount]);
+
+  const hybirdTradeProgram = useHybirdTradeProgram(poolId);
+
+  const handleBuy = async () => {
+    const orderBook = await mutate();
+    console.log("🚀 ~ handleBuy ~ orderBook:", orderBook);
+    if (!orderBook || !poolInfo || !poolInfoData) return;
+
+    const trades = [
+      {
+        poolIndex: new BN(orderBook[0].pool_id),
+        orderId: new BN(orderBook[0].order_id),
+      },
+    ];
+
+    console.group("handleBuy");
+    console.log("orderTokenAAmount", orderTokenAAmount);
+    console.log("orderTokenBAmount", orderTokenBAmount);
+    console.log("inputTokenAmount", inputTokenAmount);
+    console.log("outputTokenAmount", outputTokenAmount);
+    console.groupEnd();
+
+    // try {
+    await hybirdTradeProgram.trade_in_v1(
+      // new BN(inputTokenAmount),
+      // new BN(outputTokenAmount),
+      new BN(+inputTokenAmount),
+      new BN(+outputTokenAmount),
+      poolInfoData,
+      trades
+    );
+    // } catch (error) {
+    //   console.log("🚀 ~ handleBuy ~ error:", error);
+    // }
+  };
 
   return (
     <div className="p-4">
@@ -102,7 +212,9 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
             <div className="flex space-x-2 items-center">
               <div className="flex items-center space-x-1">
                 <Wallet className="text-muted-foreground size-3" />
-                <span className="text-muted-foreground text-xs">{formatNumber(tokenABalance)}</span>
+                <span className="text-muted-foreground text-xs">
+                  {formatBalance(tokenABalance)}
+                </span>
               </div>
               <Button
                 size="xs"
@@ -145,7 +257,8 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
           <Input
             className="border-none text-lg font-semibold text-right outline-none p-0"
             placeholder="0.00"
-            onChange={(e) => setTokenAAmount(e.target.value)}
+            onChange={(e) => setOrderTokenAAmount(e.target.value)}
+            value={orderTokenAAmount}
           />
         </div>
       </div>
@@ -191,7 +304,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
             <Input
               className="border-none text-lg disabled:cursor-not-allowed font-semibold text-right outline-none p-0"
               placeholder="0.00"
-              value={tokenBAmount}
+              value={orderTokenBAmount}
               readOnly
             />
           )}
@@ -280,7 +393,12 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         </div>
       </div>
       {publicKey ? (
-        <Button className="w-full" size="lg" disabled={!tokenAAmount || !tokenBAmount}>
+        <Button
+          className="w-full"
+          size="lg"
+          disabled={!orderTokenAAmount || !orderTokenBAmount}
+          onClick={handleBuy}
+        >
           Buy
         </Button>
       ) : (
