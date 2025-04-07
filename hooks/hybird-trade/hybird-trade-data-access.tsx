@@ -453,7 +453,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     );
     const orderBook = order_book(order_book_detail, pool_id, input_token_mint, output_token_mint);
 
-    const now = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1day
+    const now = Math.floor(Date.now() / 1000) + 60 * 60 * 365; // 1day
 
     const now_v = new BN(now);
 
