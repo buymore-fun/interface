@@ -1,25 +1,13 @@
 "use client";
 
-import { BN, Program, utils } from "@coral-xyz/anchor";
+import { BN, utils } from "@coral-xyz/anchor";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  Cluster,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  Signer,
-  LAMPORTS_PER_SOL,
-  sendAndConfirmTransaction,
-} from "@solana/web3.js";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { PublicKey, SystemProgram, Transaction, Signer, Connection } from "@solana/web3.js";
 import { useMemo } from "react";
 
-import { getHybirdTradeProgram, getHybirdTradeProgramId, getSeeds } from "@/anchor/src";
+import { getHybirdTradeProgram, getSeeds } from "@/anchor/src";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { OrderType } from "@/consts/order";
 import {
   // TODO  default is TOKEN_PROGRAM_ID, add dynamic params
   TOKEN_PROGRAM_ID,
@@ -27,14 +15,11 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createSyncNativeInstruction,
   getAssociatedTokenAddressSync,
-  getAccount,
-  createAssociatedTokenAccount,
   createAssociatedTokenAccountInstruction,
   NATIVE_MINT,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
-import { getPoolVaultAddress } from "@/hooks/hybird-trade/pda";
-import { IResponsePoolInfoItem } from "@/types/response";
+import { IOrderbookDepthItem, IResponsePoolInfoItem } from "@/types/response";
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
@@ -50,7 +35,7 @@ interface Trade {
   orderId: BN;
 }
 
-export function useHybirdTradeProgram(mintAddress: string) {
+export function useHybirdTradeProgram(mintAddress: string = "") {
   const wallet = useWallet();
 
   const { connection } = useConnection();
@@ -499,6 +484,348 @@ export function useHybirdTradeProgram(mintAddress: string) {
     console.log(`Generate Buy Order ID: 1 , pool_id: ${pool_id} in_amount: ${in_amount}, `);
   }
 
+  class SwapInfo {
+    pool_state: IResponsePoolInfoItem;
+    input_token_mint: PublicKey;
+    output_token_mint: PublicKey;
+    input_swap_amount: BN;
+    input_token_vault: PublicKey;
+    output_token_vault: PublicKey;
+    input_token_balance: any;
+    output_token_balance: any;
+    orders: IOrderbookDepthItem[];
+    token_0_mint: PublicKey;
+    token_1_mint: PublicKey;
+    input_token_program: PublicKey;
+    output_token_program: PublicKey;
+
+    constructor(
+      pool_state: IResponsePoolInfoItem,
+      input_token_mint: string,
+      output_token_mint: string
+    ) {
+      this.input_token_mint = new PublicKey(input_token_mint);
+      this.output_token_mint = new PublicKey(output_token_mint);
+      // this.input_swap_amount = new PublicKey(input_swap_amount)
+
+      this.input_token_mint = new PublicKey(input_token_mint);
+      this.output_token_mint = new PublicKey(output_token_mint);
+      // this.input_swap_amount = new PublicKey(input_swap_amount)
+
+      const [input_token_vault, output_token_vault, input_token_program, output_token_program] =
+        input_token_mint === pool_state.cpmm.mintA
+          ? [
+              pool_state.cpmm.vaultA,
+              pool_state.cpmm.vaultB,
+              pool_state.cpmm.mintProgramA,
+              pool_state.cpmm.mintProgramB,
+            ]
+          : [
+              pool_state.cpmm.vaultB,
+              pool_state.cpmm.vaultA,
+              pool_state.cpmm.mintProgramB,
+              pool_state.cpmm.mintProgramA,
+            ];
+
+      this.input_token_vault = new PublicKey(input_token_vault);
+      this.output_token_vault = new PublicKey(output_token_vault);
+
+      this.input_token_program = new PublicKey(input_token_program);
+      this.output_token_program = new PublicKey(output_token_program);
+
+      this.pool_state = pool_state;
+      this.token_0_mint = new PublicKey(pool_state.cpmm.mintA);
+      this.token_1_mint = new PublicKey(pool_state.cpmm.mintB);
+      this.orders = [] as IOrderbookDepthItem[];
+    }
+
+    async get_token_account_balance(token_account: PublicKey | string) {
+      if (typeof token_account === "string") {
+        token_account = new PublicKey(token_account);
+      }
+      // const response = await program.provider.connection.getTokenAccountBalance( pubkey )
+      const response = await connection.getTokenAccountBalance(token_account);
+
+      if (response.value === null) {
+        throw new Error(`Token account ${token_account} not found`);
+      }
+
+      return {
+        ...response.value,
+      };
+    }
+
+    add_orders(orders: IOrderbookDepthItem[] = []) {
+      const now = Math.floor(Date.now() / 1000);
+      // filter deadline
+      this.orders = orders.filter((v) => {
+        return v.deadline > now;
+      });
+    }
+
+    async init_account_balance() {
+      const [input_token_balance, output_token_balance] = await Promise.all([
+        this.get_token_account_balance(this.input_token_vault),
+        this.get_token_account_balance(this.output_token_vault),
+      ]);
+
+      console.log(
+        "🚀 ~ SwapInfo ~ init_account_balance ~ input_token_balance:",
+        input_token_balance
+      );
+      console.log(
+        "🚀 ~ SwapInfo ~ init_account_balance ~ output_token_balance:",
+        output_token_balance
+      );
+
+      this.input_token_balance = input_token_balance;
+      this.output_token_balance = output_token_balance;
+    }
+
+    async get_current_price(input_swap_amount: BN) {
+      const input_token_amount = new BN(this.input_token_balance.amount);
+      const output_token_amount = new BN(this.output_token_balance.amount);
+
+      const pre_output_amount = input_token_amount
+        .mul(output_token_amount)
+        .div(input_token_amount.add(input_swap_amount));
+
+      console.log(`Swap info: ${input_swap_amount} -> ${pre_output_amount}`);
+
+      const current_price =
+        parseFloat(this.input_token_balance.uiAmountString) /
+        parseFloat(pre_output_amount.div(new BN(this.output_token_balance.decimals)).toString());
+
+      console.log(`Current Price: ${current_price.toString()}`);
+
+      return {
+        input: input_swap_amount,
+        output: pre_output_amount,
+        current_price: current_price,
+      };
+    }
+
+    async get_order_depth(depth) {
+      const now = Math.floor(Date.now() / 1000);
+      // filter deadline
+      const orders = depth.data.filter((v) => {
+        return v.deadline > now;
+      });
+
+      this.add_orders(orders);
+    }
+
+    find_orders(input_amount: BN) {
+      const { getOrderBookDetail } = getProgramAddress();
+
+      const max = 2; // max = 2
+      const pools = [] as PublicKey[];
+      const trades = [] as Trade[];
+      let count = 0;
+      const v = {};
+      let output_amount_count = new BN(0);
+
+      const order_book_detail_v = getOrderBookDetail(this.pool_state);
+
+      for (const order of this.orders) {
+        const { pool_id, pool_pubkey, order_id, in_amount, out_amount } = order;
+
+        // const order_book_v = order_book( order_book_detail_v, new BN(pool_id), this.input_token_mint, this.output_token_mint )
+        const order_book_v = new PublicKey(pool_pubkey);
+
+        // console.log( order_book_v.toBase58() , v[order_book_v.toBase58()], v[order_book_v.toBase58()] === undefined)
+        if (v[order_book_v.toBase58()] === undefined) {
+          if (count < max) {
+            v[order_book_v.toBase58()] = count;
+            count++;
+            pools.push(order_book_v);
+          } else {
+            continue;
+          }
+        }
+
+        // add order
+        trades.push({
+          poolIndex: new BN(v[order_book_v.toBase58()]),
+          orderId: new BN(order_id),
+        } as Trade);
+
+        const in_amount_bn = new BN(in_amount);
+        const out_amount_bn = new BN(out_amount);
+
+        if (input_amount.gte(out_amount_bn)) {
+          input_amount = input_amount.sub(out_amount_bn);
+          output_amount_count = output_amount_count.add(in_amount_bn);
+        } else {
+          const left_output_amount = out_amount_bn
+            .sub(input_amount)
+            .mul(in_amount_bn)
+            .div(out_amount_bn);
+          output_amount_count = output_amount_count.add(in_amount_bn.sub(left_output_amount));
+          input_amount = new BN(0);
+        }
+
+        if (input_amount.isZero()) {
+          break;
+        }
+      }
+
+      return {
+        pools,
+        trades,
+        left_input_amount: input_amount,
+        output_amount_count,
+      };
+    }
+
+    async calc_buy_more(input_amount: BN) {
+      const trades_v = this.find_orders(input_amount);
+
+      const before_v = await this.get_current_price(input_amount);
+
+      const { left_input_amount, output_amount_count } = trades_v;
+
+      let new_output_amount = output_amount_count;
+
+      let from_swap = {
+        input: new BN(0),
+        output: new BN(0),
+      };
+
+      if (left_input_amount.isZero() === false) {
+        from_swap = await this.get_current_price(left_input_amount);
+        new_output_amount = output_amount_count.add(from_swap.output);
+      }
+
+      return {
+        trades: trades_v,
+        more: new_output_amount.sub(before_v.output),
+        only_swap: before_v,
+        buy_more: {
+          from_order: {
+            input: input_amount.sub(left_input_amount),
+            output: output_amount_count,
+          },
+          from_swap,
+          result: {
+            input: input_amount,
+            output: new_output_amount,
+          },
+        },
+      };
+    }
+
+    // slippage default 10 => 10/1000 = 1%
+    async generate_tx(input_amount: BN, slippage: BN = new BN(10)) {
+      const pre_v = new BN(1000);
+      const settle_id = new BN(Date.now());
+
+      const raydium_pubkey = new PublicKey(raydium_cp_swap);
+      const POOL_AUTH_SEED = Buffer.from(utils.bytes.utf8.encode("vault_and_lp_mint_auth_seed"));
+      const POOL_SEED = Buffer.from(utils.bytes.utf8.encode("pool"));
+      const ORACLE_SEED = Buffer.from(utils.bytes.utf8.encode("observation"));
+
+      const [POOL_AUTH_PUBKEY, POOL_AUTH_BUMP] = PublicKey.findProgramAddressSync(
+        [POOL_AUTH_SEED],
+        raydium_pubkey
+      );
+      const pool_state = new PublicKey(this.pool_state.cpmm.poolId);
+      const ammConfig = new PublicKey(this.pool_state.cpmm.configId);
+      // const swap_input_vault = new PublicKey(this.pool_state.vaultA)
+      // const swap_output_vault = new PublicKey(this..vaultB)
+      const swap_observation = new PublicKey(this.pool_state.cpmm.observationId);
+      const [order_book_detail] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("buymore_order_detail_v1"),
+          this.token_0_mint.toBytes(),
+          this.token_1_mint.toBytes(),
+        ],
+        program.programId
+      );
+
+      const [settle_pool] = PublicKey.findProgramAddressSync(
+        [
+          SEEDS["SETTLE_POOL_SEED"],
+          settle_id.toArrayLike(Buffer, "le", 8),
+          this.input_token_mint.toBytes(),
+          this.output_token_mint.toBytes(),
+        ],
+        program.programId
+      );
+
+      const input_token_account = getAssociatedTokenAddressSync(
+        this.input_token_mint,
+        wallet.publicKey!,
+        false,
+        this.input_token_program
+      );
+
+      const output_token_account = getAssociatedTokenAddressSync(
+        this.output_token_mint,
+        wallet.publicKey!,
+        false,
+        this.output_token_program
+      );
+      const [order_book_authority] = make_pool_authority(this.token_0_mint, this.token_1_mint);
+
+      const orderbook_input_vault = getAssociatedTokenAddressSync(
+        this.input_token_mint,
+        order_book_authority,
+        true,
+        this.input_token_program
+      );
+
+      const orderbook_output_vault = getAssociatedTokenAddressSync(
+        this.output_token_mint,
+        order_book_authority,
+        true,
+        this.output_token_program
+      );
+      const buymore_info = await this.calc_buy_more(input_amount);
+
+      const minimum_amount_out = buymore_info.buy_more.result.output
+        .mul(pre_v)
+        .div(pre_v.sub(slippage));
+
+      const tx = new Transaction();
+
+      const ix = await program.methods
+        .proxySwapBaseInput(settle_id, input_amount, minimum_amount_out, buymore_info.trades.trades)
+        .accounts({
+          cpSwapProgram: raydium_pubkey,
+          payer: wallet.publicKey!,
+          authority: POOL_AUTH_PUBKEY,
+          ammConfig: ammConfig,
+          poolState: pool_state,
+          inputTokenAccount: input_token_account,
+          outputTokenAccount: output_token_account,
+          inputVault: this.input_token_vault,
+          outputVault: this.output_token_vault,
+          inputTokenProgram: this.input_token_program,
+          outputTokenProgram: this.output_token_program,
+          inputTokenMint: this.input_token_mint,
+          outputTokenMint: this.output_token_mint,
+          observationState: swap_observation,
+          orderBook0: buymore_info.trades.pools[0],
+          orderBook1: buymore_info.trades.pools[1] || buymore_info.trades.pools[0], // set by yourself.
+          orderBookInputVault: orderbook_input_vault,
+          orderBookOutputVault: orderbook_output_vault,
+          orderBookDetail: order_book_detail,
+          orderBookAuthority: order_book_authority,
+          settlePool: settle_pool,
+        })
+        .instruction();
+
+      tx.add(ix);
+
+      // test code.
+      const sig1 = await provider.sendAndConfirm(tx);
+      console.log("Your transaction signature", sig1);
+
+      return tx;
+    }
+  }
+
   return {
     add_order_v2,
     initialize_pool,
@@ -506,6 +833,7 @@ export function useHybirdTradeProgram(mintAddress: string) {
     cancelOrder,
     trade_in_v1,
     solToWsol,
+    SwapInfo,
   };
 }
 

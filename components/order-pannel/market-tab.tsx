@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { ArrowDownUp, Wallet } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Button } from "../ui/button";
@@ -28,6 +28,7 @@ import { usePoolInfo } from "@/hooks/use-pool-info";
 import { getCurrentPrice } from "@/lib/calc";
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
+import { isNumber } from "@raydium-io/raydium-sdk-v2";
 
 interface MarketTabProps {
   poolId: string;
@@ -112,10 +113,10 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
   // const price = getCurrentPrice(poolInfo, false);
 
-  console.log(getCurrentPrice(poolInfo, !isReverse));
+  // console.log(getCurrentPrice(poolInfo, !isReverse));
 
   // should reverse input and output token
-  const { data: orderbookDepthData, mutate } = useOrderbookDepth({
+  const { data: orderbookDepthData, mutate: mutateOrderbookDepth } = useOrderbookDepth({
     input_token: outputToken?.address,
     output_token: inputToken?.address,
     price: getCurrentPrice(poolInfo, !isReverse),
@@ -155,52 +156,126 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     setSlippage(value);
   };
 
-  // useEffect(() => {
-  //   if (!orderTokenAAmount) {
-  //     setIsQuoting(false);
-  //     setOrderTokenBAmount("");
-  //     return;
-  //   }
-  //   // setIsQuoting(true);
-  //   // setTimeout(() => {
-  //   //   setTokenBAmount("0.01");
-  //   //   setIsQuoting(false);
-  //   // }, 2000);
-  // }, [orderTokenAAmount]);
+  useEffect(() => {
+    if (!orderTokenAAmount) {
+      setIsQuoting(false);
+      setOrderTokenBAmount("");
+      return;
+    }
 
-  const hybirdTradeProgram = useHybirdTradeProgram(poolId);
+    handleQuery();
+
+    setTimeout(() => {
+      handleQuery();
+    }, 2000);
+  }, [orderTokenAAmount]);
+
+  const handleQuery = async () => {
+    const canQuery =
+      !isNumber(+orderTokenAAmount) || +orderTokenAAmount <= 0 || isQuoting || !swapInfo;
+
+    console.log("canQuery", canQuery);
+    if (canQuery) {
+      return;
+    }
+
+    try {
+      setIsQuoting(true);
+
+      const amount = inputTokenAmount;
+
+      console.group("handleQuery");
+      console.log("inputAmount", amount);
+
+      await swapInfo?.init_account_balance();
+      const orderBook = await mutateOrderbookDepth();
+      const current_price = await swapInfo?.get_current_price(new BN(amount));
+
+      swapInfo?.add_orders(orderBook);
+
+      const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
+
+      console.log(" current_price:", current_price);
+      console.log(
+        `Only swap: ${result.only_swap.input.toString()} -> ${result.only_swap.output.toString()}`
+      );
+      console.log(
+        `Buy more: ${result.buy_more.result.input.toString()} -> ${result.buy_more.result.output.toString()}`
+      );
+      console.log(
+        `Buy more from order: ${result.buy_more.from_order.input.toString()} -> ${result.buy_more.from_order.output.toString()}`
+      );
+      console.log(
+        `Buy more from swap: ${result.buy_more.from_swap.input.toString()} -> ${result.buy_more.from_swap.output.toString()}`
+      );
+      console.log("only_swap.input", result.only_swap.input.toString());
+      console.log("only_swap.output", result.only_swap.output.toString());
+      console.groupEnd();
+
+      setIsQuoting(false);
+    } catch (error) {
+      console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
+    } finally {
+      setIsQuoting(false);
+    }
+  };
+
+  const hybirdTradeProgram = useHybirdTradeProgram();
+  const { SwapInfo } = hybirdTradeProgram;
+
+  const swapInfo = useMemo(() => {
+    if (!poolInfoData || !inputToken || !outputToken) return null;
+    return new SwapInfo(poolInfoData, inputToken.address, outputToken.address);
+  }, [poolInfoData, inputToken, outputToken]);
 
   const handleBuy = async () => {
-    const orderBook = await mutate();
+    const orderBook = await mutateOrderbookDepth();
     console.log("🚀 ~ handleBuy ~ orderBook:", orderBook);
     if (!orderBook || !poolInfo || !poolInfoData) return;
 
-    const trades = [
-      {
-        poolIndex: new BN(orderBook[0].pool_id),
-        orderId: new BN(orderBook[0].order_id),
-      },
-    ];
+    swapInfo?.add_orders(orderBook);
 
     console.group("handleBuy");
     console.log("orderTokenAAmount", orderTokenAAmount);
     console.log("orderTokenBAmount", orderTokenBAmount);
     console.log("inputTokenAmount", inputTokenAmount);
     console.log("outputTokenAmount", outputTokenAmount);
+    // console.log("orders", orders?.left_input_amount.toString());
+    // console.log("orders", orders?.output_amount_count.toString());
     console.groupEnd();
 
-    // try {
-    await hybirdTradeProgram.trade_in_v1(
-      // new BN(inputTokenAmount),
-      // new BN(outputTokenAmount),
-      new BN(+inputTokenAmount),
-      new BN(+outputTokenAmount),
-      poolInfoData,
-      trades
-    );
-    // } catch (error) {
-    //   console.log("🚀 ~ handleBuy ~ error:", error);
-    // }
+    // const trades = orders?.trades?.map((trade) => ({
+    //   poolIndex: new BN(trade.poolIndex),
+    //   orderId: new BN(trade.orderId),
+    // }));
+
+    try {
+      await swapInfo?.generate_tx(new BN(inputTokenAmount));
+
+      // console.log("orders", orders?.left_input_amount.toString());
+      // console.log("orders", orders?.output_amount_count.toString());
+
+      // await hybirdTradeProgram.trade_in_v1(
+      //   new BN(orders?.left_input_amount),
+      //   new BN(orders?.output_amount_count),
+      //   poolInfoData,
+      //   trades!
+      // );
+      // await hybirdTradeProgram.trade_in_v1(
+      //   new BN(orders?.left_input_amount),
+      //   new BN(orders?.output_amount_count),
+      //   poolInfoData,
+      //   trades!
+      // );
+    } catch (error) {
+      console.log("🚀 ~ handleBuy ~ error:", error);
+    }
+  };
+
+  const handleOrderTokenAAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const amount = e.target.value;
+    setOrderTokenAAmount(amount);
+    handleQuery();
   };
 
   return (
@@ -257,7 +332,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
           <Input
             className="border-none text-lg font-semibold text-right outline-none p-0"
             placeholder="0.00"
-            onChange={(e) => setOrderTokenAAmount(e.target.value)}
+            onChange={handleOrderTokenAAmountChange}
             value={orderTokenAAmount}
           />
         </div>

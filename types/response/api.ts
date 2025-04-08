@@ -137,6 +137,7 @@ export interface IResponseTradeHistoryList extends IResponseCommonList<ITradeHis
 export interface IOrderbookDepthItem {
   order_id: number;
   pool_id: number;
+  pool_pubkey: string;
   owner: string;
   input_token: string;
   in_amount: string;
