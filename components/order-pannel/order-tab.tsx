@@ -161,6 +161,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
       console.group("handleSubmitOrder");
       console.log("inputTokenMint", inputTokenMint);
+      console.log("outputTokenMint", outputTokenMint);
       console.log("poolInfoData", poolInfoData);
       console.log("poolInfo", poolInfo);
       console.log("orderPrice", orderPrice);
@@ -198,7 +199,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
 
       //
       await hybirdTradeProgram.add_order_v2(
-        new PublicKey(poolInfo.poolInfo.mintA.address!),
+        new PublicKey(inputTokenMint),
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData?.pool_id),

@@ -458,6 +458,81 @@ export type HybirdTradeV2 = {
       ]
     },
     {
+      "name": "wrapSol",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wsolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "unwrapSol",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wsolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "destination",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SPL Token Program"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "tradeOrder",
       "accounts": [
         {
@@ -535,61 +610,6 @@ export type HybirdTradeV2 = {
         {
           "name": "deadline",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "test",
-      "accounts": [
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The user performing the swap"
-          ]
-        },
-        {
-          "name": "inputTokenMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "outputTokenMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "settlePool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "settleId",
-          "type": "u64"
-        },
-        {
-          "name": "amountIn",
-          "type": "u64"
-        },
-        {
-          "name": "minimumAmountOut",
-          "type": "u64"
-        },
-        {
-          "name": "trades",
-          "type": {
-            "vec": {
-              "defined": "Trade"
-            }
-          }
         }
       ]
     }
@@ -1145,6 +1165,11 @@ export type HybirdTradeV2 = {
         {
           "name": "poolId",
           "type": "u64",
+          "index": false
+        },
+        {
+          "name": "poolPubkey",
+          "type": "publicKey",
           "index": false
         },
         {
@@ -1789,6 +1814,81 @@ export const IDL: HybirdTradeV2 = {
       ]
     },
     {
+      "name": "wrapSol",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wsolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "unwrapSol",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wsolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "destination",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SPL Token Program"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "tradeOrder",
       "accounts": [
         {
@@ -1866,61 +1966,6 @@ export const IDL: HybirdTradeV2 = {
         {
           "name": "deadline",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "test",
-      "accounts": [
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The user performing the swap"
-          ]
-        },
-        {
-          "name": "inputTokenMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "outputTokenMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "settlePool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "settleId",
-          "type": "u64"
-        },
-        {
-          "name": "amountIn",
-          "type": "u64"
-        },
-        {
-          "name": "minimumAmountOut",
-          "type": "u64"
-        },
-        {
-          "name": "trades",
-          "type": {
-            "vec": {
-              "defined": "Trade"
-            }
-          }
         }
       ]
     }
@@ -2476,6 +2521,11 @@ export const IDL: HybirdTradeV2 = {
         {
           "name": "poolId",
           "type": "u64",
+          "index": false
+        },
+        {
+          "name": "poolPubkey",
+          "type": "publicKey",
           "index": false
         },
         {

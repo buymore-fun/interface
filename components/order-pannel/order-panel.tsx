@@ -14,8 +14,8 @@ enum Tab {
 
 export function OrderPanel({ poolId }: { poolId: string }) {
   const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
-  // const [tab, setTab] = useState<Tab>(Tab.ORDER);
-  const [tab, setTab] = useState<Tab>(Tab.MARKET);
+  const [tab, setTab] = useState<Tab>(Tab.ORDER);
+  // const [tab, setTab] = useState<Tab>(Tab.MARKET);
 
   const { data: poolInfoData } = useCpmmPoolFetchOne({ pool_id: poolId });
 
