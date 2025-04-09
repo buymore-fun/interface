@@ -589,13 +589,20 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const input_token_amount = new BN(this.input_token_balance!.amount);
       const output_token_amount = new BN(this.output_token_balance!.amount);
 
+      // Calculate the new output amount after swap using constant product formula
       const pre_output_amount = input_token_amount
         .mul(output_token_amount)
         .div(input_token_amount.add(input_swap_amount));
 
-      const current_price =
-        parseFloat(this.input_token_balance!.uiAmountString!) /
-        parseFloat(pre_output_amount.div(new BN(this.output_token_balance!.decimals)).toString());
+      // Calculate the actual output amount (difference between original and new output)
+      const actual_output_amount = output_token_amount.sub(pre_output_amount);
+
+      // Calculate price: (output_amount * 10^input_decimals) / (input_amount * 10^output_decimals)
+      const price =
+        (parseFloat(actual_output_amount.toString()) *
+          Math.pow(10, this.input_token_balance!.decimals)) /
+        (parseFloat(input_swap_amount.toString()) *
+          Math.pow(10, this.output_token_balance!.decimals));
 
       console.group("get_current_price");
       console.log("input_token_amount:", input_token_amount.toString());
@@ -604,13 +611,13 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       console.log("output_token_balance:", this.output_token_balance!.uiAmountString);
       console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("pre_output_amount:", pre_output_amount.toString());
-      console.log("current_price:", current_price);
+      console.log("current_price:", price);
       console.groupEnd();
 
       return {
         input: input_swap_amount,
         output: pre_output_amount,
-        current_price: current_price,
+        current_price: price,
       };
     }
 
