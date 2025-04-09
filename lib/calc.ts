@@ -138,3 +138,13 @@ export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): 
 
   return price;
 };
+
+// export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
+//   if (!cpmmPoolInfo) return 0;
+
+//   const price = isReverse
+//     ? new Decimal(1).div(cpmmPoolInfo.poolInfo.price).toNumber()
+//     : cpmmPoolInfo.poolInfo.price;
+
+//   return price;
+// };

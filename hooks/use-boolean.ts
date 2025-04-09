@@ -12,6 +12,8 @@ export function useBoolean(initialValue = false) {
   const toggle = useCallback(() => setValue((prev) => !prev), []);
   const setTrue = useCallback(() => setValue(true), []);
   const setFalse = useCallback(() => setValue(false), []);
+  const on = useCallback(() => setValue(true), []);
+  const off = useCallback(() => setValue(false), []);
 
   return {
     value,
@@ -19,6 +21,8 @@ export function useBoolean(initialValue = false) {
     toggle,
     setTrue,
     setFalse,
+    on,
+    off,
   };
 }
 

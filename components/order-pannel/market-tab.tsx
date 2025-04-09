@@ -1,4 +1,4 @@
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDownUp, Wallet } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Button } from "../ui/button";
@@ -29,6 +29,8 @@ import { getCurrentPrice } from "@/lib/calc";
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
 import { isNumber } from "@raydium-io/raydium-sdk-v2";
+import useBoolean from "@/hooks/use-boolean";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 interface MarketTabProps {
   poolId: string;
@@ -47,6 +49,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
   const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
+  const isSubmitting = useBoolean();
 
   const { solBalance, fetchSolBalance, isLoading } = useSolBalance();
   const tokenBalance = useTokenBalance(token);
@@ -94,22 +97,24 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   }, [poolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
 
   useEffect(() => {
-    if (orderTokenAAmount && poolInfo?.poolInfo.price) {
+    if (orderTokenAAmount && poolInfo) {
+      const orderPrice = getCurrentPrice(poolInfo, false);
+
       if (isReverse) {
         const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-          .mul(new Decimal(poolInfo?.poolInfo.price))
+          .mul(new Decimal(orderPrice))
           .toString();
 
         setOrderTokenBAmount(_orderTokenBAmount);
       } else {
         const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-          .div(new Decimal(poolInfo?.poolInfo.price))
+          .div(new Decimal(orderPrice))
           .toString();
 
         setOrderTokenBAmount(_orderTokenBAmount);
       }
     }
-  }, [orderTokenAAmount, poolInfo?.poolInfo.price, setOrderTokenBAmount, isReverse]);
+  }, [orderTokenAAmount, setOrderTokenBAmount, isReverse, poolInfo]);
 
   // const price = getCurrentPrice(poolInfo, false);
 
@@ -174,7 +179,6 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     const canQuery =
       !isNumber(+orderTokenAAmount) || +orderTokenAAmount <= 0 || isQuoting || !swapInfo;
 
-    console.log("canQuery", canQuery);
     if (canQuery) {
       return;
     }
@@ -195,7 +199,9 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
       const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
 
-      console.log(" current_price:", current_price);
+      console.log("current_price current_price:", current_price.current_price.toString());
+      console.log("current_price input:", current_price.input.toString());
+      console.log("current_price output:", current_price.output.toString());
       console.log(
         `Only swap: ${result.only_swap.input.toString()} -> ${result.only_swap.output.toString()}`
       );
@@ -232,43 +238,27 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     const orderBook = await mutateOrderbookDepth();
     console.log("🚀 ~ handleBuy ~ orderBook:", orderBook);
     if (!orderBook || !poolInfo || !poolInfoData) return;
+    isSubmitting.on();
 
     swapInfo?.add_orders(orderBook);
+
+    const slippageValue = Math.min(Math.floor(parseFloat(slippage.toString()) * 10), 1000);
+    const slippageBN = new BN(slippageValue);
 
     console.group("handleBuy");
     console.log("orderTokenAAmount", orderTokenAAmount);
     console.log("orderTokenBAmount", orderTokenBAmount);
     console.log("inputTokenAmount", inputTokenAmount);
     console.log("outputTokenAmount", outputTokenAmount);
-    // console.log("orders", orders?.left_input_amount.toString());
-    // console.log("orders", orders?.output_amount_count.toString());
+    console.log("slippageBN", slippageBN.toString());
     console.groupEnd();
 
-    // const trades = orders?.trades?.map((trade) => ({
-    //   poolIndex: new BN(trade.poolIndex),
-    //   orderId: new BN(trade.orderId),
-    // }));
-
     try {
-      await swapInfo?.generate_tx(new BN(inputTokenAmount));
-
-      // console.log("orders", orders?.left_input_amount.toString());
-      // console.log("orders", orders?.output_amount_count.toString());
-
-      // await hybirdTradeProgram.trade_in_v1(
-      //   new BN(orders?.left_input_amount),
-      //   new BN(orders?.output_amount_count),
-      //   poolInfoData,
-      //   trades!
-      // );
-      // await hybirdTradeProgram.trade_in_v1(
-      //   new BN(orders?.left_input_amount),
-      //   new BN(orders?.output_amount_count),
-      //   poolInfoData,
-      //   trades!
-      // );
+      await swapInfo?.generate_tx(new BN(inputTokenAmount), slippageBN);
     } catch (error) {
       console.log("🚀 ~ handleBuy ~ error:", error);
+    } finally {
+      isSubmitting.off();
     }
   };
 
@@ -468,14 +458,15 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         </div>
       </div>
       {publicKey ? (
-        <Button
+        <LoadingButton
           className="w-full"
           size="lg"
           disabled={!orderTokenAAmount || !orderTokenBAmount}
           onClick={handleBuy}
+          loading={isSubmitting.value}
         >
           Buy
-        </Button>
+        </LoadingButton>
       ) : (
         <Button className="w-full" size="lg" onClick={() => setConnectWalletModalOpen(true)}>
           Connect Wallet

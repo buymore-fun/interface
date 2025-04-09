@@ -1,7 +1,11 @@
 import { TooltipWrapper } from "@/components/tooltip-wrapper";
 import Image from "next/image";
 
-export function OrderPanelDexComparison() {
+interface Props {
+  loading?: boolean;
+}
+
+export function OrderPanelDexComparison({ loading }: Props) {
   return (
     <div className="px-4 flex justify-between items-center mb-2">
       <div className="flex flex-col gap-1">
