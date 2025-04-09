@@ -133,7 +133,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   // console.log(getCurrentPrice(poolInfo, !isReverse));
 
   // should reverse input and output token
-  const { data: orderbookDepthData, mutate: mutateOrderbookDepth } = useOrderbookDepth({
+  const { mutate: mutateOrderbookDepth } = useOrderbookDepth({
     input_token: outputToken?.address,
     output_token: inputToken?.address,
     price: getCurrentPrice(poolInfo, !isReverse),
@@ -207,22 +207,22 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     try {
       setIsQuoting(true);
 
-      const amount = inputTokenAmount;
+      const amount = new Decimal(orderTokenAAmount)
+        .mul(new Decimal(10).pow(mintDecimalA!))
+        .toString();
 
       await swapInfo?.init_account_balance();
       const orderBook = await mutateOrderbookDepth();
-      const current_price = await swapInfo?.get_current_price(new BN(amount));
-
       swapInfo?.add_orders(orderBook);
 
+      const current_price = await swapInfo?.get_current_price(new BN(amount));
       const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
 
-      const resultBuyMore = result.more.toString();
+      const resultBuyMore = new Decimal(result.more.toString()).div(10 ** mintDecimalB!).toString();
       const resultBuyMoreFromSwap = result.buy_more.from_swap.output.toString();
 
       console.group("handleQuery");
       console.log("inputAmount", amount);
-
       console.log("resultBuyMore:", resultBuyMore);
       console.log("resultBuyMoreFromSwap:", resultBuyMoreFromSwap);
       console.log("current_price current_price:", current_price.current_price.toFixed(12));
