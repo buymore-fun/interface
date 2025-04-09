@@ -28,13 +28,19 @@ import { usePoolInfo } from "@/hooks/use-pool-info";
 import { getCurrentPrice } from "@/lib/calc";
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
-import { isNumber } from "@raydium-io/raydium-sdk-v2";
+import { ApiV3Token, isNumber } from "@raydium-io/raydium-sdk-v2";
 import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
 
 interface MarketTabProps {
   poolId: string;
   setSlippageDialogOpen: (open: boolean) => void;
+}
+
+interface Routing {
+  dexRatio: string;
+  orderRatio: string;
+  buyMore: string;
 }
 
 export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
@@ -60,6 +66,12 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const { publicKey } = useWallet();
   const [isQuoting, setIsQuoting] = useState(false);
   const [isReverse, setIsReverse] = useState(true);
+
+  const [routing, setRouting] = useState<Routing>({
+    dexRatio: "",
+    orderRatio: "",
+    buyMore: "",
+  });
 
   const [tokenA, tokenB] = useMemo(
     () => (isReverse ? [SOL, token] : [token, SOL]),
@@ -170,16 +182,25 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
     handleQuery();
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       handleQuery();
-    }, 2000);
+    }, 5000);
+
+    return () => clearInterval(timer);
   }, [orderTokenAAmount]);
 
   const handleQuery = async () => {
-    const canQuery =
+    const cantQuery =
       !isNumber(+orderTokenAAmount) || +orderTokenAAmount <= 0 || isQuoting || !swapInfo;
+    // console.group("handleQuery");
+    // console.log("cantQuery - all:", cantQuery);
+    // console.log("cantQuery:", !isNumber(+orderTokenAAmount));
+    // console.log("cantQuery:", +orderTokenAAmount <= 0);
+    // console.log("cantQuery:", isQuoting);
+    // console.log("canQuery:", !swapInfo);
+    // console.groupEnd();
 
-    if (canQuery) {
+    if (cantQuery) {
       return;
     }
 
@@ -187,9 +208,6 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       setIsQuoting(true);
 
       const amount = inputTokenAmount;
-
-      console.group("handleQuery");
-      console.log("inputAmount", amount);
 
       await swapInfo?.init_account_balance();
       const orderBook = await mutateOrderbookDepth();
@@ -199,6 +217,14 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
       const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
 
+      const resultBuyMore = result.more.toString();
+      const resultBuyMoreFromSwap = result.buy_more.from_swap.output.toString();
+
+      console.group("handleQuery");
+      console.log("inputAmount", amount);
+
+      console.log("resultBuyMore:", resultBuyMore);
+      console.log("resultBuyMoreFromSwap:", resultBuyMoreFromSwap);
       console.log("current_price current_price:", current_price.current_price.toString());
       console.log("current_price input:", current_price.input.toString());
       console.log("current_price output:", current_price.output.toString());
@@ -214,11 +240,33 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       console.log(
         `Buy more from swap: ${result.buy_more.from_swap.input.toString()} -> ${result.buy_more.from_swap.output.toString()}`
       );
+
+      // Calculate the ratio between DEX and orders
+      const totalOutput = current_price.output.toString();
+      const fromOrderOutput = result.buy_more.from_order.output.toString();
+      const fromSwapOutput = result.buy_more.from_swap.output.toString();
+
+      const orderRatio =
+        +totalOutput === 0
+          ? 0
+          : new Decimal(fromOrderOutput).div(totalOutput).mul(100).toDecimalPlaces(1);
+      const swapRatio =
+        +totalOutput === 0
+          ? 0
+          : new Decimal(fromSwapOutput).div(totalOutput).mul(100).toDecimalPlaces(1);
+
+      setRouting({
+        dexRatio: swapRatio.toString(),
+        orderRatio: orderRatio.toString(),
+        buyMore: resultBuyMore,
+      });
+
+      console.log(`DEX ratio: ${swapRatio.toString()}%`);
+      console.log(`Order ratio: ${orderRatio.toString()}%`);
+
       console.log("only_swap.input", result.only_swap.input.toString());
       console.log("only_swap.output", result.only_swap.output.toString());
       console.groupEnd();
-
-      setIsQuoting(false);
     } catch (error) {
       console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
     } finally {
@@ -378,7 +426,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         <Separator className="my-4 bg-[#797979]" />
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
-          <OrderPanelRouting />
+          <OrderPanelRouting routing={routing} isQuoting={isQuoting} outputToken={outputToken} />
 
           <CollapsibleContent className="space-y-2">
             <OrderPanelDexComparison />

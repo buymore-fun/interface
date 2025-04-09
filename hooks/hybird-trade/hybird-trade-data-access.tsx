@@ -583,20 +583,30 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     }
 
     async get_current_price(input_swap_amount: BN) {
-      const input_token_amount = new BN(this.input_token_balance.amount);
-      const output_token_amount = new BN(this.output_token_balance.amount);
+      const input_token_amount: BN = new BN(this.input_token_balance.amount);
+      const output_token_amount: BN = new BN(this.output_token_balance.amount);
 
-      const pre_output_amount = input_token_amount
+      const pre_output_amount: BN = input_token_amount
         .mul(output_token_amount)
         .div(input_token_amount.add(input_swap_amount));
 
-      console.log(`Swap info: ${input_swap_amount} -> ${pre_output_amount}`);
+      // console.log(`Swap info: ${input_swap_amount} -> ${pre_output_amount}`);
 
-      const current_price =
+      const current_price: number =
         parseFloat(this.input_token_balance.uiAmountString) /
         parseFloat(pre_output_amount.div(new BN(this.output_token_balance.decimals)).toString());
 
-      console.log(`Current Price: ${current_price.toString()}`);
+      // console.log(`Current Price: ${current_price.toString()}`);
+
+      console.group("get_current_price");
+      console.log("input_token_amount:", input_token_amount.toString());
+      console.log("output_token_amount:", output_token_amount.toString());
+      console.log("input_token_balance:", this.input_token_balance.uiAmountString);
+      console.log("output_token_balance:", this.output_token_balance.decimals);
+      console.log("input_swap_amount:", input_swap_amount.toString());
+      console.log("pre_output_amount:", pre_output_amount.toString());
+      console.log("current_price:", current_price);
+      console.groupEnd();
 
       return {
         input: input_swap_amount,
@@ -623,7 +633,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const trades = [] as Trade[];
       let count = 0;
       const v = {};
-      let output_amount_count = new BN(0);
+      let output_amount_count: BN = new BN(0);
 
       const order_book_detail_v = getOrderBookDetail(this.pool_state);
 
@@ -699,14 +709,18 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       return {
         trades: trades_v,
-        more: new_output_amount.sub(before_v.output),
+        more: new_output_amount.sub(before_v.output) as BN,
         only_swap: before_v,
         buy_more: {
           from_order: {
             input: input_amount.sub(left_input_amount),
             output: output_amount_count,
           },
-          from_swap,
+          from_swap: from_swap as {
+            input: BN;
+            output: BN;
+            current_price: number;
+          },
           result: {
             input: input_amount,
             output: new_output_amount,
@@ -821,6 +835,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       // test code.
       const sig1 = await provider.sendAndConfirm(tx);
       console.log("Your transaction signature", sig1);
+      transactionToast(sig1);
 
       return tx;
     }

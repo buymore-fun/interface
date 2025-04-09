@@ -1,15 +1,33 @@
 import { TooltipWrapper } from "@/components/tooltip-wrapper";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
 
-export function OrderPanelRouting() {
+export interface Routing {
+  dexRatio: string;
+  orderRatio: string;
+  buyMore: string;
+}
+
+interface OrderPanelRoutingProps {
+  routing: Routing;
+  isQuoting: boolean;
+  outputToken: ApiV3Token | undefined;
+}
+
+export function OrderPanelRouting({ routing, isQuoting, outputToken }: OrderPanelRoutingProps) {
   return (
     <div className="px-4 flex justify-between items-center mb-2">
       <div className="flex flex-col gap-1">
         <div className="text-sm ">Routing</div>
-        <div className="flex items-center gap-2">
-          <div className="text-sm text-muted-foreground">DEX: 100%</div>
-          <div className="text-sm text-muted-foreground">Order: 7%</div>
-        </div>
+        {isQuoting ? (
+          <Skeleton className="h-4 w-24" />
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-muted-foreground">DEX: {routing.dexRatio}%</div>
+            <div className="text-sm text-muted-foreground">Order: {routing.orderRatio}%</div>
+          </div>
+        )}
       </div>
       <div className="flex flex-col items-end gap-1">
         <div className="flex items-center gap-1">
@@ -22,7 +40,10 @@ export function OrderPanelRouting() {
             </TooltipWrapper>
           </div>
         </div>
-        <div className="text-sm text-primary/80">≈+9.999 $USDC</div>
+        {/* <div className="text-sm text-primary/80">≈+9.999 $USDC</div> */}
+        <div className="text-sm text-primary/80">
+          ≈+{routing.buyMore} ${outputToken?.symbol}
+        </div>
       </div>
     </div>
   );
