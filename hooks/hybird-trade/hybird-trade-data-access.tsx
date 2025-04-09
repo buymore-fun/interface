@@ -830,6 +830,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       console.log(
         "🚀 ~ SwapInfo ~ generate_tx ~ minimum_amount_out:",
+        input_amount.toString(),
         minimum_amount_out.toString()
       );
 
