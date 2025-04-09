@@ -2,7 +2,14 @@
 
 import { BN, utils } from "@coral-xyz/anchor";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey, SystemProgram, Transaction, Signer, Connection } from "@solana/web3.js";
+import {
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  Signer,
+  Connection,
+  TokenAmount,
+} from "@solana/web3.js";
 import { useMemo } from "react";
 
 import { getHybirdTradeProgram, getSeeds } from "@/anchor/src";
@@ -20,6 +27,7 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { IOrderbookDepthItem, IResponsePoolInfoItem } from "@/types/response";
+import { CpmmPoolInfo } from "@/types";
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
@@ -491,8 +499,8 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     input_swap_amount: BN;
     input_token_vault: PublicKey;
     output_token_vault: PublicKey;
-    input_token_balance: any;
-    output_token_balance: any;
+    input_token_balance?: TokenAmount;
+    output_token_balance?: TokenAmount;
     orders: IOrderbookDepthItem[];
     token_0_mint: PublicKey;
     token_1_mint: PublicKey;
@@ -506,11 +514,6 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     ) {
       this.input_token_mint = new PublicKey(input_token_mint);
       this.output_token_mint = new PublicKey(output_token_mint);
-      // this.input_swap_amount = new PublicKey(input_swap_amount)
-
-      this.input_token_mint = new PublicKey(input_token_mint);
-      this.output_token_mint = new PublicKey(output_token_mint);
-      // this.input_swap_amount = new PublicKey(input_swap_amount)
 
       const [input_token_vault, output_token_vault, input_token_program, output_token_program] =
         input_token_mint === pool_state.cpmm.mintA
@@ -539,7 +542,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       this.orders = [] as IOrderbookDepthItem[];
     }
 
-    async get_token_account_balance(token_account: PublicKey | string) {
+    async get_token_account_balance(token_account: PublicKey | string): Promise<TokenAmount> {
       if (typeof token_account === "string") {
         token_account = new PublicKey(token_account);
       }
@@ -583,26 +586,22 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     }
 
     async get_current_price(input_swap_amount: BN) {
-      const input_token_amount: BN = new BN(this.input_token_balance.amount);
-      const output_token_amount: BN = new BN(this.output_token_balance.amount);
+      const input_token_amount = new BN(this.input_token_balance!.amount);
+      const output_token_amount = new BN(this.output_token_balance!.amount);
 
-      const pre_output_amount: BN = input_token_amount
+      const pre_output_amount = input_token_amount
         .mul(output_token_amount)
         .div(input_token_amount.add(input_swap_amount));
 
-      // console.log(`Swap info: ${input_swap_amount} -> ${pre_output_amount}`);
-
-      const current_price: number =
-        parseFloat(this.input_token_balance.uiAmountString) /
-        parseFloat(pre_output_amount.div(new BN(this.output_token_balance.decimals)).toString());
-
-      // console.log(`Current Price: ${current_price.toString()}`);
+      const current_price =
+        parseFloat(this.input_token_balance!.uiAmountString!) /
+        parseFloat(pre_output_amount.div(new BN(this.output_token_balance!.decimals)).toString());
 
       console.group("get_current_price");
       console.log("input_token_amount:", input_token_amount.toString());
       console.log("output_token_amount:", output_token_amount.toString());
-      console.log("input_token_balance:", this.input_token_balance.uiAmountString);
-      console.log("output_token_balance:", this.output_token_balance.decimals);
+      console.log("input_token_balance:", this.input_token_balance!.uiAmountString);
+      console.log("output_token_balance:", this.output_token_balance!.uiAmountString);
       console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("pre_output_amount:", pre_output_amount.toString());
       console.log("current_price:", current_price);

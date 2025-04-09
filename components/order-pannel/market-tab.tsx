@@ -225,7 +225,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
       console.log("resultBuyMore:", resultBuyMore);
       console.log("resultBuyMoreFromSwap:", resultBuyMoreFromSwap);
-      console.log("current_price current_price:", current_price.current_price.toString());
+      console.log("current_price current_price:", current_price.current_price.toFixed(12));
       console.log("current_price input:", current_price.input.toString());
       console.log("current_price output:", current_price.output.toString());
       console.log(
@@ -247,13 +247,9 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       const fromSwapOutput = result.buy_more.from_swap.output.toString();
 
       const orderRatio =
-        +totalOutput === 0
-          ? 0
-          : new Decimal(fromOrderOutput).div(totalOutput).mul(100).toDecimalPlaces(1);
+        +totalOutput === 0 ? 0 : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
       const swapRatio =
-        +totalOutput === 0
-          ? 0
-          : new Decimal(fromSwapOutput).div(totalOutput).mul(100).toDecimalPlaces(1);
+        +totalOutput === 0 ? 0 : new Decimal(fromSwapOutput).div(totalOutput).mul(100);
 
       setRouting({
         dexRatio: swapRatio.toString(),
