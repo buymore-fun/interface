@@ -28,6 +28,7 @@ import {
 } from "@solana/spl-token";
 import { IOrderbookDepthItem, IResponsePoolInfoItem } from "@/types/response";
 import { CpmmPoolInfo } from "@/types";
+import Decimal from "decimal.js";
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
@@ -598,11 +599,25 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const actual_output_amount = output_token_amount.sub(pre_output_amount);
 
       // Calculate price: (output_amount * 10^input_decimals) / (input_amount * 10^output_decimals)
-      const price =
-        (parseFloat(actual_output_amount.toString()) *
-          Math.pow(10, this.input_token_balance!.decimals)) /
-        (parseFloat(input_swap_amount.toString()) *
-          Math.pow(10, this.output_token_balance!.decimals));
+      // const price =
+      //   (parseFloat(actual_output_amount.toString()) *
+      //     Math.pow(10, this.input_token_balance!.decimals)) /
+      //   (parseFloat(input_swap_amount.toString()) *
+      //     Math.pow(10, this.output_token_balance!.decimals));
+
+      // const price = actual_output_amount
+      //   .mul(new BN(10).pow(new BN(this.input_token_balance!.decimals)))
+      //   .div(input_swap_amount.mul(new BN(10).pow(new BN(this.output_token_balance!.decimals))))
+      //   .toNumber();
+
+      const actual_output_amount_decimal = new Decimal(actual_output_amount.toString()).mul(
+        10 ** this.input_token_balance!.decimals
+      );
+      const input_swap_amount_decimal = new Decimal(input_swap_amount.toString()).mul(
+        10 ** this.output_token_balance!.decimals
+      );
+
+      const price = actual_output_amount_decimal.div(input_swap_amount_decimal);
 
       console.group("get_current_price");
       console.log("input_token_amount:", input_token_amount.toString());
@@ -611,13 +626,13 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       console.log("output_token_balance:", this.output_token_balance!.uiAmountString);
       console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("pre_output_amount:", pre_output_amount.toString());
-      console.log("current_price:", price);
+      console.log("current_price:", price.toNumber());
       console.groupEnd();
 
       return {
         input: input_swap_amount,
         output: pre_output_amount,
-        current_price: price,
+        current_price: price.toNumber(),
       };
     }
 
