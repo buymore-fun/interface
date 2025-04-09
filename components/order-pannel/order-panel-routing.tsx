@@ -12,10 +12,9 @@ export interface Routing {
 interface OrderPanelRoutingProps {
   routing: Routing;
   isQuoting: boolean;
-  outputToken: ApiV3Token | undefined;
 }
 
-export function OrderPanelRouting({ routing, isQuoting, outputToken }: OrderPanelRoutingProps) {
+export function OrderPanelRouting({ routing, isQuoting }: OrderPanelRoutingProps) {
   return (
     <div className="px-4 flex justify-between items-center mb-2">
       <div className="flex flex-col gap-1">
@@ -41,9 +40,7 @@ export function OrderPanelRouting({ routing, isQuoting, outputToken }: OrderPane
           </div>
         </div>
         {/* <div className="text-sm text-primary/80">≈+9.999 $USDC</div> */}
-        <div className="text-sm text-primary/80">
-          ≈+{routing.buyMore} ${outputToken?.symbol}
-        </div>
+        <div className="text-sm text-primary/80">≈{routing.buyMore}</div>
       </div>
     </div>
   );

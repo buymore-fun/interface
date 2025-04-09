@@ -647,7 +647,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     }
 
     find_orders(input_amount: BN) {
-      const { getOrderBookDetail } = getProgramAddress();
+      // const { getOrderBookDetail } = getProgramAddress();
 
       const max = 2; // max = 2
       const pools = [] as PublicKey[];
@@ -656,7 +656,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const v = {};
       let output_amount_count: BN = new BN(0);
 
-      const order_book_detail_v = getOrderBookDetail(this.pool_state);
+      // const order_book_detail_v = getOrderBookDetail(this.pool_state);
 
       for (const order of this.orders) {
         const { pool_id, pool_pubkey, order_id, in_amount, out_amount } = order;
@@ -713,6 +713,12 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const trades_v = this.find_orders(input_amount);
 
       const before_v = await this.get_current_price(input_amount);
+
+      console.group("calc_buy_more");
+      console.log("before_v:", before_v.current_price.toString());
+      console.log("before_v input:", before_v.input.toString());
+      console.log("before_v output:", before_v.output.toString());
+      console.groupEnd();
 
       const { left_input_amount, output_amount_count } = trades_v;
 
@@ -821,6 +827,11 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const minimum_amount_out = buymore_info.buy_more.result.output
         .mul(pre_v)
         .div(pre_v.sub(slippage));
+
+      console.log(
+        "🚀 ~ SwapInfo ~ generate_tx ~ minimum_amount_out:",
+        minimum_amount_out.toString()
+      );
 
       const tx = new Transaction();
 

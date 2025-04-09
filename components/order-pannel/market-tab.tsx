@@ -87,8 +87,8 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   );
 
   const [mintDecimalA, mintDecimalB] = isReverse
-    ? [poolInfo?.poolInfo.mintA.decimals, poolInfo?.poolInfo.mintB.decimals]
-    : [poolInfo?.poolInfo.mintB.decimals, poolInfo?.poolInfo.mintA.decimals];
+    ? [inputToken?.decimals, outputToken?.decimals]
+    : [outputToken?.decimals, inputToken?.decimals];
 
   const [inputTokenAmount, outputTokenAmount] = useMemo(() => {
     if (!poolInfo?.poolInfo || !orderTokenAAmount || !orderTokenBAmount) {
@@ -243,18 +243,23 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
       // Calculate the ratio between DEX and orders
       const totalOutput = current_price.output.toString();
-      const fromOrderOutput = result.buy_more.from_order.output.toString();
-      const fromSwapOutput = result.buy_more.from_swap.output.toString();
+      const fromOrderOutput = result.only_swap.output.toString();
+      // const fromSwapOutput = result.buy_more.result.output.toString();
 
-      const orderRatio =
-        +totalOutput === 0 ? 0 : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
-      const swapRatio =
-        +totalOutput === 0 ? 0 : new Decimal(fromSwapOutput).div(totalOutput).mul(100);
+      let orderRatio =
+        +totalOutput === 0
+          ? new Decimal(0)
+          : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
+
+      if (orderRatio.gte(100)) {
+        orderRatio = new Decimal(100);
+      }
+      const swapRatio = new Decimal(100).sub(orderRatio);
 
       setRouting({
         dexRatio: swapRatio.toString(),
         orderRatio: orderRatio.toString(),
-        buyMore: resultBuyMore,
+        buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
       });
 
       console.log(`DEX ratio: ${swapRatio.toString()}%`);
@@ -280,16 +285,16 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
   const handleBuy = async () => {
     const orderBook = await mutateOrderbookDepth();
-    console.log("🚀 ~ handleBuy ~ orderBook:", orderBook);
+
     if (!orderBook || !poolInfo || !poolInfoData) return;
     isSubmitting.on();
-
     swapInfo?.add_orders(orderBook);
 
     const slippageValue = Math.min(Math.floor(parseFloat(slippage.toString()) * 10), 1000);
     const slippageBN = new BN(slippageValue);
 
     console.group("handleBuy");
+    console.log("🚀 ~ handleBuy ~ orderBook:", orderBook);
     console.log("orderTokenAAmount", orderTokenAAmount);
     console.log("orderTokenBAmount", orderTokenBAmount);
     console.log("inputTokenAmount", inputTokenAmount);
@@ -422,7 +427,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         <Separator className="my-4 bg-[#797979]" />
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
-          <OrderPanelRouting routing={routing} isQuoting={isQuoting} outputToken={outputToken} />
+          <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
 
           <CollapsibleContent className="space-y-2">
             <OrderPanelDexComparison />
@@ -486,7 +491,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         </div>
         <div className="flex items-center justify-between">
           <span className="text-primary-highlight">Buymore</span>
-          <span className="text-primary/80">≈+9.999 $USDC</span>
+          <span className="text-primary/80">≈{routing.buyMore}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Order</span>
