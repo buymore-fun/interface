@@ -573,97 +573,77 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         this.get_token_account_balance(this.output_token_vault),
       ]);
 
-      // console.log(
-      //   "🚀 ~ SwapInfo ~ init_account_balance ~ input_token_balance:",
-      //   input_token_balance
-      // );
-      // console.log(
-      //   "🚀 ~ SwapInfo ~ init_account_balance ~ output_token_balance:",
-      //   output_token_balance
-      // );
+      console.log(
+        "🚀 ~ SwapInfo ~ init_account_balance ~ input_token_balance:",
+        input_token_balance
+      );
+      console.log(
+        "🚀 ~ SwapInfo ~ init_account_balance ~ output_token_balance:",
+        output_token_balance
+      );
 
       this.input_token_balance = input_token_balance;
       this.output_token_balance = output_token_balance;
     }
 
-    // async get_current_price(input_swap_amount: BN) {
-    //   const input_token_amount = new BN(this.input_token_balance!.amount);
-    //   const output_token_amount = new BN(this.output_token_balance!.amount);
-
-    //   // Calculate the new output amount after swap using constant product formula
-    //   const pre_output_amount = input_token_amount
-    //     .mul(output_token_amount)
-    //     .div(input_token_amount.add(input_swap_amount));
-
-    //   // Calculate the actual output amount (difference between original and new output)
-    //   const actual_output_amount = output_token_amount.sub(pre_output_amount);
-
-    //   // Calculate price: (output_amount * 10^input_decimals) / (input_amount * 10^output_decimals)
-    //   // const price =
-    //   //   (parseFloat(actual_output_amount.toString()) *
-    //   //     Math.pow(10, this.input_token_balance!.decimals)) /
-    //   //   (parseFloat(input_swap_amount.toString()) *
-    //   //     Math.pow(10, this.output_token_balance!.decimals));
-
-    //   // const price = actual_output_amount
-    //   //   .mul(new BN(10).pow(new BN(this.input_token_balance!.decimals)))
-    //   //   .div(input_swap_amount.mul(new BN(10).pow(new BN(this.output_token_balance!.decimals))))
-    //   //   .toNumber();
-
-    //   const actual_output_amount_decimal = new Decimal(actual_output_amount.toString()).mul(
-    //     10 ** this.input_token_balance!.decimals
-    //   );
-    //   const input_swap_amount_decimal = new Decimal(input_swap_amount.toString()).mul(
-    //     10 ** this.output_token_balance!.decimals
-    //   );
-
-    //   const price = actual_output_amount_decimal.div(input_swap_amount_decimal);
-
-    //   console.group("get_current_price");
-    //   console.log("input_token_amount:", input_token_amount.toString());
-    //   console.log("output_token_amount:", output_token_amount.toString());
-    //   console.log("input_token_balance:", this.input_token_balance!.uiAmountString);
-    //   console.log("output_token_balance:", this.output_token_balance!.uiAmountString);
-    //   console.log("input_swap_amount:", input_swap_amount.toString());
-    //   console.log("pre_output_amount:", pre_output_amount.toString());
-    //   console.log("current_price:", price.toNumber());
-    //   console.groupEnd();
-
-    //   return {
-    //     input: input_swap_amount,
-    //     output: pre_output_amount,
-    //     current_price: price.toNumber(),
-    //   };
-    // }
-
     async get_current_price(input_swap_amount: BN) {
       const input_token_amount = new BN(this.input_token_balance!.amount);
       const output_token_amount = new BN(this.output_token_balance!.amount);
 
-      const pre_output_amount = output_token_amount.sub(
-        input_token_amount.mul(output_token_amount).div(input_token_amount.add(input_swap_amount))
+      // Calculate the new output amount after swap using constant product formula
+      const pre_output_amount = input_token_amount
+        .mul(output_token_amount)
+        .div(input_token_amount.add(input_swap_amount));
+
+      // Calculate the actual output amount (difference between original and new output)
+      const actual_output_amount = output_token_amount.sub(pre_output_amount);
+
+      // Calculate price: (output_amount * 10^input_decimals) / (input_amount * 10^output_decimals)
+      // const price =
+      //   (parseFloat(actual_output_amount.toString()) *
+      //     Math.pow(10, this.input_token_balance!.decimals)) /
+      //   (parseFloat(input_swap_amount.toString()) *
+      //     Math.pow(10, this.output_token_balance!.decimals));
+
+      // const price = actual_output_amount
+      //   .mul(new BN(10).pow(new BN(this.input_token_balance!.decimals)))
+      //   .div(input_swap_amount.mul(new BN(10).pow(new BN(this.output_token_balance!.decimals))))
+      //   .toNumber();
+
+      const actual_output_amount_decimal = new Decimal(actual_output_amount.toString()).mul(
+        10 ** this.input_token_balance!.decimals
+      );
+      const input_swap_amount_decimal = new Decimal(input_swap_amount.toString()).mul(
+        10 ** this.output_token_balance!.decimals
       );
 
-      // const current_price = new Decimal(input_swap_amount.toString()).div(
-      //   new Decimal(pre_output_amount.toString())
-      // );
-      const current_price =
-        parseFloat(input_swap_amount.toString()) / parseFloat(pre_output_amount.toString());
+      const price = actual_output_amount_decimal.div(input_swap_amount_decimal);
 
       console.group("get_current_price");
-      console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("input_token_amount:", input_token_amount.toString());
       console.log("output_token_amount:", output_token_amount.toString());
+      console.log("input_token_balance:", this.input_token_balance!.uiAmountString);
+      console.log("output_token_balance:", this.output_token_balance!.uiAmountString);
+      console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("pre_output_amount:", pre_output_amount.toString());
-      console.log("current_price:", current_price.toFixed(20));
+      console.log("current_price:", price.toNumber());
       console.groupEnd();
 
       return {
         input: input_swap_amount,
         output: pre_output_amount,
-        // current_price: current_price.toNumber(),
-        current_price: current_price,
+        current_price: price.toNumber(),
       };
+    }
+
+    async get_order_depth(depth) {
+      const now = Math.floor(Date.now() / 1000);
+      // filter deadline
+      const orders = depth.data.filter((v) => {
+        return v.deadline > now;
+      });
+
+      this.add_orders(orders);
     }
 
     find_orders(input_amount: BN) {
@@ -734,11 +714,11 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       const before_v = await this.get_current_price(input_amount);
 
-      // console.group("calc_buy_more");
-      // console.log("before_v:", before_v.current_price.toString());
-      // console.log("before_v input:", before_v.input.toString());
-      // console.log("before_v output:", before_v.output.toString());
-      // console.groupEnd();
+      console.group("calc_buy_more");
+      console.log("before_v:", before_v.current_price.toString());
+      console.log("before_v input:", before_v.input.toString());
+      console.log("before_v output:", before_v.output.toString());
+      console.groupEnd();
 
       const { left_input_amount, output_amount_count } = trades_v;
 
@@ -851,12 +831,9 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       console.log(
         "🚀 ~ SwapInfo ~ generate_tx ~ minimum_amount_out:",
         input_amount.toString(),
-        minimum_amount_out.toString(),
-        buymore_info.trades
+        minimum_amount_out.toString()
       );
 
-      // 0.00011708502809049772
-      // 0.00007689730892416891
       const tx = new Transaction();
 
       const ix = await program.methods

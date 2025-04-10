@@ -23,7 +23,7 @@ import { useTokenBalance } from "@/hooks/use-token-balance";
 import { slippageAtom } from "@/components/order-pannel/atom";
 import { useSolBalance } from "@/hooks/use-sol-balance";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
-import { useCpmmPoolFetchOne, useOrderbookDepth } from "@/hooks/services";
+import { getOrderbookDepth, useCpmmPoolFetchOne, useOrderbookDepth } from "@/hooks/services";
 import { usePoolInfo } from "@/hooks/use-pool-info";
 import { getCurrentPrice } from "@/lib/calc";
 import Decimal from "decimal.js";
@@ -86,9 +86,8 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     [isReverse, poolInfo]
   );
 
-  const [mintDecimalA, mintDecimalB] = isReverse
-    ? [inputToken?.decimals, outputToken?.decimals]
-    : [outputToken?.decimals, inputToken?.decimals];
+  const mintDecimalA = inputToken?.decimals;
+  const mintDecimalB = outputToken?.decimals;
 
   const [inputTokenAmount, outputTokenAmount] = useMemo(() => {
     if (!poolInfo?.poolInfo || !orderTokenAAmount || !orderTokenBAmount) {
@@ -133,11 +132,11 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   // console.log(getCurrentPrice(poolInfo, !isReverse));
 
   // should reverse input and output token
-  const { mutate: mutateOrderbookDepth } = useOrderbookDepth({
-    input_token: outputToken?.address,
-    output_token: inputToken?.address,
-    price: getCurrentPrice(poolInfo, !isReverse),
-  });
+  // const { mutate: mutateOrderbookDepth } = useOrderbookDepth({
+  //   input_token: outputToken?.address,
+  //   output_token: inputToken?.address,
+  //   price: price,
+  // });
 
   const [tokenABalance, tokenBBalance] = useMemo(
     () =>
@@ -147,6 +146,8 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
   const toggleToken = () => {
     setIsReverse((reverse) => !reverse);
+    setOrderTokenAAmount("");
+    setOrderTokenBAmount("");
   };
 
   const onPercentButtonClick = (percent: number) => {
@@ -180,18 +181,17 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       return;
     }
 
-    handleQuery();
+    // handleQuery();
 
-    const timer = setTimeout(() => {
-      handleQuery();
-    }, 5000);
+    // const timer = setTimeout(() => {
+    //   handleQuery();
+    // }, 5000);
 
-    return () => clearInterval(timer);
+    // return () => clearInterval(timer);
   }, [orderTokenAAmount]);
 
-  const handleQuery = async () => {
-    const cantQuery =
-      !isNumber(+orderTokenAAmount) || +orderTokenAAmount <= 0 || isQuoting || !swapInfo;
+  const handleQuery = async (value: string) => {
+    const cantQuery = !isNumber(+value) || +value <= 0 || isQuoting || !swapInfo;
     // console.group("handleQuery");
     // console.log("cantQuery - all:", cantQuery);
     // console.log("cantQuery:", !isNumber(+orderTokenAAmount));
@@ -207,15 +207,20 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     try {
       setIsQuoting(true);
 
-      const amount = new Decimal(orderTokenAAmount)
-        .mul(new Decimal(10).pow(mintDecimalA!))
-        .toString();
+      const amount = new Decimal(value).mul(new Decimal(10).pow(mintDecimalA!)).toString();
 
       await swapInfo?.init_account_balance();
-      const orderBook = await mutateOrderbookDepth();
+      const current_price = await swapInfo?.get_current_price(new BN(amount));
+
+      const orderBook = await getOrderbookDepth({
+        input_token: inputToken!.address,
+        output_token: outputToken!.address,
+        price: current_price.current_price,
+      });
+
       swapInfo?.add_orders(orderBook);
 
-      const current_price = await swapInfo?.get_current_price(new BN(amount));
+      // const current_price = await swapInfo?.get_current_price(new BN(amount));
       const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
 
       const resultBuyMore = new Decimal(result.more.toString()).div(10 ** mintDecimalB!).toString();
@@ -242,32 +247,37 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       );
 
       // Calculate the ratio between DEX and orders
-      const totalOutput = current_price.output.toString();
-      const fromOrderOutput = result.only_swap.output.toString();
-      // const fromSwapOutput = result.buy_more.result.output.toString();
+      const fromOrderOutput = new Decimal(result.buy_more.from_order.output.toString());
+      const fromSwapOutput = new Decimal(result.buy_more.from_swap.output.toString());
+      const totalOutput = fromOrderOutput.add(fromSwapOutput);
 
-      let orderRatio =
-        +totalOutput === 0
-          ? new Decimal(0)
-          : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
+      const orderRatio = new Decimal(fromOrderOutput).div(totalOutput).mul(100).toFixed(2);
+      const swapRatio = new Decimal(100).sub(orderRatio).toFixed(2);
 
-      if (orderRatio.gte(100)) {
-        orderRatio = new Decimal(100);
-      }
-      const swapRatio = new Decimal(100).sub(orderRatio);
+      console.log("totalOutput", totalOutput.toString());
+      console.log("fromOrderOutput", fromOrderOutput.toString());
+      console.log("fromSwapOutput", fromSwapOutput.toString());
+      // console.log("orderRatio", orderRatio.toString());
+      // console.log("swapRatio", swapRatio.toString());
+      console.log(`DEX ratio: ${swapRatio.toString()}%`);
+      console.log(`Order ratio: ${orderRatio.toString()}%`);
+      console.groupEnd();
+
+      // let orderRatio =
+      //   +totalOutput === 0
+      //     ? new Decimal(0)
+      //     : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
+
+      // if (orderRatio.gte(100)) {
+      //   orderRatio = new Decimal(100);
+      // }
+      // const swapRatio = new Decimal(100).sub(orderRatio);
 
       setRouting({
         dexRatio: swapRatio.toString(),
         orderRatio: orderRatio.toString(),
         buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
       });
-
-      console.log(`DEX ratio: ${swapRatio.toString()}%`);
-      console.log(`Order ratio: ${orderRatio.toString()}%`);
-
-      console.log("only_swap.input", result.only_swap.input.toString());
-      console.log("only_swap.output", result.only_swap.output.toString());
-      console.groupEnd();
     } catch (error) {
       console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
     } finally {
@@ -284,7 +294,20 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   }, [poolInfoData, inputToken, outputToken]);
 
   const handleBuy = async () => {
-    const orderBook = await mutateOrderbookDepth();
+    if (!inputToken || !outputToken) return;
+
+    const amount = new Decimal(orderTokenAAmount)
+      .mul(new Decimal(10).pow(mintDecimalA!))
+      .toString();
+
+    await swapInfo?.init_account_balance();
+    const current_price = await swapInfo?.get_current_price(new BN(amount));
+
+    const orderBook = await getOrderbookDepth({
+      input_token: inputToken.address,
+      output_token: outputToken.address,
+      price: current_price!.current_price,
+    });
 
     if (!orderBook || !poolInfo || !poolInfoData) return;
     isSubmitting.on();
@@ -314,7 +337,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const handleOrderTokenAAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const amount = e.target.value;
     setOrderTokenAAmount(amount);
-    handleQuery();
+    handleQuery(amount);
   };
 
   return (
@@ -510,7 +533,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         <LoadingButton
           className="w-full"
           size="lg"
-          disabled={!orderTokenAAmount || !orderTokenBAmount}
+          disabled={!orderTokenAAmount || !orderTokenBAmount || !poolInfo || !poolInfoData}
           onClick={handleBuy}
           loading={isSubmitting.value}
         >

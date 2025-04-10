@@ -112,7 +112,7 @@ export function useOrderbookDepth(params: {
   price?: number;
 }) {
   const { data, error, isLoading, mutate } = useSWR(
-    Object.values(params).every((value) => value !== undefined) ? `/orderbook/depth` : null,
+    Object.values(params).every((value) => !value) ? `/orderbook/depth` : null,
     async (url: string) => {
       const response = await axiosInstance.get(url, {
         params,
@@ -127,6 +127,18 @@ export function useOrderbookDepth(params: {
     isLoading,
     mutate,
   };
+}
+
+export async function getOrderbookDepth(params: {
+  input_token: string;
+  output_token: string;
+  price: number;
+}) {
+  const { data } = await axiosInstance.get(`/orderbook/depth`, {
+    params,
+  });
+
+  return data?.data as IOrderbookDepthItem[];
 }
 
 // https://api-test.buymore.fun/usurper/pool/prepare-id?token=9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U&order_type=buy
