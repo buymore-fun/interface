@@ -116,19 +116,6 @@ export const swap = async () => {
   });
 
   return transaction;
-
-  // const serializedTx = result.transaction.serialize();
-  // console.log("🚀 ~ swap ~ serializedTx:", serializedTx);
-
-  // // Example usage:
-  // // const signature = await signTransaction(serializedTx, wallet);
-
-  // return serializedTx;
-
-  // printSimulateInfo()
-  // // don't want to wait confirm, set sendAndConfirm to false or don't pass any params to execute
-  // const { txId } = await execute({ sendAndConfirm: false });
-  // console.log(`swap successfully in amm pool:`, { txId: `https://explorer.solana.com/tx/${txId}` })
 };
 
 /** uncomment code below to execute */

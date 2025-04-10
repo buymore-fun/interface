@@ -844,21 +844,18 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       );
       const buymore_info = await this.calc_buy_more(input_amount);
 
-      const minimum_amount_out = buymore_info.buy_more.result.output
-        .mul(pre_v)
-        .div(pre_v.sub(slippage));
+      const minimum_amount_out = buymore_info.only_swap.output.mul(pre_v.sub(slippage)).div(pre_v);
 
+      console.log("🚀 ~ SwapInfo ~ generate_tx ~ input_amount:", input_amount.toString());
       console.log(
         "🚀 ~ SwapInfo ~ generate_tx ~ minimum_amount_out:",
-        input_amount.toString(),
-        minimum_amount_out.toString(),
-        buymore_info.trades
+        minimum_amount_out.toString()
       );
+      console.log("🚀 ~ SwapInfo ~ generate_tx ~ buymore_info:", buymore_info);
 
-      // 0.00011708502809049772
-      // 0.00007689730892416891
       const tx = new Transaction();
 
+      // debugger;
       const ix = await program.methods
         .proxySwapBaseInput(settle_id, input_amount, minimum_amount_out, buymore_info.trades.trades)
         .accounts({

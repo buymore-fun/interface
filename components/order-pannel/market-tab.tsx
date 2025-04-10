@@ -37,10 +37,11 @@ interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
 }
 
-interface Routing {
+export interface Routing {
   dexRatio: string;
   orderRatio: string;
   buyMore: string;
+  onlySwap: string;
 }
 
 export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
@@ -68,6 +69,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const [isReverse, setIsReverse] = useState(true);
 
   const [routing, setRouting] = useState<Routing>({
+    onlySwap: "",
     dexRatio: "",
     orderRatio: "",
     buyMore: "",
@@ -107,25 +109,25 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
     return [inAmount, outAmount];
   }, [poolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
 
-  useEffect(() => {
-    if (orderTokenAAmount && poolInfo) {
-      const orderPrice = getCurrentPrice(poolInfo, false);
+  // useEffect(() => {
+  //   if (orderTokenAAmount && poolInfo) {
+  //     const orderPrice = getCurrentPrice(poolInfo, false);
 
-      if (isReverse) {
-        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-          .mul(new Decimal(orderPrice))
-          .toString();
+  //     if (isReverse) {
+  //       const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+  //         .mul(new Decimal(orderPrice))
+  //         .toString();
 
-        setOrderTokenBAmount(_orderTokenBAmount);
-      } else {
-        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-          .div(new Decimal(orderPrice))
-          .toString();
+  //       setOrderTokenBAmount(_orderTokenBAmount);
+  //     } else {
+  //       const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+  //         .div(new Decimal(orderPrice))
+  //         .toString();
 
-        setOrderTokenBAmount(_orderTokenBAmount);
-      }
-    }
-  }, [orderTokenAAmount, setOrderTokenBAmount, isReverse, poolInfo]);
+  //       setOrderTokenBAmount(_orderTokenBAmount);
+  //     }
+  //   }
+  // }, [orderTokenAAmount, setOrderTokenBAmount, isReverse, poolInfo]);
 
   // const price = getCurrentPrice(poolInfo, false);
 
@@ -246,10 +248,13 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         `Buy more from swap: ${result.buy_more.from_swap.input.toString()} -> ${result.buy_more.from_swap.output.toString()}`
       );
 
+      console.log("result.buy_more.result.output", result.buy_more.result.output.toString());
+      console.log("result.buy_more.result.input", result.buy_more.result.input.toString());
+
       // Calculate the ratio between DEX and orders
+      const totalOutput = new Decimal(result.buy_more.result.output.toString());
       const fromOrderOutput = new Decimal(result.buy_more.from_order.output.toString());
       const fromSwapOutput = new Decimal(result.buy_more.from_swap.output.toString());
-      const totalOutput = fromOrderOutput.add(fromSwapOutput);
 
       const orderRatio = new Decimal(fromOrderOutput).div(totalOutput).mul(100).toFixed(2);
       const swapRatio = new Decimal(100).sub(orderRatio).toFixed(2);
@@ -273,7 +278,17 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       // }
       // const swapRatio = new Decimal(100).sub(orderRatio);
 
+      const _orderTokenBAmount = new Decimal(result.buy_more.result.output.toString())
+        .div(new Decimal(10).pow(mintDecimalB!))
+        .toFixed(2);
+
+      const onlySwapOutput = new Decimal(result.only_swap.output.toString())
+        .div(new Decimal(10).pow(mintDecimalB!))
+        .toFixed(2);
+
+      setOrderTokenBAmount(_orderTokenBAmount);
       setRouting({
+        onlySwap: `${onlySwapOutput} $${outputToken?.symbol || ""}`,
         dexRatio: swapRatio.toString(),
         orderRatio: orderRatio.toString(),
         buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
@@ -453,7 +468,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
           <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
 
           <CollapsibleContent className="space-y-2">
-            <OrderPanelDexComparison />
+            <OrderPanelDexComparison routing={routing} isQuoting={isQuoting} />
           </CollapsibleContent>
 
           <div className="flex items-center justify-center">
@@ -492,7 +507,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
             </div>
           </span>
         </div>
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <span className="text-white">Smart ordering</span>
             <TooltipWrapper
@@ -511,23 +526,25 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
           <span>
             <Switch color="primary" />
           </span>
-        </div>
+        </div> */}
         <div className="flex items-center justify-between">
           <span className="text-primary-highlight">Buymore</span>
           <span className="text-primary/80">≈{routing.buyMore}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Order</span>
-          <span className="text-muted-foreground">999.999(10%)</span>
+          <span className="text-muted-foreground">
+            {orderTokenBAmount} ({routing.orderRatio}%)
+          </span>
         </div>
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Limit Price</span>
           <span className="text-muted-foreground">$999.999</span>
-        </div>
-        <div className="flex items-center justify-between">
+        </div> */}
+        {/* <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Receive Amt</span>
           <span className="text-muted-foreground">999.999 $USDC</span>
-        </div>
+        </div> */}
       </div>
       {publicKey ? (
         <LoadingButton

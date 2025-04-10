@@ -43,7 +43,8 @@ export function getClusterUrlParam(network: WalletAdapterNetwork): string {
 }
 
 export function getExplorerUrl(path: string) {
-  const baseUrl = "https://explorer.solana.com";
+  // const baseUrl = "https://explorer.solana.com";
+  const baseUrl = "https://solscan.io";
   const params = getClusterUrlParam(config.walletAdapterNetwork);
 
   return `${baseUrl}${path}${params}`;

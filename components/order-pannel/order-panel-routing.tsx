@@ -1,13 +1,7 @@
+import { Routing } from "@/components/order-pannel/market-tab";
 import { TooltipWrapper } from "@/components/tooltip-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
-
-export interface Routing {
-  dexRatio: string;
-  orderRatio: string;
-  buyMore: string;
-}
 
 interface OrderPanelRoutingProps {
   routing: Routing;

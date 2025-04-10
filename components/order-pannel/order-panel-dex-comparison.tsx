@@ -1,11 +1,14 @@
+import { Routing } from "@/components/order-pannel/market-tab";
 import { TooltipWrapper } from "@/components/tooltip-wrapper";
 import Image from "next/image";
 
 interface Props {
   loading?: boolean;
+  routing: Routing;
+  isQuoting: boolean;
 }
 
-export function OrderPanelDexComparison({ loading }: Props) {
+export function OrderPanelDexComparison({ loading, routing, isQuoting }: Props) {
   return (
     <div className="px-4 flex justify-between items-center mb-2">
       <div className="flex flex-col gap-1">
@@ -16,7 +19,7 @@ export function OrderPanelDexComparison({ loading }: Props) {
           </TooltipWrapper>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">999,999 $BOB</span>
+          <span className="text-sm text-muted-foreground">{routing.onlySwap}</span>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
