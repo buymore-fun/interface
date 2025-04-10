@@ -369,6 +369,11 @@ export type HybirdTradeV2 = {
           "isSigner": false
         },
         {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -1742,6 +1747,11 @@ export const IDL: HybirdTradeV2 = {
         {
           "name": "settlePool",
           "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
           "isSigner": false
         },
         {
