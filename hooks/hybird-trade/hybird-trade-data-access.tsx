@@ -900,12 +900,19 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       const minimum_amount_out = buymore_info.only_swap.output.mul(pre_v.sub(slippage)).div(pre_v);
 
+      console.group("generate_tx");
       console.log("🚀 ~ SwapInfo ~ generate_tx ~ input_amount:", input_amount.toString());
       console.log(
         "🚀 ~ SwapInfo ~ generate_tx ~ minimum_amount_out:",
         minimum_amount_out.toString()
       );
-      console.log("🚀 ~ SwapInfo ~ generate_tx ~ buymore_info:", buymore_info);
+      console.log(
+        "🚀 ~ SwapInfo ~ generate_tx ~ buymore_info:",
+        buymore_info.trades.trades.map(
+          (t) => `poolIndex: ${t.poolIndex.toString()} orderId: ${t.orderId.toString()}`
+        )
+      );
+      console.groupEnd();
 
       const tx = new Transaction();
 
