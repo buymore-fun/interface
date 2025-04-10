@@ -367,9 +367,9 @@ export function OrderTab({ poolId }: OrderTabProps) {
       <div className="mt-3">
         {publicKey ? (
           <div className="flex flex-col gap-2">
-            <Button className="w-full" size="lg" onClick={handleSolToWsol}>
+            {/* <Button className="w-full" size="lg" onClick={handleSolToWsol}>
               {"Sol to Wsol"}
-            </Button>
+            </Button> */}
 
             <LoadingButton
               className="w-full"
