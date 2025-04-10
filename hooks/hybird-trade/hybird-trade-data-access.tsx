@@ -16,7 +16,6 @@ import { getHybirdTradeProgram, getSeeds } from "@/anchor/src";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import {
-  // TODO  default is TOKEN_PROGRAM_ID, add dynamic params
   TOKEN_PROGRAM_ID,
   TOKEN_2022_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -72,7 +71,6 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     );
 
     const [pool_authority] = PublicKey.findProgramAddressSync(
-      // [ Buffer.from(`buymore_authority_${VERSION}`), USDC_MINT.toBytes() ],
       [SEEDS["AUTHORITY_SEED"], USDC_MINT.toBytes()],
       program.programId
     );

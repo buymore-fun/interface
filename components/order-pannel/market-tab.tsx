@@ -8,15 +8,12 @@ import { TokenIcon } from "../token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { formatBalance, formatNumber } from "@/lib/utils";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
-import Image from "next/image";
 import { ChevronsUpDown } from "../ui/icon";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";
 import { Separator } from "@/components/ui/separator";
-import TooltipWrapper from "@/components/tooltip-wrapper";
 import { OrderPanelDexComparison } from "@/components/order-pannel/order-panel-dex-comparison";
 import { OrderPanelRouting } from "@/components/order-pannel/order-panel-routing";
 import { useAtom } from "jotai";
-import { Switch } from "@/components/ui/switch";
 import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/slippage-button";
 import { useToken } from "@/hooks/use-token";
 import { useTokenBalance } from "@/hooks/use-token-balance";
@@ -25,7 +22,6 @@ import { useSolBalance } from "@/hooks/use-sol-balance";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { getOrderbookDepth, useCpmmPoolFetchOne, useOrderbookDepth } from "@/hooks/services";
 import { usePoolInfo } from "@/hooks/use-pool-info";
-import { getCurrentPrice } from "@/lib/calc";
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
 import { ApiV3Token, isNumber } from "@raydium-io/raydium-sdk-v2";
@@ -108,37 +104,6 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
 
     return [inAmount, outAmount];
   }, [poolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
-
-  // useEffect(() => {
-  //   if (orderTokenAAmount && poolInfo) {
-  //     const orderPrice = getCurrentPrice(poolInfo, false);
-
-  //     if (isReverse) {
-  //       const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-  //         .mul(new Decimal(orderPrice))
-  //         .toString();
-
-  //       setOrderTokenBAmount(_orderTokenBAmount);
-  //     } else {
-  //       const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-  //         .div(new Decimal(orderPrice))
-  //         .toString();
-
-  //       setOrderTokenBAmount(_orderTokenBAmount);
-  //     }
-  //   }
-  // }, [orderTokenAAmount, setOrderTokenBAmount, isReverse, poolInfo]);
-
-  // const price = getCurrentPrice(poolInfo, false);
-
-  // console.log(getCurrentPrice(poolInfo, !isReverse));
-
-  // should reverse input and output token
-  // const { mutate: mutateOrderbookDepth } = useOrderbookDepth({
-  //   input_token: outputToken?.address,
-  //   output_token: inputToken?.address,
-  //   price: price,
-  // });
 
   const [tokenABalance, tokenBBalance] = useMemo(
     () =>
