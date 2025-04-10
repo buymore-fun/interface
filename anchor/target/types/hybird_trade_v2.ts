@@ -421,18 +421,28 @@ export type HybirdTradeV2 = {
           "isSigner": false
         },
         {
+          "name": "outputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "inputTokenVault",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "poolAuthority",
+          "name": "orderBookAuthority",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "inputTokenAccount",
           "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "inputTokenProgram",
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -1229,6 +1239,16 @@ export type HybirdTradeV2 = {
         },
         {
           "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "comFee",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "sysFee",
           "type": "u64",
           "index": false
         }
@@ -1777,18 +1797,28 @@ export const IDL: HybirdTradeV2 = {
           "isSigner": false
         },
         {
+          "name": "outputTokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "inputTokenVault",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "poolAuthority",
+          "name": "orderBookAuthority",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "inputTokenAccount",
           "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "inputTokenProgram",
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -2585,6 +2615,16 @@ export const IDL: HybirdTradeV2 = {
         },
         {
           "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "comFee",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "sysFee",
           "type": "u64",
           "index": false
         }

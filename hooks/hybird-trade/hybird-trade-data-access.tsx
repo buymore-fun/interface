@@ -881,6 +881,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         false,
         this.output_token_program
       );
+
       const [order_book_authority] = make_pool_authority(this.token_0_mint, this.token_1_mint);
 
       const orderbook_input_vault = getAssociatedTokenAddressSync(
@@ -948,6 +949,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
           orderBookDetail: order_book_detail,
           orderBookAuthority: order_book_authority,
           settlePool: settle_pool,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         })
         .instruction();
 
