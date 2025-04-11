@@ -62,7 +62,6 @@ export function GlobalInit() {
     if (publicKey && globalRaydiumInstance) {
       const id = connection.onAccountChange(publicKey, () => {
         fetchSolBalance();
-        // Update Raydium instance owner if needed
         globalRaydiumInstance?.setOwner(publicKey);
       });
 
@@ -70,7 +69,8 @@ export function GlobalInit() {
         connection.removeAccountChangeListener(id);
       };
     }
-  }, [publicKey, fetchSolBalance]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey]);
 
   useEffect(() => {
     fetchSolPrice();

@@ -3,7 +3,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletAuth } from "@/components/wallet-auth";
 import { getExplorerUrlFromAddress, getExplorerUrlFromTransaction } from "@/config";
+import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { useActivityList, useMyOrderList, useTradeHistoryList } from "@/hooks/services";
+import { useServicePoolInfo } from "@/hooks/use-pool-info";
+
 import {
   cn,
   formatAddress,
@@ -14,11 +17,15 @@ import {
   formatTime,
   formatTimeAgo,
 } from "@/lib/utils";
+import { IMyOrderItem, IResponseMyOrderList } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+
+import { PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 
 export function Activities() {
   return (
@@ -132,7 +139,19 @@ const MyOrders = () => {
     address: publicKey!.toBase58(),
   });
 
-  if (isLoading) return <Skeleton className="h-[400px] w-full" />;
+  const hybirdTradeProgram = useHybirdTradeProgram();
+  const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
+
+  if (isLoading || isServicePoolInfoLoading) return <Skeleton className="h-[400px] w-full" />;
+
+  const handleCancelOrder = async (item: IMyOrderItem) => {
+    await hybirdTradeProgram.cancel_order(
+      new BN(item.pool_id),
+      new BN(item.order_id),
+      item.pool_pubkey,
+      servicePoolInfo!
+    );
+  };
 
   return (
     <div className="border rounded-lg">
@@ -186,7 +205,9 @@ const MyOrders = () => {
             <Button
               size="xs"
               className="text-xs"
-              onClick={() => console.log("Cancel order", item.id)}
+              onClick={() => {
+                handleCancelOrder(item);
+              }}
             >
               Cancel
             </Button>
