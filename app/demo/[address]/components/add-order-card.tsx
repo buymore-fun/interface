@@ -11,7 +11,6 @@ import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-ac
 import { OrderType } from "@/consts/order";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAtom } from "jotai";
-import { BN } from "@coral-xyz/anchor";
 import { inAmountStorage, outAmountStorage, orderTypeStorage, poolIdStorage } from "./atoms";
 
 export function AddOrderCard() {

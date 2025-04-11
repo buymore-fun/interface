@@ -15,7 +15,7 @@ import Image from "next/image";
 import WalletIcon from "@/public/assets/token/wallet.svg";
 import { useMemo, useEffect } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
-import { usePoolInfo } from "@/hooks/use-pool-info";
+import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import Decimal from "decimal.js";
 import { formatNumber, formatBalance } from "@/lib/utils";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
@@ -28,30 +28,25 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { useBoolean } from "@/hooks/use-boolean";
 import { getCurrentPrice } from "@/lib/calc";
 
-interface OrderTabProps {
-  poolId: string;
-}
+// interface OrderTabProps {}
 
-export function OrderTab({ poolId }: OrderTabProps) {
+export function OrderTab() {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const [orderPrice, setOrderPrice] = useState<string>("");
   const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
 
-  const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
-
   const submitOrderLoading = useBoolean(false);
 
-  const { data: poolInfoData, isLoading: isPoolInfoLoading } = useCpmmPoolFetchOne({
-    pool_id: poolId,
-  });
+  const { raydiumPoolInfo, isRaydiumLoading, fetchRaydiumPoolInfo } = useRaydiumPoolInfo();
+  const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
 
-  const isLoading = isSolPriceLoading || isPoolLoading || isPoolInfoLoading;
+  const isLoading = isSolPriceLoading;
 
-  const token = useToken(poolId);
   const SOL = useToken(SOL_ADDRESS);
+  const token = useToken(servicePoolInfo!.cpmm.mintB);
 
   const { solBalance } = useSolBalance();
-  const { tokenBalance } = useTokenBalanceV2(poolInfo?.poolInfo.mintB.address);
+  const { tokenBalance } = useTokenBalanceV2(raydiumPoolInfo?.poolInfo.mintB.address);
 
   const hybirdTradeProgram = useHybirdTradeProgram("");
 
@@ -71,9 +66,9 @@ export function OrderTab({ poolId }: OrderTabProps) {
   const [poolMintA, poolMintB] = useMemo(
     () =>
       isBuy
-        ? [poolInfo?.poolInfo.mintA, poolInfo?.poolInfo.mintB]
-        : [poolInfo?.poolInfo.mintB, poolInfo?.poolInfo.mintA],
-    [isBuy, poolInfo]
+        ? [raydiumPoolInfo?.poolInfo.mintA, raydiumPoolInfo?.poolInfo.mintB]
+        : [raydiumPoolInfo?.poolInfo.mintB, raydiumPoolInfo?.poolInfo.mintA],
+    [isBuy, raydiumPoolInfo]
   );
 
   const [tokenABalance, tokenBBalance] = useMemo(
@@ -97,11 +92,11 @@ export function OrderTab({ poolId }: OrderTabProps) {
   };
 
   useEffect(() => {
-    if (poolInfo?.poolInfo) {
-      const price = getCurrentPrice(poolInfo, false);
+    if (raydiumPoolInfo?.poolInfo) {
+      const price = getCurrentPrice(raydiumPoolInfo, false);
       setOrderPrice(price.toString());
     }
-  }, [poolInfo]);
+  }, [raydiumPoolInfo]);
 
   useEffect(() => {
     if (orderTokenAAmount && orderPrice) {
@@ -127,15 +122,16 @@ export function OrderTab({ poolId }: OrderTabProps) {
   };
 
   const refreshTokenPrice = () => {
-    if (isPoolLoading) return;
-    fetchPoolInfo();
+    if (isRaydiumLoading) return;
+    // fetchRaydiumPoolInfo(servicePoolInfo!.cpmm.poolId);
   };
 
   const handleSubmitOrder = async () => {
     try {
       submitOrderLoading.setTrue();
       const poolIdData = await mutatePoolId();
-      if (!poolIdData?.pool_id || !poolInfo || !poolInfoData) {
+
+      if (!poolIdData?.pool_id || !raydiumPoolInfo || !servicePoolInfo) {
         console.error("Failed to get pool ID");
         return;
       }
@@ -155,23 +151,23 @@ export function OrderTab({ poolId }: OrderTabProps) {
         .floor()
         .toString();
 
-      await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, poolInfoData!);
+      await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, servicePoolInfo!);
 
       const [inputTokenMint, outputTokenMint] = [poolMintA!.address, poolMintB!.address];
 
       console.group("handleSubmitOrder");
       console.log("inputTokenMint", inputTokenMint);
       console.log("outputTokenMint", outputTokenMint);
-      console.log("poolInfoData", poolInfoData);
-      console.log("poolInfo", poolInfo);
+      console.log("poolInfoData", servicePoolInfo);
+      console.log("raydiumPoolInfo", raydiumPoolInfo);
       console.log("orderPrice", orderPrice);
-      console.log("getCurrentPrice", getCurrentPrice(poolInfo));
-      console.log("getCurrentPriceInUSD", getCurrentPriceInUSD(poolInfo));
+      console.log("getCurrentPrice", getCurrentPrice(raydiumPoolInfo));
+      console.log("getCurrentPriceInUSD", getCurrentPriceInUSD(raydiumPoolInfo));
       console.log("Got pool ID", poolIdData.pool_id);
       console.log(`orderTokenAAmount`, orderTokenAAmount);
       console.log(`orderTokenBAmount`, orderTokenBAmount);
-      console.log(`mintAmountA`, poolInfo?.poolInfo.mintAmountA);
-      console.log(`mintAmountB`, poolInfo?.poolInfo.mintAmountB);
+      console.log(`mintAmountA`, raydiumPoolInfo?.poolInfo.mintAmountA);
+      console.log(`mintAmountB`, raydiumPoolInfo?.poolInfo.mintAmountB);
       console.log(`inAmount`, inAmount);
       console.log(`outAmount`, outAmount);
       console.groupEnd();
@@ -203,7 +199,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
         new BN(inAmount),
         new BN(outAmount),
         new BN(poolIdData?.pool_id),
-        poolInfoData
+        servicePoolInfo
       );
     } catch (error) {
       console.error("Error preparing pool ID:", error);
@@ -212,9 +208,9 @@ export function OrderTab({ poolId }: OrderTabProps) {
     }
   };
 
-  const handleSolToWsol = async () => {
-    await hybirdTradeProgram.solToWsol(1 * LAMPORTS_PER_SOL);
-  };
+  // const handleSolToWsol = async () => {
+  //   await hybirdTradeProgram.solToWsol(1 * LAMPORTS_PER_SOL);
+  // };
 
   return (
     <div className="p-4">
@@ -227,7 +223,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
           <span>
             {isBuy
               ? `${formatBalance(solBalance)} SOL`
-              : `${tokenBalance?.uiAmountString} ${poolInfo?.poolInfo.mintB?.symbol}`}
+              : `${tokenBalance?.uiAmountString} ${raydiumPoolInfo?.poolInfo.mintB?.symbol}`}
           </span>
         </div>
       </div>
@@ -279,18 +275,18 @@ export function OrderTab({ poolId }: OrderTabProps) {
                 />
               )}
               <span className="text-xs text-muted-foreground">
-                {poolInfo?.poolInfo.mintB.symbol}
+                {raydiumPoolInfo?.poolInfo.mintB.symbol}
               </span>
               <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
                 <Icon name="refresh" className="text-primary" />
               </Button>
             </div>
             <div className="flex items-start text-xs text-muted-foreground w-full justify-end">
-              {isPoolLoading ? (
+              {isRaydiumLoading ? (
                 <Skeleton className="w-16 h-4" />
               ) : (
                 <span>
-                  ${poolInfo?.poolInfo.mintB.symbol}≈${getCurrentPriceInUSD(poolInfo)}
+                  ${raydiumPoolInfo?.poolInfo.mintB.symbol}≈${getCurrentPriceInUSD(raydiumPoolInfo)}
                 </span>
               )}
             </div>
@@ -374,7 +370,7 @@ export function OrderTab({ poolId }: OrderTabProps) {
             <LoadingButton
               className="w-full"
               size="lg"
-              disabled={!orderTokenAAmount || isPoolLoading}
+              disabled={!orderTokenAAmount || isRaydiumLoading}
               loading={submitOrderLoading.value}
               onClick={handleSubmitOrder}
             >

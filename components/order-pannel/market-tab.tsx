@@ -20,16 +20,16 @@ import { useTokenBalance } from "@/hooks/use-token-balance";
 import { slippageAtom } from "@/components/order-pannel/atom";
 import { useSolBalance } from "@/hooks/use-sol-balance";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
-import { getOrderbookDepth, useCpmmPoolFetchOne, useOrderbookDepth } from "@/hooks/services";
-import { usePoolInfo } from "@/hooks/use-pool-info";
+import { getOrderbookDepth } from "@/hooks/services";
+
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
-import { ApiV3Token, isNumber } from "@raydium-io/raydium-sdk-v2";
+import { isNumber } from "@raydium-io/raydium-sdk-v2";
 import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 
 interface MarketTabProps {
-  poolId: string;
   setSlippageDialogOpen: (open: boolean) => void;
 }
 
@@ -40,17 +40,15 @@ export interface Routing {
   onlySwap: string;
 }
 
-export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
+export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [slippage, setSlippage] = useAtom(slippageAtom);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
 
-  const { poolInfo, isLoading: isPoolLoading, fetchPoolInfo } = usePoolInfo(poolId);
-  const { data: poolInfoData, isLoading: isPoolInfoLoading } = useCpmmPoolFetchOne({
-    pool_id: poolId,
-  });
+  const { servicePoolInfo } = useServicePoolInfo();
+  const { raydiumPoolInfo } = useRaydiumPoolInfo();
 
-  const token = useToken(poolId);
+  const token = useToken(servicePoolInfo!.cpmm.mintB);
   const SOL = useToken(SOL_ADDRESS);
   const isSubmitting = useBoolean();
 
@@ -79,16 +77,16 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const [inputToken, outputToken] = useMemo(
     () =>
       isReverse
-        ? [poolInfo?.poolInfo.mintA, poolInfo?.poolInfo.mintB]
-        : [poolInfo?.poolInfo.mintB, poolInfo?.poolInfo.mintA],
-    [isReverse, poolInfo]
+        ? [raydiumPoolInfo?.poolInfo.mintA, raydiumPoolInfo?.poolInfo.mintB]
+        : [raydiumPoolInfo?.poolInfo.mintB, raydiumPoolInfo?.poolInfo.mintA],
+    [isReverse, raydiumPoolInfo]
   );
 
   const mintDecimalA = inputToken?.decimals;
   const mintDecimalB = outputToken?.decimals;
 
   const [inputTokenAmount, outputTokenAmount] = useMemo(() => {
-    if (!poolInfo?.poolInfo || !orderTokenAAmount || !orderTokenBAmount) {
+    if (!raydiumPoolInfo?.poolInfo || !orderTokenAAmount || !orderTokenBAmount) {
       return [0, 0];
     }
 
@@ -103,7 +101,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       .toString();
 
     return [inAmount, outAmount];
-  }, [poolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
+  }, [raydiumPoolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
 
   const [tokenABalance, tokenBBalance] = useMemo(
     () =>
@@ -269,9 +267,9 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
   const { SwapInfo } = hybirdTradeProgram;
 
   const swapInfo = useMemo(() => {
-    if (!poolInfoData || !inputToken || !outputToken) return null;
-    return new SwapInfo(poolInfoData, inputToken.address, outputToken.address);
-  }, [poolInfoData, inputToken, outputToken]);
+    if (!servicePoolInfo || !inputToken || !outputToken) return null;
+    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address);
+  }, [servicePoolInfo, inputToken, outputToken]);
 
   const handleBuy = async () => {
     if (!inputToken || !outputToken) return;
@@ -289,7 +287,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
       price: current_price!.current_price,
     });
 
-    if (!orderBook || !poolInfo || !poolInfoData) return;
+    if (!orderBook || !raydiumPoolInfo || !servicePoolInfo) return;
     isSubmitting.on();
     swapInfo?.add_orders(orderBook);
 
@@ -366,7 +364,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
           {tokenA ? (
             <Button variant="secondary" className="bg-secondary/60 hvoer:bg-secondary/60 px-2">
               <TokenIcon token={tokenA} size="sm" />
-              {tokenA.symbol}
+              {inputToken?.symbol}
             </Button>
           ) : (
             <Skeleton className="h-9 w-24" />
@@ -515,7 +513,7 @@ export function MarketTab({ poolId, setSlippageDialogOpen }: MarketTabProps) {
         <LoadingButton
           className="w-full"
           size="lg"
-          disabled={!orderTokenAAmount || !orderTokenBAmount || !poolInfo || !poolInfoData}
+          disabled={!orderTokenAAmount || !orderTokenBAmount || !servicePoolInfo}
           onClick={handleBuy}
           loading={isSubmitting.value}
         >

@@ -196,30 +196,68 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     return ix;
   }
 
-  const cancelOrder = async (poolId: number, orderType: number, orderId: number) => {
-    // const { token_vault } = getProgramAddress();
-    // const { payer_ata } = getPayerATA();
-    // const pool_id = new BN(1);
-    // const order_type = OrderType.Sell;
-    // const cancel_order_id = new BN(3);
-    // const tx = new Transaction();
-    // const ix = await program.methods
-    //   .cancelOrder(pool_id, order_type, cancel_order_id)
-    //   .accounts({
-    //     payer: wallet.publicKey!,
-    //     tokenVault: token_vault,
-    //     to: wallet.publicKey!,
-    //     toAta: payer_ata,
-    //     tokenMint: USDC_MINT,
-    //     tokenProgram: TOKEN_PROGRAM_ID,
-    //   })
-    //   .instruction();
-    // tx.add(ix);
-    // const signature = await provider.sendAndConfirm(tx);
-    // console.log("Your transaction signature", signature);
-    // transactionToast(signature);
-    // return signature;
-  };
+  async function cancel_order(
+    pool_id: BN,
+    order_id: BN,
+    token_mint: string,
+    cfg: IResponsePoolInfoItem
+  ) {
+    const { getOrderBookDetail } = getProgramAddress();
+
+    const token_0_mint = new PublicKey(cfg.cpmm.mintA);
+    const token_1_mint = new PublicKey(cfg.cpmm.mintB);
+
+    const token_0_program = new PublicKey(cfg.cpmm.mintProgramA);
+    const token_1_program = new PublicKey(cfg.cpmm.mintProgramB);
+
+    const order_book_detail = getOrderBookDetail(cfg);
+
+    const input_token_mint = token_mint === cfg.cpmm.mintA ? token_0_mint : token_1_mint;
+    const output_token_mint = token_mint === cfg.cpmm.mintA ? token_1_mint : token_0_mint;
+
+    const input_token_program =
+      token_mint === token_0_mint.toBase58() ? token_0_program : token_1_program;
+
+    const [pool_authority] = make_pool_authority(token_0_mint, token_1_mint);
+
+    const input_token_vault = getAssociatedTokenAddressSync(
+      input_token_mint,
+      pool_authority,
+      true,
+      input_token_program
+    );
+
+    const input_token_account = getAssociatedTokenAddressSync(
+      input_token_mint,
+      wallet.publicKey!,
+      false,
+      input_token_program
+    );
+
+    const tx = new Transaction();
+
+    const ix = await program.methods
+      .cancelOrder(pool_id, order_id)
+      .accounts({
+        payer: wallet.publicKey!,
+        orderBookDetail: order_book_detail,
+        orderBook: order_book(order_book_detail, pool_id, input_token_mint, output_token_mint),
+        inputTokenMint: input_token_mint,
+        outputTokenMint: output_token_mint,
+        inputTokenVault: input_token_vault,
+        orderBookAuthority: pool_authority,
+        inputTokenAccount: input_token_account,
+        inputTokenProgram: input_token_program,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      })
+      .instruction();
+
+    tx.add(ix);
+
+    const sig = await provider.sendAndConfirm(tx);
+    transactionToast(sig);
+    console.log(`Cancel Order ID: ${order_id}, pool_id: ${pool_id}`);
+  }
 
   // async function trade_in_v1(
   //   in_amount: BN,
@@ -972,7 +1010,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     add_order_v2,
     initialize_pool,
     program,
-    cancelOrder,
+    cancel_order,
     // trade_in_v1,
     solToWsol,
     SwapInfo,

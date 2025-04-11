@@ -8,15 +8,8 @@ import {
   IResponsePoolInfoItem,
   IOrderbookDepthItem,
 } from "@/types";
-import axios from "axios";
 import useSWR from "swr";
-
-const BASE_URL = "https://api-test.buymore.fun/usurper";
-
-const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-});
-
+import { axiosInstance } from "@/lib/axios";
 // done
 // https://api-test.buymore.fun/usurper/dashboard/index?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&tt=all
 export function useDashboardIndex(params: { inputMint: string; tt?: string }) {
@@ -194,12 +187,21 @@ export function useCpmmPoolFetchAll() {
   };
 }
 
-// https://api-test.buymore.fun/usurper/cpmm-pool/fetch-one?pool_id=HDHtKXvFQBXeteQWPRDo8Q7LvPUXJ8XCLEhv6cCHQdcm
-export function useCpmmPoolFetchOne(params: { pool_id: string }) {
-  const { data, error, isLoading, mutate } = useSWR(`/cpmm-pool/fetch-one`, async (url: string) => {
-    const response = await axiosInstance.get(url, { params });
-    return response.data?.data as IResponsePoolInfoItem;
-  });
+// https://api-test.buymore.fun/usurper/cpmm-pool/fetch-one?mint_a=So11111111111111111111111111111111111111112&mint_b=H8RAUbA1PH8Gjaxj7awyf53TMrjBKNTQRQMM6TqGLQV8
+export function useCpmmPoolFetchOne(params: { mint_a: string; mint_b: string }) {
+  const { data, error, isLoading, mutate } = useSWR(
+    params.mint_a && params.mint_b ? `/cpmm-pool/fetch-one` : null,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, { params });
+      return response.data?.data as IResponsePoolInfoItem;
+    },
+    {
+      revalidateOnFocus: false,
+      // revalidateOnMount: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 5 * 60 * 1000, // cache for 5 minutes
+    }
+  );
 
   return {
     data,
@@ -207,4 +209,12 @@ export function useCpmmPoolFetchOne(params: { pool_id: string }) {
     isLoading,
     mutate,
   };
+}
+
+export async function getCpmmPoolFetchOne(params: { mint_a: string; mint_b: string }) {
+  const { data } = await axiosInstance.get(`/cpmm-pool/fetch-one`, {
+    params,
+  });
+
+  return data.data as IResponsePoolInfoItem;
 }

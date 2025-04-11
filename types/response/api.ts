@@ -155,7 +155,7 @@ export interface IOrderbookDepthItem {
 //   };
 // }
 
-interface IMyOrderItem {
+export interface IMyOrderItem {
   amount: {
     buy: string;
     coin_name: string;
@@ -174,6 +174,9 @@ interface IMyOrderItem {
   usd: string;
   id?: string;
   symbol?: string;
+  order_id: number;
+  pool_pubkey: string;
+  pool_id: number;
 }
 
 export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> {
