@@ -45,8 +45,10 @@ export function OrderTab() {
   const SOL = useToken(SOL_ADDRESS);
   const token = useToken(servicePoolInfo!.cpmm.mintB);
 
-  const { solBalance } = useSolBalance();
-  const { tokenBalance } = useTokenBalanceV2(raydiumPoolInfo?.poolInfo.mintB.address);
+  const { fetchSolBalance, solBalance } = useSolBalance();
+  const { tokenBalance, mutateTokenBalance } = useTokenBalanceV2(
+    raydiumPoolInfo?.poolInfo.mintB.address
+  );
 
   const hybirdTradeProgram = useHybirdTradeProgram("");
 
@@ -201,6 +203,9 @@ export function OrderTab() {
         new BN(poolIdData?.pool_id),
         servicePoolInfo
       );
+
+      await fetchSolBalance();
+      await mutateTokenBalance();
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     } finally {

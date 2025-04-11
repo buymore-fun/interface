@@ -98,6 +98,10 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
     [connection, wallet.publicKey]
   );
 
+  const mutateTokenBalance = useCallback(async () => {
+    await fetchTokenBalance(tokenAddress);
+  }, [fetchTokenBalance, tokenAddress]);
+
   useEffect(() => {
     fetchTokenBalance(tokenAddress);
   }, [fetchTokenBalance, tokenAddress]);
@@ -105,6 +109,7 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
   return {
     tokenBalance,
     fetchTokenBalance,
+    mutateTokenBalance,
     isLoading,
   };
 }
