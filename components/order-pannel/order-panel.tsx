@@ -26,9 +26,9 @@ export function OrderPanel() {
     if (servicePoolInfo?.cpmm.poolId) {
       fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo?.cpmm.poolId]);
 
-  // console.log("111");
   return (
     <div className="bg-card rounded-lg overflow-hidden">
       {isRaydiumLoading ? (

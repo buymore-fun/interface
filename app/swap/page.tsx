@@ -9,12 +9,12 @@ import { Activities } from "@/components/activities";
 import { useSearchParams } from "next/navigation";
 import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ChartType } from "@/types/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useServicePoolInfo } from "@/hooks/use-pool-info";
 
-export default function Swap() {
+function SwapContent() {
   const searchParams = useSearchParams();
   const inputMint = searchParams.get("inputMint");
   const outputMint = searchParams.get("outputMint");
@@ -78,5 +78,13 @@ export default function Swap() {
         </>
       )}
     </div>
+  );
+}
+
+export default function Swap() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SwapContent />
+    </Suspense>
   );
 }

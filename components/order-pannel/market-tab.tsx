@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { ArrowDownUp, Wallet } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Button } from "../ui/button";
@@ -21,6 +21,7 @@ import { slippageAtom } from "@/components/order-pannel/atom";
 import { useSolBalance } from "@/hooks/use-sol-balance";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { getOrderbookDepth } from "@/hooks/services";
+import { debounce } from "lodash";
 
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
@@ -155,121 +156,127 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     // return () => clearInterval(timer);
   }, [orderTokenAAmount]);
 
-  const handleQuery = async (value: string) => {
-    const cantQuery = !isNumber(+value) || +value <= 0 || isQuoting || !swapInfo;
-    // console.group("handleQuery");
-    // console.log("cantQuery - all:", cantQuery);
-    // console.log("cantQuery:", !isNumber(+orderTokenAAmount));
-    // console.log("cantQuery:", +orderTokenAAmount <= 0);
-    // console.log("cantQuery:", isQuoting);
-    // console.log("canQuery:", !swapInfo);
-    // console.groupEnd();
-
-    if (cantQuery) {
-      return;
-    }
-
-    try {
-      setIsQuoting(true);
-
-      const amount = new Decimal(value).mul(new Decimal(10).pow(mintDecimalA!)).toString();
-
-      await swapInfo?.init_account_balance();
-      const current_price = await swapInfo?.get_current_price(new BN(amount));
-
-      const orderBook = await getOrderbookDepth({
-        input_token: inputToken!.address,
-        output_token: outputToken!.address,
-        price: current_price.current_price,
-      });
-
-      swapInfo?.add_orders(orderBook);
-
-      // const current_price = await swapInfo?.get_current_price(new BN(amount));
-      const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
-
-      const resultBuyMore = new Decimal(result.more.toString()).div(10 ** mintDecimalB!).toString();
-      const resultBuyMoreFromSwap = result.buy_more.from_swap.output.toString();
-
-      console.group("handleQuery");
-      console.log("inputAmount", amount);
-      console.log("resultBuyMore:", resultBuyMore);
-      console.log("resultBuyMoreFromSwap:", resultBuyMoreFromSwap);
-      console.log("current_price current_price:", current_price.current_price.toFixed(12));
-      console.log("current_price input:", current_price.input.toString());
-      console.log("current_price output:", current_price.output.toString());
-      console.log(
-        `Only swap: ${result.only_swap.input.toString()} -> ${result.only_swap.output.toString()}`
-      );
-      console.log(
-        `Buy more: ${result.buy_more.result.input.toString()} -> ${result.buy_more.result.output.toString()}`
-      );
-      console.log(
-        `Buy more from order: ${result.buy_more.from_order.input.toString()} -> ${result.buy_more.from_order.output.toString()}`
-      );
-      console.log(
-        `Buy more from swap: ${result.buy_more.from_swap.input.toString()} -> ${result.buy_more.from_swap.output.toString()}`
-      );
-
-      console.log("result.buy_more.result.output", result.buy_more.result.output.toString());
-      console.log("result.buy_more.result.input", result.buy_more.result.input.toString());
-
-      // Calculate the ratio between DEX and orders
-      const totalOutput = new Decimal(result.buy_more.result.output.toString());
-      const fromOrderOutput = new Decimal(result.buy_more.from_order.output.toString());
-      const fromSwapOutput = new Decimal(result.buy_more.from_swap.output.toString());
-
-      const orderRatio = new Decimal(fromOrderOutput).div(totalOutput).mul(100).toFixed(2);
-      const swapRatio = new Decimal(100).sub(orderRatio).toFixed(2);
-
-      console.log("totalOutput", totalOutput.toString());
-      console.log("fromOrderOutput", fromOrderOutput.toString());
-      console.log("fromSwapOutput", fromSwapOutput.toString());
-      // console.log("orderRatio", orderRatio.toString());
-      // console.log("swapRatio", swapRatio.toString());
-      console.log(`DEX ratio: ${swapRatio.toString()}%`);
-      console.log(`Order ratio: ${orderRatio.toString()}%`);
-      console.groupEnd();
-
-      // let orderRatio =
-      //   +totalOutput === 0
-      //     ? new Decimal(0)
-      //     : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
-
-      // if (orderRatio.gte(100)) {
-      //   orderRatio = new Decimal(100);
-      // }
-      // const swapRatio = new Decimal(100).sub(orderRatio);
-
-      const _orderTokenBAmount = new Decimal(result.buy_more.result.output.toString())
-        .div(new Decimal(10).pow(mintDecimalB!))
-        .toFixed(2);
-
-      const onlySwapOutput = new Decimal(result.only_swap.output.toString())
-        .div(new Decimal(10).pow(mintDecimalB!))
-        .toFixed(2);
-
-      setOrderTokenBAmount(_orderTokenBAmount);
-      setRouting({
-        onlySwap: `${onlySwapOutput} $${outputToken?.symbol || ""}`,
-        dexRatio: swapRatio.toString(),
-        orderRatio: orderRatio.toString(),
-        buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
-      });
-    } catch (error) {
-      console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
-    } finally {
-      setIsQuoting(false);
-    }
-  };
-
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { SwapInfo } = hybirdTradeProgram;
 
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
     return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
+
+  const handleQuery = useCallback(
+    debounce(async (value: string) => {
+      const cantQuery = !isNumber(+value) || +value <= 0 || isQuoting || !swapInfo;
+      // console.group("handleQuery");
+      // console.log("cantQuery - all:", cantQuery);
+      // console.log("cantQuery:", !isNumber(+orderTokenAAmount));
+      // console.log("cantQuery:", +orderTokenAAmount <= 0);
+      // console.log("cantQuery:", isQuoting);
+      // console.log("canQuery:", !swapInfo);
+      // console.groupEnd();
+
+      if (cantQuery) {
+        return;
+      }
+
+      try {
+        setIsQuoting(true);
+
+        const amount = new Decimal(value).mul(new Decimal(10).pow(mintDecimalA!)).toString();
+
+        await swapInfo?.init_account_balance();
+        const current_price = await swapInfo?.get_current_price(new BN(amount));
+
+        const orderBook = await getOrderbookDepth({
+          input_token: inputToken!.address,
+          output_token: outputToken!.address,
+          price: current_price.current_price,
+        });
+
+        swapInfo?.add_orders(orderBook);
+
+        // const current_price = await swapInfo?.get_current_price(new BN(amount));
+        const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
+
+        const resultBuyMore = new Decimal(result.more.toString())
+          .div(10 ** mintDecimalB!)
+          .toString();
+        const resultBuyMoreFromSwap = result.buy_more.from_swap.output.toString();
+
+        console.group("handleQuery");
+        console.log("inputAmount", amount);
+        console.log("resultBuyMore:", resultBuyMore);
+        console.log("resultBuyMoreFromSwap:", resultBuyMoreFromSwap);
+        console.log("current_price current_price:", current_price.current_price.toFixed(12));
+        console.log("current_price input:", current_price.input.toString());
+        console.log("current_price output:", current_price.output.toString());
+        console.log(
+          `Only swap: ${result.only_swap.input.toString()} -> ${result.only_swap.output.toString()}`
+        );
+        console.log(
+          `Buy more: ${result.buy_more.result.input.toString()} -> ${result.buy_more.result.output.toString()}`
+        );
+        console.log(
+          `Buy more from order: ${result.buy_more.from_order.input.toString()} -> ${result.buy_more.from_order.output.toString()}`
+        );
+        console.log(
+          `Buy more from swap: ${result.buy_more.from_swap.input.toString()} -> ${result.buy_more.from_swap.output.toString()}`
+        );
+
+        console.log("result.buy_more.result.output", result.buy_more.result.output.toString());
+        console.log("result.buy_more.result.input", result.buy_more.result.input.toString());
+
+        // Calculate the ratio between DEX and orders
+        const totalOutput = new Decimal(result.buy_more.result.output.toString());
+        const fromOrderOutput = new Decimal(result.buy_more.from_order.output.toString());
+        const fromSwapOutput = new Decimal(result.buy_more.from_swap.output.toString());
+
+        const orderRatio = new Decimal(fromOrderOutput).div(totalOutput).mul(100).toFixed(2);
+        const swapRatio = new Decimal(100).sub(orderRatio).toFixed(2);
+
+        console.log("totalOutput", totalOutput.toString());
+        console.log("fromOrderOutput", fromOrderOutput.toString());
+        console.log("fromSwapOutput", fromSwapOutput.toString());
+        // console.log("orderRatio", orderRatio.toString());
+        // console.log("swapRatio", swapRatio.toString());
+        console.log(`DEX ratio: ${swapRatio.toString()}%`);
+        console.log(`Order ratio: ${orderRatio.toString()}%`);
+        console.groupEnd();
+
+        // let orderRatio =
+        //   +totalOutput === 0
+        //     ? new Decimal(0)
+        //     : new Decimal(fromOrderOutput).div(totalOutput).mul(100);
+
+        // if (orderRatio.gte(100)) {
+        //   orderRatio = new Decimal(100);
+        // }
+        // const swapRatio = new Decimal(100).sub(orderRatio);
+
+        const _orderTokenBAmount = new Decimal(result.buy_more.result.output.toString())
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
+
+        const onlySwapOutput = new Decimal(result.only_swap.output.toString())
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
+
+        setOrderTokenBAmount(_orderTokenBAmount);
+        setRouting({
+          onlySwap: `${onlySwapOutput} $${outputToken?.symbol || ""}`,
+          dexRatio: swapRatio.toString(),
+          orderRatio: orderRatio.toString(),
+          buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
+        });
+      } catch (error) {
+        console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
+      } finally {
+        setIsQuoting(false);
+      }
+    }, 500),
+    [isQuoting, swapInfo, mintDecimalA, mintDecimalB, inputToken, outputToken]
+  );
 
   const handleBuy = async () => {
     if (!inputToken || !outputToken) return;

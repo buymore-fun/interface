@@ -55,22 +55,22 @@ export function GlobalInit() {
     }
   }, [connected, publicKey, initializeSdkCallback]);
 
-  // useEffect(() => {
-  //   fetchSolBalance();
+  useEffect(() => {
+    fetchSolBalance();
 
-  //   // Set up listener for balance changes
-  //   if (publicKey && globalRaydiumInstance) {
-  //     const id = connection.onAccountChange(publicKey, () => {
-  //       fetchSolBalance();
-  //       // Update Raydium instance owner if needed
-  //       globalRaydiumInstance?.setOwner(publicKey);
-  //     });
+    // Set up listener for balance changes
+    if (publicKey && globalRaydiumInstance) {
+      const id = connection.onAccountChange(publicKey, () => {
+        fetchSolBalance();
+        globalRaydiumInstance?.setOwner(publicKey);
+      });
 
-  //     return () => {
-  //       connection.removeAccountChangeListener(id);
-  //     };
-  //   }
-  // }, [publicKey, fetchSolBalance]);
+      return () => {
+        connection.removeAccountChangeListener(id);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey]);
 
   useEffect(() => {
     fetchSolPrice();

@@ -28,6 +28,7 @@ export function useSolBalance() {
 
     try {
       const balance = await connection.getBalance(wallet.publicKey);
+      console.log("🚀 ~ fetchSolBalance ~ balance:", balance);
       setSolBalance(balance);
     } catch (error) {
       console.error("Error fetching SOL balance:", error);
