@@ -10,7 +10,6 @@ import { useServicePoolInfo } from "@/hooks/use-pool-info";
 import {
   cn,
   formatAddress,
-  formatBalance,
   formatNumber,
   formatNumberCompact,
   formatPrice,
@@ -26,6 +25,8 @@ import { useState } from "react";
 
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { toast } from "react-hot-toast";
 
 export function Activities() {
   return (
@@ -141,16 +142,25 @@ const MyOrders = () => {
 
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
+  const [cancelTx, setCancelTx] = useState<string>("");
 
   if (isLoading || isServicePoolInfoLoading) return <Skeleton className="h-[400px] w-full" />;
 
   const handleCancelOrder = async (item: IMyOrderItem) => {
-    await hybirdTradeProgram.cancel_order(
-      new BN(item.pool_id),
-      new BN(item.order_id),
-      item.pool_pubkey,
-      servicePoolInfo!
-    );
+    try {
+      setCancelTx(item.tx);
+      await hybirdTradeProgram.cancel_order(
+        new BN(item.pool_id),
+        new BN(item.order_id),
+        item.pool_pubkey,
+        servicePoolInfo!
+      );
+    } catch (error: any) {
+      toast.error("Failed to cancel order");
+      console.log(error?.message);
+    } finally {
+      setCancelTx("");
+    }
   };
 
   return (
@@ -181,7 +191,8 @@ const MyOrders = () => {
           </div>
           <div className="col-span-3">
             <span className={"text-muted-foreground"}>
-              {formatNumber(item.amount.buy)}/{item.amount.sell} ${item.amount.symbol}
+              {formatNumberCompact(item.amount.buy)}/{formatNumberCompact(item.amount.sell)}
+              {item.amount.symbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -190,7 +201,7 @@ const MyOrders = () => {
             </span>
           </div>
           <div className="col-span-2">
-            <span className="text-muted-foreground">${formatPrice(item.price)}</span>
+            <span className="text-muted-foreground">${formatPrice(item.price, 3)}</span>
           </div>
           <div className="col-span-1">
             <Link
@@ -205,6 +216,7 @@ const MyOrders = () => {
             <Button
               size="xs"
               className="text-xs"
+              disabled={cancelTx === item.tx}
               onClick={() => {
                 handleCancelOrder(item);
               }}
