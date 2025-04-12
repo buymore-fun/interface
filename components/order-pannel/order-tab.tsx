@@ -125,7 +125,7 @@ export function OrderTab() {
 
   const refreshTokenPrice = () => {
     if (isRaydiumLoading) return;
-    // fetchRaydiumPoolInfo(servicePoolInfo!.cpmm.poolId);
+    fetchRaydiumPoolInfo(servicePoolInfo!.cpmm.poolId);
   };
 
   const handleSubmitOrder = async () => {
