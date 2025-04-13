@@ -10,19 +10,19 @@ interface OrderPanelRoutingProps {
 
 export function OrderPanelRouting({ routing, isQuoting }: OrderPanelRoutingProps) {
   return (
-    <div className="px-4 flex flex-col-reverse mb-2 gap-2 ">
-      <div className="flex justify-between items-center  gap-1">
-        <div className="text-sm text-muted-foreground">Routing</div>
+    <div className="px-4 flex justify-between items-center mb-2">
+      <div className="flex flex-col gap-1">
+        <div className="text-sm ">Routing</div>
         {isQuoting ? (
           <Skeleton className="h-4 w-24" />
         ) : (
-          <div className="flex justify-between items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="text-sm text-muted-foreground">DEX: {routing.dexRatio}%</div>
             <div className="text-sm text-muted-foreground">Order: {routing.orderRatio}%</div>
           </div>
         )}
       </div>
-      <div className="flex justify-between items-center gap-1">
+      <div className="flex flex-col items-end gap-1">
         <div className="flex items-center gap-1">
           <span className="text-sm text-primary-highlight">Buymore</span>
           <div className="relative inline-block">
@@ -34,9 +34,7 @@ export function OrderPanelRouting({ routing, isQuoting }: OrderPanelRoutingProps
           </div>
         </div>
         {/* <div className="text-sm text-primary/80">≈+9.999 $USDC</div> */}
-        <div className="text-sm text-primary/80">
-          ≈ {routing.buyMore ? routing.buyMore : "--"} $USDC
-        </div>
+        <div className="text-sm text-primary/80">≈{routing.buyMore}</div>
       </div>
     </div>
   );

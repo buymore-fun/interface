@@ -327,7 +327,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   return (
     <div className="p-4">
-      <div className="p-4 rounded-t-lg bg-accent">
+      <div className="p-4 rounded-t-lg bg-accent border border-primary shadow-md shadow-primary/20">
         <div className="flex items-center justify-between h-6">
           <span className="text-sm">Selling</span>
           {tokenABalance !== undefined ? (
@@ -367,7 +367,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             <Skeleton className="h-full w-24" />
           ) : null}
         </div>
-        <div className="mt-2 flex">
+        <div className="mt-2 flex ">
           {tokenA ? (
             <Button variant="secondary" className="bg-secondary/60 hvoer:bg-secondary/60 px-2">
               <TokenIcon token={tokenA} size="sm" />
@@ -395,7 +395,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         </Button>
         <div className="absolute inset-x-0 top-[50%] bg-border/60 h-[1px]" />
       </div>
-      <div className="pt-4 rounded-b-lg bg-light-card/70 border border-primary rounded-lg z-100 relative">
+      <div className="py-4 rounded-b-lg z-100 relative bg-[#2E3C4E]/80">
         <div className="px-4 flex items-center justify-between h-6 ">
           <span className="text-sm">Buying</span>
           {tokenBBalance !== undefined ? (
@@ -431,27 +431,14 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             />
           )}
         </div>
-
-        <Separator className="my-4 bg-[#797979]" />
-
-        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
-          <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
-
-          <CollapsibleContent className="space-y-2">
-            <OrderPanelDexComparison routing={routing} isQuoting={isQuoting} />
-          </CollapsibleContent>
-
-          <div className="flex items-center justify-center">
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <ChevronsUpDown isOpen={isOpen} />
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-        </Collapsible>
       </div>
-      <div className="my-3 text-sm flex flex-col gap-1">
-        <div className="flex items-center justify-between">
+
+      <div className="border-[0.5px] border-[#797979] rounded-lg py-2 mt-3">
+        <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
+        <OrderPanelDexComparison routing={routing} isQuoting={isQuoting} />
+      </div>
+      <div className="my-3 text-sm flex flex-col  px-4 gap-2">
+        <div className="flex items-center justify-between ">
           <span className="text-white">Slippage</span>
           <span>
             <div className="flex space-x-2 items-center">
@@ -477,44 +464,21 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             </div>
           </span>
         </div>
+
         {/* <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <span className="text-white">Smart ordering</span>
-            <TooltipWrapper
-              content={
-                <div>
-                  {`We'll determine the fastest-executing order ratio based on current traders, volume, and orders to help you buy more.`}
-                  <br />
-                  Note: Tokens may not execute immediately—trade carefully.
-                </div>
-              }
-            >
-              <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
-            </TooltipWrapper>
-            <span className="text-muted-foreground">0% Fee</span>
-          </div>
-          <span>
-            <Switch color="primary" />
-          </span>
-        </div> */}
-        <div className="flex items-center justify-between">
-          <span className="text-primary-highlight">Buymore</span>
-          <span className="text-primary/80">≈{routing.buyMore}</span>
-        </div>
-        <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Order</span>
           <span className="text-muted-foreground">
             {orderTokenBAmount} ({routing.orderRatio}%)
           </span>
-        </div>
+        </div> */}
         {/* <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Limit Price</span>
           <span className="text-muted-foreground">$999.999</span>
         </div> */}
-        {/* <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Receive Amt</span>
-          <span className="text-muted-foreground">999.999 $USDC</span>
-        </div> */}
+        <div className="flex items-center justify-between">
+          <span className="">Min Receive</span>
+          <span className="text-muted-foreground">999.345 $USDC</span>
+        </div>
       </div>
       {publicKey ? (
         <LoadingButton

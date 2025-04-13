@@ -10,25 +10,29 @@ interface Props {
 
 export function OrderPanelDexComparison({ loading, routing, isQuoting }: Props) {
   return (
-    <div className="px-4 flex justify-between items-center mb-2">
-      <div className="flex flex-col gap-1">
-        <div className="text-sm flex items-center gap-1">
-          <span className="font-medium">Dex Comparison</span>
+    <div className="px-4 flex flex-col gap-2">
+      <div className="flex  items-center justify-between">
+        <div className="text-sm flex items-center">
+          <span className="font-medium text-muted-foreground">Dex Comparison</span>
           <TooltipWrapper content={`Results of all buy in DEX.`}>
             <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
           </TooltipWrapper>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{routing.onlySwap}</span>
+          <span className="text-sm text-muted-foreground">
+            {routing.onlySwap ? routing.onlySwap : "--"} $USDC
+          </span>
+          {/* <div className="text-sm text-muted-foreground">999,999 $USDC</div> */}
         </div>
       </div>
-      <div className="flex flex-col items-end gap-1">
-        <div className="flex items-center gap-1">
-          <div className="relative inline-block">
-            <span className="font-medium">Fee</span>
+      <div className="flex items-center justify-between">
+        <div className="flex  gap-1">
+          <div className="relative inline-block text-muted-foreground">
+            <span className="font-medium">Fee </span>
+            <span className="text-xs">(40% of Buymore)</span>
           </div>
         </div>
-        <div className="text-sm text-muted-foreground">$999(40% of Buymore)</div>
+        <div className="text-sm text-muted-foreground">999,999 $USDC</div>
       </div>
     </div>
   );
