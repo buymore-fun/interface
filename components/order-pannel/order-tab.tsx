@@ -26,7 +26,9 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { IResponsePoolInfoItem } from "@/types/response";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useBoolean } from "@/hooks/use-boolean";
-import { getCurrentPrice } from "@/lib/calc";
+import { getCurrentPrice, getSymbolFromPoolInfo } from "@/lib/calc";
+import { useAnchorProvider } from "@/app/solana-provider";
+import { useTransactionToast } from "@/hooks/use-transaction-toast";
 
 // interface OrderTabProps {}
 
@@ -56,6 +58,9 @@ export function OrderTab() {
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
   const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
   const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
+
+  const provider = useAnchorProvider();
+  const transactionToast = useTransactionToast();
 
   // TO BUY SHIT COIN
   const isBuy = orderType === OrderType.Buy;
@@ -95,26 +100,31 @@ export function OrderTab() {
 
   useEffect(() => {
     if (raydiumPoolInfo?.poolInfo) {
-      const price = getCurrentPrice(raydiumPoolInfo, false);
+      const price = getCurrentPrice(raydiumPoolInfo, !isBuy);
       setOrderPrice(price.toString());
     }
-  }, [raydiumPoolInfo]);
+  }, [raydiumPoolInfo, isBuy]);
 
   useEffect(() => {
     if (orderTokenAAmount && orderPrice) {
-      if (isBuy) {
-        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-          .mul(new Decimal(orderPrice))
-          .toString();
+      // if (isBuy) {
+      //   const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+      //     .mul(new Decimal(orderPrice))
+      //     .toString();
 
-        setOrderTokenBAmount(_orderTokenBAmount);
-      } else {
-        const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-          .div(new Decimal(orderPrice))
-          .toString();
+      //   setOrderTokenBAmount(_orderTokenBAmount);
+      // } else {
+      //   const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+      //     .mul(new Decimal(orderPrice))
+      //     .toString();
 
-        setOrderTokenBAmount(_orderTokenBAmount);
-      }
+      //   setOrderTokenBAmount(_orderTokenBAmount);
+      // }
+      const _orderTokenBAmount = new Decimal(orderTokenAAmount)
+        .mul(new Decimal(orderPrice))
+        .toString();
+
+      setOrderTokenBAmount(_orderTokenBAmount);
     }
   }, [orderTokenAAmount, orderPrice, setOrderTokenBAmount, isBuy]);
 
@@ -174,29 +184,7 @@ export function OrderTab() {
       console.log(`outAmount`, outAmount);
       console.groupEnd();
 
-      // const [inputTokenMint, outputTokenMint] = isBuy
-      //   ? [poolMintA!.address, poolMintB!.address]
-      //   : [poolMintB!.address, poolMintA!.address];
-
-      // const [inputTokenProgram, outputTokenProgram] = isBuy
-      //   ? [poolMintA!.programId, poolMintB!.programId]
-      //   : [poolMintB!.programId, poolMintA!.programId];
-
-      // const [inputTokenProgram, outputTokenProgram] = [poolMintA!.programId, poolMintB!.programId];
-
-      // await hybirdTradeProgram.add_order_v1(
-      //   new PublicKey(inputTokenMint!),
-      //   new PublicKey(outputTokenMint!),
-      //   new PublicKey(inputTokenProgram!),
-      //   new PublicKey(outputTokenProgram!),
-      //   new BN(inAmount),
-      //   new BN(outAmount),
-      //   new BN(poolIdData?.pool_id),
-      //   poolInfoData
-      // );
-
-      //
-      await hybirdTradeProgram.add_order_v2(
+      const tx = await hybirdTradeProgram.add_order_v2(
         new PublicKey(inputTokenMint),
         new BN(inAmount),
         new BN(outAmount),
@@ -204,8 +192,13 @@ export function OrderTab() {
         servicePoolInfo
       );
 
+      const sig1 = await provider.sendAndConfirm(tx);
+
       await fetchSolBalance();
       await mutateTokenBalance();
+
+      console.log("Your transaction signature", sig1);
+      transactionToast(sig1);
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     } finally {
@@ -227,8 +220,8 @@ export function OrderTab() {
           <Image src={WalletIcon} alt="Wallet" />
           <span>
             {isBuy
-              ? `${formatBalance(solBalance)} SOL`
-              : `${tokenBalance?.uiAmountString} ${raydiumPoolInfo?.poolInfo.mintB?.symbol}`}
+              ? `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(poolMintA)}`
+              : `${tokenBalance?.uiAmountString} ${getSymbolFromPoolInfo(poolMintA)}`}
           </span>
         </div>
       </div>
@@ -266,7 +259,9 @@ export function OrderTab() {
           </div>
           <div className="flex flex-col items-end">
             <div className="flex flex-row items-center gap-1">
-              <span className="text-xs text-muted-foreground">1 SOL =</span>
+              <span className="text-xs text-muted-foreground">
+                1 {getSymbolFromPoolInfo(poolMintA)} =
+              </span>
               {isLoading ? (
                 <Skeleton className="w-[120px] h-4" />
               ) : (
@@ -280,7 +275,7 @@ export function OrderTab() {
                 />
               )}
               <span className="text-xs text-muted-foreground">
-                {raydiumPoolInfo?.poolInfo.mintB.symbol}
+                {getSymbolFromPoolInfo(poolMintB)}
               </span>
               <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
                 <Icon name="refresh" className="text-primary" />
@@ -291,7 +286,8 @@ export function OrderTab() {
                 <Skeleton className="w-16 h-4" />
               ) : (
                 <span>
-                  ${raydiumPoolInfo?.poolInfo.mintB.symbol}≈${getCurrentPriceInUSD(raydiumPoolInfo)}
+                  {getSymbolFromPoolInfo(raydiumPoolInfo?.poolInfo.mintB)}≈$
+                  {getCurrentPriceInUSD(raydiumPoolInfo)}
                 </span>
               )}
             </div>
@@ -313,7 +309,7 @@ export function OrderTab() {
             {tokenA ? (
               <Button variant="ghost" className="px-0">
                 <TokenIcon token={tokenA} size="sm" />
-                {tokenA.symbol}
+                {getSymbolFromPoolInfo(poolMintA)}
               </Button>
             ) : (
               <Skeleton className="h-9 w-24" />
@@ -345,7 +341,7 @@ export function OrderTab() {
             {tokenB ? (
               <Button variant="ghost" className="px-0">
                 <TokenIcon token={tokenB} size="sm" />
-                {tokenB.symbol}
+                {getSymbolFromPoolInfo(poolMintB)}
               </Button>
             ) : (
               <Skeleton className="h-9 w-24" />

@@ -11,11 +11,22 @@ export function useToken(address: string | null) {
         .get<{
           data: Token;
         }>(url)
-        .then((res) => res.data.data)
-    // {
-    //   revalidateOnMount: true,
-    // }
+        .then((res) => res.data.data),
+    {
+      revalidateOnFocus: false,
+    }
   );
+
+  // TODO change to env
+  if (address !== SOL_ADDRESS) {
+    return {
+      address: address,
+      symbol: "BOB",
+      icon: "https://dd.dexscreener.com/ds-data/tokens/solana/DL9sLSN488yMbots3wsbzHZ3UpKSkM42kr1y13CPpump.png?size=lg&key=91c469",
+      priceUsd: "0",
+      priceChange24h: 0,
+    } as Token;
+  }
 
   return data;
 }

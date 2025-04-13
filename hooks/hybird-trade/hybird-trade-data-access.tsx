@@ -579,10 +579,8 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     console.log("input_token_program:", input_token_program.toBase58());
     console.groupEnd();
 
-    const sig1 = await provider.sendAndConfirm(tx);
-    console.log("Your transaction signature", sig1);
-    transactionToast(sig1);
     console.log(`Generate Buy Order ID: 1 , pool_id: ${pool_id} in_amount: ${in_amount}, `);
+    return tx;
   }
 
   class SwapInfo {

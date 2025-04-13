@@ -18,8 +18,8 @@ export function OrderPanel() {
   const [slippageDialogOpen, setSlippageDialogOpen] = useState(false);
   const { servicePoolInfo } = useServicePoolInfo();
 
-  // const [tab, setTab] = useState<Tab>(Tab.ORDER);
-  const [tab, setTab] = useState<Tab>(Tab.MARKET);
+  const [tab, setTab] = useState<Tab>(Tab.ORDER);
+  // const [tab, setTab] = useState<Tab>(Tab.MARKET);
   const { fetchRaydiumPoolInfo, isRaydiumLoading } = useRaydiumPoolInfo();
 
   useEffect(() => {
