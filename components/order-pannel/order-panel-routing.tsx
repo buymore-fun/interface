@@ -2,13 +2,15 @@ import { Routing } from "@/components/order-pannel/market-tab";
 import { TooltipWrapper } from "@/components/tooltip-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-
+import { getSymbolFromPoolInfo } from "@/lib/calc";
+import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
 interface OrderPanelRoutingProps {
   routing: Routing;
   isQuoting: boolean;
+  outputToken?: ApiV3Token;
 }
 
-export function OrderPanelRouting({ routing, isQuoting }: OrderPanelRoutingProps) {
+export function OrderPanelRouting({ routing, isQuoting, outputToken }: OrderPanelRoutingProps) {
   return (
     <div className="px-4 flex flex-col-reverse mb-2 gap-2 ">
       <div className="flex justify-between items-center  gap-1">
@@ -35,7 +37,7 @@ export function OrderPanelRouting({ routing, isQuoting }: OrderPanelRoutingProps
         </div>
         {/* <div className="text-sm text-primary/80">≈+9.999 $USDC</div> */}
         <div className="text-sm text-primary/80">
-          ≈ {routing.buyMore ? routing.buyMore : "--"} $USDC
+          ≈ {routing.buyMore ? routing.buyMore : "--"} ${getSymbolFromPoolInfo(outputToken)}
         </div>
       </div>
     </div>

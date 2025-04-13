@@ -29,6 +29,7 @@ import { isNumber } from "@raydium-io/raydium-sdk-v2";
 import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
+import { getSymbolFromPoolInfo } from "@/lib/calc";
 
 interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
@@ -258,6 +259,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .div(new Decimal(10).pow(mintDecimalB!))
           .toFixed(2);
 
+        // debugger;
         const onlySwapOutput = new Decimal(result.only_swap.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
           .toFixed(2);
@@ -434,8 +436,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       </div>
 
       <div className="border-[0.5px] border-[#797979] rounded-lg py-2 mt-3">
-        <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
-        <OrderPanelDexComparison routing={routing} isQuoting={isQuoting} />
+        <OrderPanelRouting routing={routing} isQuoting={isQuoting} outputToken={outputToken} />
+        <OrderPanelDexComparison
+          routing={routing}
+          isQuoting={isQuoting}
+          outputToken={outputToken}
+          fee={new Decimal(orderTokenBAmount || "0").mul(0.4).toFixed(2)}
+        />
       </div>
       <div className="my-3 text-sm flex flex-col  px-4 gap-2">
         <div className="flex items-center justify-between ">
@@ -477,7 +484,15 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         </div> */}
         <div className="flex items-center justify-between">
           <span className="">Min Receive</span>
-          <span className="text-muted-foreground">999.345 $USDC</span>
+          <span className="text-muted-foreground">
+            {orderTokenBAmount
+              ? new Decimal(orderTokenBAmount)
+                  .mul(new Decimal(100).sub(slippage))
+                  .div(100)
+                  .toString()
+              : "--"}{" "}
+            ${getSymbolFromPoolInfo(outputToken)}
+          </span>
         </div>
       </div>
       {publicKey ? (
