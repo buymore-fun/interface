@@ -18,7 +18,7 @@ import { SlippageButton, SlippageCustomButton } from "@/components/order-pannel/
 import { useToken } from "@/hooks/use-token";
 import { useTokenBalance } from "@/hooks/use-token-balance";
 import { slippageAtom } from "@/components/order-pannel/atom";
-import { useSolBalance } from "@/hooks/use-sol-balance";
+import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { getOrderbookDepth } from "@/hooks/services";
 import { debounce } from "lodash";
@@ -57,7 +57,10 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const isSubmitting = useBoolean();
 
   const { solBalance, fetchSolBalance, isLoading } = useSolBalance();
-  const tokenBalance = useTokenBalance(token);
+
+  const { tokenBalance, mutateTokenBalance } = useTokenBalanceV2(
+    raydiumPoolInfo?.poolInfo.mintB.address
+  );
 
   const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
   const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
@@ -109,9 +112,38 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const [tokenABalance, tokenBBalance] = useMemo(
     () =>
-      isReverse ? [solBalance ?? undefined, tokenBalance] : [tokenBalance, solBalance ?? undefined],
+      isReverse
+        ? [solBalance, tokenBalance?.uiAmountString || 0]
+        : [tokenBalance?.uiAmountString || 0, solBalance],
     [isReverse, tokenBalance, solBalance]
   );
+
+  const [formatedTokenABalance, formatedTokenBBalance] = useMemo(() => {
+    return isReverse
+      ? [
+          `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(inputToken)}`,
+          `${tokenBalance?.uiAmountString} ${getSymbolFromPoolInfo(outputToken)}`,
+        ]
+      : [
+          `${tokenBalance?.uiAmountString} ${getSymbolFromPoolInfo(inputToken)}`,
+          `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(outputToken)}`,
+        ];
+  }, [isReverse, solBalance, tokenBalance, outputToken, inputToken]);
+
+  // console.log("🚀 ~ MarketTab ~ solBalance:", solBalance);
+  // console.log(
+  //   "🚀 ~ const[formatedTokenABalance,formatedTokenBBalance]=useMemo ~ uiAmountString:",
+  //   tokenBalance?.uiAmountString
+  // );
+
+  // console.log(
+  //   "🚀 ~ const[formatedTokenABalance,formatedTokenBBalance]=useMemo ~ formatedTokenBBalance:",
+  //   formatedTokenBBalance
+  // );
+  // console.log(
+  //   "🚀 ~ const[formatedTokenABalance,formatedTokenBBalance]=useMemo ~ formatedTokenABalance:",
+  //   formatedTokenABalance
+  // );
 
   const toggleToken = () => {
     setIsReverse((reverse) => !reverse);
@@ -127,16 +159,19 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
     if (!tokenABalance) return;
 
-    const maxAmount = isReverse ? (solBalance ?? undefined) : tokenBalance;
+    const maxAmount = isReverse ? (solBalance ?? undefined) : tokenBalance?.amount;
     if (!maxAmount) return;
 
+    console.log("🚀 ~ onPercentButtonClick ~ maxAmount:", maxAmount);
+    // Calculate amount regardless of token direction since logic is identical
     const calculatedAmount = new Decimal(+maxAmount)
       .mul(new Decimal(percent))
       .div(new Decimal(100))
       .div(new Decimal(10).pow(mintDecimalA!))
       .toString();
-
     setOrderTokenAAmount(calculatedAmount);
+    console.log("🚀 ~ onPercentButtonClick ~ calculatedAmount:", calculatedAmount);
+    handleQuery(calculatedAmount);
   };
 
   const onSlippageClick = (value: number) => {
@@ -190,6 +225,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         await swapInfo?.init_account_balance();
         const current_price = await swapInfo?.get_current_price(new BN(amount));
+        // await mutateTokenBalance();
 
         const orderBook = await getOrderbookDepth({
           input_token: inputToken!.address,
@@ -334,12 +370,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       <div className="p-4 rounded-t-lg bg-accent border border-primary shadow-md shadow-primary/20">
         <div className="flex items-center justify-between h-6">
           <span className="text-sm">Selling</span>
-          {tokenABalance !== undefined ? (
+          {formatedTokenABalance !== undefined ? (
             <div className="flex space-x-2 items-center">
               <div className="flex items-center space-x-1">
                 <Wallet className="text-muted-foreground size-3" />
                 <span className="text-muted-foreground text-xs">
-                  {formatBalance(tokenABalance)}
+                  {/* {formatBalance(tokenABalance)} */}
+                  {formatedTokenABalance}
                 </span>
               </div>
               <Button
@@ -402,12 +439,10 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       <div className="py-4 rounded-b-lg z-100 relative bg-[#2E3C4E]/80">
         <div className="px-4 flex items-center justify-between h-6 ">
           <span className="text-sm">Buying</span>
-          {tokenBBalance !== undefined ? (
+          {formatedTokenBBalance !== undefined ? (
             <div className="flex items-center space-x-1 ">
               <Wallet className="text-muted-foreground size-3" />
-              <span className="text-muted-foreground text-xs ">
-                {formatNumber(tokenBBalance)} {tokenB?.symbol}
-              </span>
+              <span className="text-muted-foreground text-xs ">{formatedTokenBBalance}</span>
             </div>
           ) : publicKey ? (
             <Skeleton className="h-full w-24" />

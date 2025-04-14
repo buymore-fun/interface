@@ -58,7 +58,6 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
   const wallet = useWallet();
   const [tokenBalance, setTokenBalance] = useState<TokenAmount>();
   const [isLoading, setIsLoading] = useState(false);
-  // const { raydium } = useRaydium();
 
   const fetchTokenBalance = useCallback(
     async (tokenAddress: string) => {
@@ -67,7 +66,6 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
 
       const associatedTokenAccount = getAssociatedTokenAddressSync(
         new PublicKey(tokenAddress),
-        // new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U"),
         wallet.publicKey
       );
 
