@@ -30,6 +30,8 @@ import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { getSymbolFromPoolInfo } from "@/lib/calc";
+import TooltipWrapper from "@/components/tooltip-wrapper";
+import Image from "next/image";
 
 interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
@@ -434,19 +436,75 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           )}
         </div>
       </div>
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="space-y-2 border-[0.5px] border-[#797979] rounded-lg py-2 mt-3"
+      >
+        <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
 
-      <div className="border-[0.5px] border-[#797979] rounded-lg py-2 mt-3">
-        <OrderPanelRouting routing={routing} isQuoting={isQuoting} outputToken={outputToken} />
-        <OrderPanelDexComparison
-          routing={routing}
-          isQuoting={isQuoting}
-          outputToken={outputToken}
-          fee={new Decimal(orderTokenBAmount || "0").mul(0.4).toFixed(2)}
-        />
-      </div>
+        <CollapsibleContent className="space-y-2">
+          <div className="gap-2  flex flex-col">
+            <div className="flex items-center justify-between px-4">
+              <div className="text-sm flex items-center gap-1">
+                <span className="font-medium text-muted-foreground">Min Receive</span>
+                <TooltipWrapper
+                  content={`Results of all buy in AMM. Under extreme conditions, the minimum attainable value on buymore.fun`}
+                >
+                  <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+                </TooltipWrapper>
+              </div>
+              <span className="text-muted-foreground text-sm">
+                {orderTokenBAmount
+                  ? new Decimal(orderTokenBAmount)
+                      .mul(new Decimal(100).sub(slippage))
+                      .div(100)
+                      .toString()
+                  : "--"}{" "}
+                ${getSymbolFromPoolInfo(outputToken)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between px-4">
+              <div className="text-sm flex items-center gap-1">
+                <span className="font-medium text-muted-foreground">Max Receive</span>
+                <TooltipWrapper
+                  content={`The maximum attainable value, including in orderbook liquidity on buymore.fun`}
+                >
+                  <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+                </TooltipWrapper>
+              </div>
+              <span className="text-muted-foreground text-sm">
+                {orderTokenBAmount
+                  ? new Decimal(orderTokenBAmount)
+                      .mul(new Decimal(100).sub(slippage))
+                      .div(100)
+                      .toString()
+                  : "--"}{" "}
+                ${getSymbolFromPoolInfo(outputToken)}
+              </span>
+            </div>
+          </div>
+
+          <OrderPanelDexComparison
+            routing={routing}
+            isQuoting={isQuoting}
+            outputToken={outputToken}
+            fee={new Decimal(orderTokenBAmount || "0").mul(0.4).toFixed(2)}
+          />
+        </CollapsibleContent>
+
+        <div className="flex items-center justify-center h-4">
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <ChevronsUpDown isOpen={isOpen} />
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+      </Collapsible>
+
       <div className="my-3 text-sm flex flex-col  px-4 gap-2">
         <div className="flex items-center justify-between ">
-          <span className="text-white">Slippage</span>
+          <span className="text-white">Slippage of AMM</span>
           <span>
             <div className="flex space-x-2 items-center">
               <SlippageButton
@@ -482,18 +540,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           <span className="text-muted-foreground">Limit Price</span>
           <span className="text-muted-foreground">$999.999</span>
         </div> */}
-        <div className="flex items-center justify-between">
-          <span className="">Min Receive</span>
-          <span className="text-muted-foreground">
-            {orderTokenBAmount
-              ? new Decimal(orderTokenBAmount)
-                  .mul(new Decimal(100).sub(slippage))
-                  .div(100)
-                  .toString()
-              : "--"}{" "}
-            ${getSymbolFromPoolInfo(outputToken)}
-          </span>
-        </div>
       </div>
       {publicKey ? (
         <LoadingButton

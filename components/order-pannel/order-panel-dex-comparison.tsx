@@ -16,8 +16,8 @@ interface Props {
 export function OrderPanelDexComparison({ loading, routing, isQuoting, fee, outputToken }: Props) {
   return (
     <div className="px-4 flex flex-col gap-2">
-      <div className="flex  items-center justify-between">
-        <div className="text-sm flex items-center">
+      {/* <div className="flex  items-center justify-between">
+        <div className="text-sm flex items-center gap-1">
           <span className="font-medium text-muted-foreground">Dex Comparison</span>
           <TooltipWrapper content={`Results of all buy in DEX.`}>
             <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
@@ -27,9 +27,9 @@ export function OrderPanelDexComparison({ loading, routing, isQuoting, fee, outp
           <span className="text-sm text-muted-foreground">
             {routing.onlySwap ? routing.onlySwap : "--"} ${getSymbolFromPoolInfo(outputToken)}
           </span>
-          {/* <div className="text-sm text-muted-foreground">999,999 $USDC</div> */}
         </div>
-      </div>
+      </div> */}
+
       <div className="flex items-center justify-between">
         <div className="flex  gap-1">
           <div className="relative inline-block text-muted-foreground">

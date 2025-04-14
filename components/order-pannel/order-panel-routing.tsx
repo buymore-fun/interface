@@ -19,7 +19,7 @@ export function OrderPanelRouting({ routing, isQuoting, outputToken }: OrderPane
           <Skeleton className="h-4 w-24" />
         ) : (
           <div className="flex justify-between items-center gap-2">
-            <div className="text-sm text-muted-foreground">DEX: {routing.dexRatio}%</div>
+            <div className="text-sm text-muted-foreground">AMM: {routing.dexRatio}%</div>
             <div className="text-sm text-muted-foreground">Order: {routing.orderRatio}%</div>
           </div>
         )}
