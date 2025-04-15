@@ -297,10 +297,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         const maxReceive = onlySwapOutput;
 
-        const fee = new Decimal(resultBuyMore.toString())
-          .mul(0.4)
-          .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
+        const fee = new Decimal(resultBuyMore.toString()).mul(0.4).toFixed(2);
 
         console.log("totalOutput", totalOutput.toString());
         console.log("fromOrderOutput", fromOrderOutput.toString());
