@@ -42,6 +42,9 @@ export interface Routing {
   orderRatio: string;
   buyMore: string;
   onlySwap: string;
+  minReceive: string;
+  maxReceive: string;
+  fee: string;
 }
 
 export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
@@ -74,6 +77,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     dexRatio: "",
     orderRatio: "",
     buyMore: "",
+    minReceive: "",
+    maxReceive: "",
+    fee: "",
   });
 
   const [tokenA, tokenB] = useMemo(
@@ -274,6 +280,28 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         const orderRatio = new Decimal(fromOrderOutput).div(totalOutput).mul(100).toFixed(2);
         const swapRatio = new Decimal(100).sub(orderRatio).toFixed(2);
 
+        // debugger;
+        const onlySwapOutput = new Decimal(result.only_swap.output.toString())
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
+
+        // MinReceive = swapInfo.only_swap.output * slippage
+        // MaxReceive = swapInfo.result.output
+        // Fee = swapInfo.more * 40%
+
+        const minReceive = new Decimal(result.only_swap.output.toString())
+          .mul(new Decimal(100).sub(slippage))
+          .div(100)
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
+
+        const maxReceive = onlySwapOutput;
+
+        const fee = new Decimal(resultBuyMore.toString())
+          .mul(0.4)
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
+
         console.log("totalOutput", totalOutput.toString());
         console.log("fromOrderOutput", fromOrderOutput.toString());
         console.log("fromSwapOutput", fromSwapOutput.toString());
@@ -281,6 +309,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         // console.log("swapRatio", swapRatio.toString());
         console.log(`DEX ratio: ${swapRatio.toString()}%`);
         console.log(`Order ratio: ${orderRatio.toString()}%`);
+        console.log(`MinReceive: ${minReceive.toString()}`);
+        console.log(`MaxReceive: ${maxReceive.toString()}`);
+        console.log(`Fee: ${fee.toString()}`);
         console.groupEnd();
 
         // let orderRatio =
@@ -297,17 +328,15 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .div(new Decimal(10).pow(mintDecimalB!))
           .toFixed(2);
 
-        // debugger;
-        const onlySwapOutput = new Decimal(result.only_swap.output.toString())
-          .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
-
         setOrderTokenBAmount(_orderTokenBAmount);
         setRouting({
           onlySwap: `${onlySwapOutput} $${outputToken?.symbol || ""}`,
           dexRatio: swapRatio.toString(),
           orderRatio: orderRatio.toString(),
           buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
+          minReceive: minReceive.toString(),
+          maxReceive: maxReceive.toString(),
+          fee: fee.toString(),
         });
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
@@ -490,13 +519,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
                 </TooltipWrapper>
               </div>
               <span className="text-muted-foreground text-sm">
-                {orderTokenBAmount
-                  ? new Decimal(orderTokenBAmount)
-                      .mul(new Decimal(100).sub(slippage))
-                      .div(100)
-                      .toString()
-                  : "--"}{" "}
-                ${getSymbolFromPoolInfo(outputToken)}
+                {routing.minReceive || "--"} ${getSymbolFromPoolInfo(outputToken)}
               </span>
             </div>
             <div className="flex items-center justify-between px-4">
@@ -509,13 +532,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
                 </TooltipWrapper>
               </div>
               <span className="text-muted-foreground text-sm">
-                {orderTokenBAmount
-                  ? new Decimal(orderTokenBAmount)
-                      .mul(new Decimal(100).sub(slippage))
-                      .div(100)
-                      .toString()
-                  : "--"}{" "}
-                ${getSymbolFromPoolInfo(outputToken)}
+                {routing.maxReceive || "--"} ${getSymbolFromPoolInfo(outputToken)}
               </span>
             </div>
           </div>
@@ -524,7 +541,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             routing={routing}
             isQuoting={isQuoting}
             outputToken={outputToken}
-            fee={new Decimal(orderTokenBAmount || "0").mul(0.4).toFixed(2)}
+            fee={routing.fee || "0"}
           />
         </CollapsibleContent>
 
