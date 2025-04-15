@@ -9,11 +9,10 @@ interface Props {
   loading?: boolean;
   routing: Routing;
   isQuoting: boolean;
-  fee: string;
   outputToken?: ApiV3Token;
 }
 
-export function OrderPanelDexComparison({ loading, routing, isQuoting, fee, outputToken }: Props) {
+export function OrderPanelDexComparison({ loading, routing, isQuoting, outputToken }: Props) {
   return (
     <div className="px-4 flex flex-col gap-2">
       {/* <div className="flex  items-center justify-between">
@@ -30,6 +29,46 @@ export function OrderPanelDexComparison({ loading, routing, isQuoting, fee, outp
         </div>
       </div> */}
 
+      <div className="flex  items-center justify-between ">
+        <div className="text-sm flex items-center gap-1">
+          <span className="font-medium text-muted-foreground">Dex Comparison</span>
+          <TooltipWrapper content={`Results of all buy in DEX.`}>
+            <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+          </TooltipWrapper>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            {routing.onlySwap ? routing.onlySwap : "--"} ${getSymbolFromPoolInfo(outputToken)}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between ">
+        <div className="text-sm flex items-center gap-1">
+          <span className="font-medium text-muted-foreground">Min Receive</span>
+          <TooltipWrapper
+            content={`Results of all buy in AMM. Under extreme conditions, the minimum attainable value on buymore.fun`}
+          >
+            <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+          </TooltipWrapper>
+        </div>
+        <span className="text-muted-foreground text-sm">
+          {routing.minReceive || "--"} ${getSymbolFromPoolInfo(outputToken)}
+        </span>
+      </div>
+      <div className="flex items-center justify-between ">
+        <div className="text-sm flex items-center gap-1">
+          <span className="font-medium text-muted-foreground">Max Receive</span>
+          <TooltipWrapper
+            content={`The maximum attainable value, including in orderbook liquidity on buymore.fun`}
+          >
+            <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+          </TooltipWrapper>
+        </div>
+        <span className="text-muted-foreground text-sm">
+          {routing.maxReceive || "--"} ${getSymbolFromPoolInfo(outputToken)}
+        </span>
+      </div>
+
       <div className="flex items-center justify-between">
         <div className="flex  gap-1">
           <div className="relative inline-block text-muted-foreground">
@@ -38,7 +77,7 @@ export function OrderPanelDexComparison({ loading, routing, isQuoting, fee, outp
           </div>
         </div>
         <div className="text-sm text-muted-foreground">
-          {+fee} ${getSymbolFromPoolInfo(outputToken)}
+          {+routing.fee} ${getSymbolFromPoolInfo(outputToken)}
         </div>
       </div>
     </div>

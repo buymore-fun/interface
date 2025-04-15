@@ -113,6 +113,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       .mul(new Decimal(10).pow(mintDecimalB!))
       .floor()
       .toString();
+    console.log("🚀 ~ const[inputTokenAmount,outputTokenAmount]=useMemo ~ outAmount:", outAmount);
 
     return [inAmount, outAmount];
   }, [raydiumPoolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
@@ -156,6 +157,15 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     setIsReverse((reverse) => !reverse);
     setOrderTokenAAmount("");
     setOrderTokenBAmount("");
+    setRouting({
+      onlySwap: "",
+      dexRatio: "",
+      orderRatio: "",
+      buyMore: "",
+      minReceive: "",
+      maxReceive: "",
+      fee: "",
+    });
   };
 
   const onPercentButtonClick = (percent: number) => {
@@ -293,13 +303,15 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .mul(new Decimal(100).sub(slippage))
           .div(100)
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
+          .toFixed(isReverse ? 2 : mintDecimalB!);
 
         const maxReceive = new Decimal(result.buy_more.result.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
+          .toFixed(isReverse ? 2 : mintDecimalB!);
 
-        const fee = new Decimal(resultBuyMore.toString()).mul(0.4).toFixed(2);
+        const fee = new Decimal(resultBuyMore.toString())
+          .mul(0.4)
+          .toFixed(isReverse ? 2 : mintDecimalB!);
 
         console.log("totalOutput", totalOutput.toString());
         console.log("fromOrderOutput", fromOrderOutput.toString());
@@ -325,19 +337,21 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         const _orderTokenBAmount = new Decimal(result.buy_more.result.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
+          .toFixed(isReverse ? 2 : mintDecimalB!);
+
+        console.log("🚀 ~ const_orderTokenBAmount:", _orderTokenBAmount);
 
         // debugger;
         const onlySwapOutput = new Decimal(result.only_swap.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
+          .toFixed(isReverse ? 2 : mintDecimalB!);
 
         setOrderTokenBAmount(_orderTokenBAmount);
         setRouting({
-          onlySwap: `${onlySwapOutput} $${outputToken?.symbol || ""}`,
+          onlySwap: `${onlySwapOutput}`,
           dexRatio: swapRatio.toString(),
           orderRatio: orderRatio.toString(),
-          buyMore: `${resultBuyMore} $${outputToken?.symbol || ""}`,
+          buyMore: `${resultBuyMore}`,
           minReceive: minReceive.toString(),
           maxReceive: maxReceive.toString(),
           fee: fee.toString(),
@@ -510,43 +524,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         onOpenChange={setIsOpen}
         className="space-y-2 border-[0.5px] border-[#797979] rounded-lg py-2 mt-3"
       >
-        <OrderPanelRouting routing={routing} isQuoting={isQuoting} />
-
+        <OrderPanelRouting routing={routing} isQuoting={isQuoting} outputToken={outputToken} />
         <CollapsibleContent className="space-y-2">
-          <div className="gap-2  flex flex-col">
-            <div className="flex items-center justify-between px-4">
-              <div className="text-sm flex items-center gap-1">
-                <span className="font-medium text-muted-foreground">Min Receive</span>
-                <TooltipWrapper
-                  content={`Results of all buy in AMM. Under extreme conditions, the minimum attainable value on buymore.fun`}
-                >
-                  <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
-                </TooltipWrapper>
-              </div>
-              <span className="text-muted-foreground text-sm">
-                {routing.minReceive || "--"} ${getSymbolFromPoolInfo(outputToken)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between px-4">
-              <div className="text-sm flex items-center gap-1">
-                <span className="font-medium text-muted-foreground">Max Receive</span>
-                <TooltipWrapper
-                  content={`The maximum attainable value, including in orderbook liquidity on buymore.fun`}
-                >
-                  <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
-                </TooltipWrapper>
-              </div>
-              <span className="text-muted-foreground text-sm">
-                {routing.maxReceive || "--"} ${getSymbolFromPoolInfo(outputToken)}
-              </span>
-            </div>
-          </div>
-
           <OrderPanelDexComparison
             routing={routing}
             isQuoting={isQuoting}
             outputToken={outputToken}
-            fee={routing.fee || "0"}
           />
         </CollapsibleContent>
 

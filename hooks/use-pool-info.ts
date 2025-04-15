@@ -147,7 +147,10 @@ export function useCancelPoolInfo() {
       setError(null);
 
       try {
-        const response = await getCpmmPoolFetchOne({ mint_a: inputMint, mint_b: outputMint });
+        const response = await getCpmmPoolFetchOne({
+          mint_a: inputMint,
+          mint_b: outputMint,
+        });
         console.log("🚀 ~ fetchServicePoolInfo ~ response:", response);
         if (response) {
           setCancelPoolInfo(response);

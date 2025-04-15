@@ -141,31 +141,33 @@ const MyOrders = () => {
 
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
-  // const { cancelPoolInfo, isCancelPoolInfoLoading, fetchCancelPoolInfo } = useCancelPoolInfo();
+  const { cancelPoolInfo, isCancelPoolInfoLoading, fetchCancelPoolInfo } = useCancelPoolInfo();
   const [cancelTx, setCancelTx] = useState<string>("");
 
   if (isLoading || isServicePoolInfoLoading) return <Skeleton className="h-[400px] w-full" />;
 
   const handleCancelOrder = async (item: IMyOrderItem) => {
-    // TODO fetchCancelPoolInfo
-    // await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
     try {
       setCancelTx(item.tx);
-      console.log("🚀 ~ handleCancelOrder ~ item:", item);
-      console.log("🚀 ~ handleCancelOrder ~ servicePoolInfo:", servicePoolInfo);
-      console.log(
-        "🚀 ~ handleCancelOrder ~ ",
-        new BN(item.pool_id),
-        new BN(item.order_id),
-        item.pool_pubkey
-      );
+      await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
 
-      await hybirdTradeProgram.cancel_order(
-        new BN(item.pool_id),
-        new BN(item.order_id),
-        item.pool_pubkey,
-        servicePoolInfo!
-      );
+      if (cancelPoolInfo) {
+        console.log("🚀 ~ handleCancelOrder ~ item:", item);
+        console.log("🚀 ~ handleCancelOrder ~ servicePoolInfo:", cancelPoolInfo);
+        console.log(
+          "🚀 ~ handleCancelOrder ~ ",
+          new BN(item.pool_id),
+          new BN(item.order_id),
+          item.pool_pubkey
+        );
+        debugger;
+        await hybirdTradeProgram.cancel_order(
+          new BN(item.pool_id),
+          new BN(item.order_id),
+          item.pool_pubkey,
+          cancelPoolInfo
+        );
+      }
     } catch (error: any) {
       toast.error("Failed to cancel order");
       console.log(error?.message);
