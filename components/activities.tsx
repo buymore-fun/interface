@@ -28,7 +28,7 @@ import { BN } from "@coral-xyz/anchor";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { toast } from "react-hot-toast";
 
-export function Activities() {
+export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
   return (
     <Tabs defaultValue="myOrders">
       <TabsList className="w-full bg-transparent justify-start gap-4">
@@ -43,7 +43,7 @@ export function Activities() {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="activities">
-        <ActivitiesList />
+        <ActivitiesList inputMint={inputMint} outputMint={outputMint} />
       </TabsContent>
       <TabsContent value="myOrders">
         <WalletAuth>
@@ -52,18 +52,17 @@ export function Activities() {
       </TabsContent>
       <TabsContent value="history">
         <WalletAuth>
-          <HistoryList />
+          <HistoryList inputMint={inputMint} outputMint={outputMint} />
         </WalletAuth>
       </TabsContent>
     </Tabs>
   );
 }
 
-const ActivitiesList = () => {
-  const { address } = useParams();
-
+const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMint: string }) => {
   const { data, isLoading } = useActivityList({
-    inputMint: address as string,
+    input_token: inputMint as string,
+    output_token: outputMint as string,
   });
 
   if (isLoading) return <Skeleton className="h-[400px] w-full" />;
@@ -233,12 +232,18 @@ const MyOrders = () => {
   );
 };
 
-export const HistoryList = () => {
+export const HistoryList = ({
+  inputMint,
+  outputMint,
+}: {
+  inputMint: string;
+  outputMint: string;
+}) => {
   const { publicKey } = useWallet();
-  const { address } = useParams();
 
   const { data, isLoading } = useTradeHistoryList({
-    inputMint: address as string,
+    input_token: inputMint as string,
+    output_token: outputMint as string,
     address: publicKey!.toBase58(),
   });
 

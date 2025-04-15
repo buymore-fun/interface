@@ -48,6 +48,7 @@ export interface Routing {
 }
 
 export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
+  const { fetchRaydiumPoolInfo } = useRaydiumPoolInfo();
   const [isOpen, setIsOpen] = useState(false);
   const [slippage, setSlippage] = useAtom(slippageAtom);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
@@ -200,6 +201,10 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     // return () => clearInterval(timer);
   }, [orderTokenAAmount]);
 
+  useEffect(() => {
+    handleQuery(orderTokenAAmount);
+  }, [slippage]);
+
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { SwapInfo } = hybirdTradeProgram;
 
@@ -343,7 +348,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         setIsQuoting(false);
       }
     }, 500),
-    [isQuoting, swapInfo, mintDecimalA, mintDecimalB, inputToken, outputToken]
+    [isQuoting, swapInfo, mintDecimalA, mintDecimalB, inputToken, outputToken, slippage]
   );
 
   const handleBuy = async () => {
@@ -380,6 +385,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
     try {
       await swapInfo?.generate_tx(new BN(inputTokenAmount), slippageBN);
+      await fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
     } catch (error) {
       console.log("🚀 ~ handleBuy ~ error:", error);
     } finally {

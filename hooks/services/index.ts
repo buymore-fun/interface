@@ -29,7 +29,7 @@ export function useDashboardIndex(params: { inputMint: string; tt?: string }) {
 
 // done
 // https://api-test.buymore.fun/usurper/activity/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
-export function useActivityList(params: { inputMint: string }) {
+export function useActivityList(params: { input_token: string; output_token: string }) {
   const { data, error, isLoading, mutate } = useSWR(`/activity/list`, async (url: string) => {
     const response = await axiosInstance.get(url, {
       params,
@@ -65,7 +65,11 @@ export function useMyOrderList(params: { inputMint: string; address: string }) {
 
 // done
 // https://api-test.buymore.fun/usurper/trade-history/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&address=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
-export function useTradeHistoryList(params: { inputMint: string; address: string }) {
+export function useTradeHistoryList(params: {
+  input_token: string;
+  output_token: string;
+  address: string;
+}) {
   const { data, error, isLoading, mutate } = useSWR(`/trade-history/list`, async (url: string) => {
     const response = await axiosInstance.get(url, {
       params,

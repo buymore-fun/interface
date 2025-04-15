@@ -67,7 +67,7 @@ function SwapContent() {
                 <Overview />
               </div>
               <div className="mt-4">
-                <Activities />
+                <Activities inputMint={inputMint} outputMint={outputMint} />
               </div>
             </div>
           </div>
