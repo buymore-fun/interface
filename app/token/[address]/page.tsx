@@ -6,7 +6,7 @@ import { OrderPanel } from "@/components/order-pannel/order-panel";
 import { Community } from "@/components/community";
 import { Overview } from "@/components/overview";
 import { Activities } from "@/components/activities";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useChartData } from "@/hooks/use-chart";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -14,6 +14,7 @@ import { ChartType } from "@/types/chart";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 export default function Token() {
+  const searchParams = useSearchParams();
   const { address } = useParams();
   const connection = useConnection();
   const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
@@ -44,9 +45,8 @@ export default function Token() {
           <div className="mt-4">
             <Overview />
           </div>
-          <div className="mt-4">
-            <Activities />
-          </div>
+          {/* todo show activities */}
+          <div className="mt-4">{/* <Activities  /> */}</div>
         </div>
       </div>
       <div className="sm:max-w-[420px] w-full flex flex-col space-y-4">

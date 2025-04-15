@@ -80,7 +80,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
         <div className="col-span-1">Txn</div>
       </div>
       {data?.items?.map((item, index) => (
-        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t" key={index}>
+        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
           <div className="col-span-1">
             <span className="text-muted-foreground">{formatTimeAgo(item.time * 1000)}</span>
           </div>
@@ -102,9 +102,9 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
               {formatNumber(item.amount)}
             </span>
           </div>
-          <div className="col-span-2">
+          <div className="col-span-2 flex flex-col">
             <span className="text-muted-foreground text-xs">
-              Dex: {item.routing.dec}, Order: {item.routing.order}%
+              Dex: {item.routing.dec}% <br /> Order: {item.routing.order}%
             </span>
           </div>
           <div className="col-span-2">
@@ -261,7 +261,7 @@ export const HistoryList = ({
         <div className="col-span-1">Txn</div>
       </div>
       {data?.items?.map((item, index) => (
-        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t" key={index}>
+        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
           {/* time  */}
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
@@ -293,7 +293,8 @@ export const HistoryList = ({
           {/* routing */}
           <div className="col-span-2">
             <span className="text-muted-foreground text-xs">
-              Dex: {item.routing.dec} Order: {item.routing.order}%
+              Dex: {item.routing.dec} <br />
+              Order: {item.routing.order}%
             </span>
           </div>
           {/* buymore */}
