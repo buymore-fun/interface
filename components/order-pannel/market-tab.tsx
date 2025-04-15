@@ -280,11 +280,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         const orderRatio = new Decimal(fromOrderOutput).div(totalOutput).mul(100).toFixed(2);
         const swapRatio = new Decimal(100).sub(orderRatio).toFixed(2);
 
-        // debugger;
-        const onlySwapOutput = new Decimal(result.only_swap.output.toString())
-          .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(2);
-
         // MinReceive = swapInfo.only_swap.output * slippage
         // MaxReceive = swapInfo.result.output
         // Fee = swapInfo.more * 40%
@@ -295,7 +290,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .div(new Decimal(10).pow(mintDecimalB!))
           .toFixed(2);
 
-        const maxReceive = onlySwapOutput;
+        const maxReceive = new Decimal(result.buy_more.result.output.toString())
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
 
         const fee = new Decimal(resultBuyMore.toString()).mul(0.4).toFixed(2);
 
@@ -322,6 +319,11 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         // const swapRatio = new Decimal(100).sub(orderRatio);
 
         const _orderTokenBAmount = new Decimal(result.buy_more.result.output.toString())
+          .div(new Decimal(10).pow(mintDecimalB!))
+          .toFixed(2);
+
+        // debugger;
+        const onlySwapOutput = new Decimal(result.only_swap.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
           .toFixed(2);
 
