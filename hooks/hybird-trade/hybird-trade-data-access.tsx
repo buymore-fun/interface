@@ -236,6 +236,21 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
     const tx = new Transaction();
 
+    console.log(`Maker: `, order_book_detail.toBase58(), pool_id.toString(), input_token_mint.toBase58(), output_token_mint.toBase58() )
+
+    console.log(`Cancel Order Accounts: `, {
+      payer: wallet.publicKey!.toBase58(),
+      orderBookDetail: order_book_detail.toBase58(),
+      orderBook: order_book(order_book_detail, pool_id, input_token_mint, output_token_mint).toBase58(),
+      inputTokenMint: input_token_mint.toBase58(),
+      outputTokenMint: output_token_mint.toBase58(),
+      inputTokenVault: input_token_vault.toBase58(),
+      orderBookAuthority: pool_authority.toBase58(),
+      inputTokenAccount: input_token_account.toBase58(),
+      inputTokenProgram: input_token_program.toBase58(),
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toBase58(),
+    })
+
     const ix = await program.methods
       .cancelOrder(pool_id, order_id)
       .accounts({
@@ -894,6 +909,8 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         program.programId
       );
 
+      const default_pool = order_book( order_book_detail, new BN(0), this.token_0_mint, this.token_1_mint );
+
       const [settle_pool] = PublicKey.findProgramAddressSync(
         [
           SEEDS["SETTLE_POOL_SEED"],
@@ -934,6 +951,10 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         this.output_token_program
       );
       const buymore_info = await this.calc_buy_more(input_amount);
+
+      if( buymore_info.trades.pools.length === 0 ) {
+        buymore_info.trades.pools.push(default_pool)
+      }
 
       const minimum_amount_out = buymore_info.only_swap.output.mul(pre_v.sub(slippage)).div(pre_v);
 
