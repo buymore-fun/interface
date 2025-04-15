@@ -159,6 +159,7 @@ export interface IMyOrderItem {
   amount: {
     buy: string;
     coin_name: string;
+    coin_token: string;
     sell: string;
     symbol: string;
   };
@@ -166,6 +167,7 @@ export interface IMyOrderItem {
   receive: {
     amount: string;
     coin_name: string;
+    coin_token: string;
     symbol: string;
   };
   time: number;

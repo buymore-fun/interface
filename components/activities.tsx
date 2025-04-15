@@ -5,7 +5,7 @@ import { WalletAuth } from "@/components/wallet-auth";
 import { getExplorerUrlFromAddress, getExplorerUrlFromTransaction } from "@/config";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { useActivityList, useMyOrderList, useTradeHistoryList } from "@/hooks/services";
-import { useServicePoolInfo } from "@/hooks/use-pool-info";
+import { useCancelPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 
 import {
   cn,
@@ -141,13 +141,25 @@ const MyOrders = () => {
 
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
+  // const { cancelPoolInfo, isCancelPoolInfoLoading, fetchCancelPoolInfo } = useCancelPoolInfo();
   const [cancelTx, setCancelTx] = useState<string>("");
 
   if (isLoading || isServicePoolInfoLoading) return <Skeleton className="h-[400px] w-full" />;
 
   const handleCancelOrder = async (item: IMyOrderItem) => {
+    // TODO fetchCancelPoolInfo
+    // await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
     try {
       setCancelTx(item.tx);
+      console.log("🚀 ~ handleCancelOrder ~ item:", item);
+      console.log("🚀 ~ handleCancelOrder ~ servicePoolInfo:", servicePoolInfo);
+      console.log(
+        "🚀 ~ handleCancelOrder ~ ",
+        new BN(item.pool_id),
+        new BN(item.order_id),
+        item.pool_pubkey
+      );
+
       await hybirdTradeProgram.cancel_order(
         new BN(item.pool_id),
         new BN(item.order_id),

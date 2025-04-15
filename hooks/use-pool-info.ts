@@ -67,6 +67,9 @@ export function useRaydiumPoolInfo() {
 const servicePoolInfoAtom = atom<IResponsePoolInfoItem | undefined>(undefined);
 const servicePoolInfoLoadingAtom = atom<boolean>(true);
 const servicePoolInfoErrorAtom = atom<Error | null>(null);
+const cancelPoolInfoAtom = atom<IResponsePoolInfoItem | undefined>(undefined);
+const cancelPoolInfoLoadingAtom = atom<boolean>(true);
+const cancelPoolInfoErrorAtom = atom<Error | null>(null);
 
 export function useServicePoolInfo() {
   const [servicePoolInfo, setServicePoolInfo] = useAtom(servicePoolInfoAtom);
@@ -125,6 +128,45 @@ export function useServicePoolInfo() {
     fetchServicePoolInfo,
     isServicePoolInfoLoading: isLoading,
     error,
+  };
+}
+
+export function useCancelPoolInfo() {
+  const [cancelPoolInfo, setCancelPoolInfo] = useAtom(cancelPoolInfoAtom);
+  const [isLoading, setIsLoading] = useAtom(cancelPoolInfoLoadingAtom);
+  const [error, setError] = useAtom(cancelPoolInfoErrorAtom);
+
+  const fetchCancelPoolInfo = useCallback(
+    async (inputMint: string, outputMint: string) => {
+      // if (!inputMint || !outputMint || isLoading) {
+      if (!inputMint || !outputMint) {
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await getCpmmPoolFetchOne({ mint_a: inputMint, mint_b: outputMint });
+        console.log("🚀 ~ fetchServicePoolInfo ~ response:", response);
+        if (response) {
+          setCancelPoolInfo(response);
+        }
+      } catch (err) {
+        console.error("Error fetching pool info:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setCancelPoolInfo, setIsLoading, setError]
+  );
+
+  return {
+    cancelPoolInfo,
+    isCancelPoolInfoLoading: isLoading,
+    cancelPoolInfoError: error,
+    fetchCancelPoolInfo,
   };
 }
 
