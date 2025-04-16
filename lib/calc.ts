@@ -28,6 +28,19 @@ export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): 
   return +price.toFixed(9);
 };
 
+export const getCurrentPriceInUSD = (
+  cpmmPoolInfo?: CpmmPoolInfo,
+  isReverse = true,
+  solPrice: number = 0
+) => {
+  const price = getCurrentPrice(cpmmPoolInfo, isReverse);
+
+  const priceInUSD = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 9,
+  }).format(price * solPrice);
+  return priceInUSD;
+};
+
 export const getSymbolFromPoolInfo = (poolInfo?: ApiV3Token) => {
   if (poolInfo?.address === SOL_ADDRESS) {
     return "SOL";

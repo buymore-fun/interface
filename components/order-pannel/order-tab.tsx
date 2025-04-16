@@ -94,7 +94,7 @@ export function OrderTab() {
   const inputMint = searchParams.get("inputMint");
   const outputMint = searchParams.get("outputMint");
   const { fetchMyOrders } = useMyOrders(inputMint || "", outputMint || "");
-  // todo need change when input change
+
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true) => {
     const price = getCurrentPrice(cpmmPoolInfo, isReverse);
 
