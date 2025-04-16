@@ -24,6 +24,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 import { toast } from "react-hot-toast";
+import Decimal from "decimal.js";
 
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
   const [activeTab, setActiveTab] = React.useState("myOrders");
@@ -105,7 +106,8 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           </div>
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
-              {formatNumber(item.amount)}
+              {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "}
+              ${item.input_token_symbol}
             </span>
           </div>
           <div className="col-span-2 flex flex-col">
@@ -115,7 +117,10 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground">
-              {item.buymore.amount} {item.buymore.symbol}
+              {Decimal(item.buymore.amount)
+                .div(new Decimal(10).pow(item.output_token_decimal))
+                .toString()}{" "}
+              ${item.buymore.symbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -167,7 +172,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           new BN(item.order_id),
           item.pool_pubkey
         );
-        debugger;
+
         await hybirdTradeProgram.cancel_order(
           new BN(item.pool_id),
           new BN(item.order_id),
@@ -211,13 +216,22 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
           <div className="col-span-3">
             <span className={"text-muted-foreground"}>
-              {formatNumberCompact(item.amount.place_order_amount)}/
-              {formatNumberCompact(item.amount.used_order_amount)}
+              {Decimal(item.amount.used_order_amount)
+                .div(new Decimal(10).pow(item.input_token_decimal))
+                .toString()}{" "}
+              /
+              {Decimal(item.amount.place_order_amount)
+                .div(new Decimal(10).pow(item.input_token_decimal))
+                .toString()}{" "}
+              ${item.receive.symbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground"}>
-              {formatNumberCompact(item.receive.amount)} ${item.receive.symbol}
+              {Decimal(item.receive.amount)
+                .div(new Decimal(10).pow(item.output_token_decimal))
+                .toString()}
+              ${item.receive.symbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -299,8 +313,12 @@ export const HistoryList = ({
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
               {item.type === "sell"
-                ? formatNumber(item.amount.sell)
-                : formatNumber(item.amount.buy)}
+                ? Decimal(item.amount.amount)
+                    .div(new Decimal(10).pow(item.output_token_decimal))
+                    .toString()
+                : Decimal(item.receive.amount)
+                    .div(new Decimal(10).pow(item.input_token_decimal))
+                    .toString()}{" "}
               ${item.amount.symbol}
             </span>
           </div>
@@ -318,7 +336,12 @@ export const HistoryList = ({
           {/* buymore */}
           <div className="col-span-2">
             <span className="text-muted-foreground">
-              {item.buymore.amount ? `${item.buymore.amount} ${item.buymore.symbol}` : "-"}
+              {item.buymore.amount
+                ? `${Decimal(item.buymore.amount)
+                    .div(new Decimal(10).pow(item.output_token_decimal))
+                    .toString()} 
+                ${item.buymore.symbol}`
+                : "-"}
             </span>
           </div>
           {/* txn */}
