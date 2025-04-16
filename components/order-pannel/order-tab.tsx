@@ -30,6 +30,7 @@ import { getCurrentPrice, getSymbolFromPoolInfo } from "@/lib/calc";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import { useMyOrders } from "@/hooks/use-activities";
+import { toast } from "react-hot-toast";
 // interface OrderTabProps {}
 
 export function OrderTab() {
@@ -172,6 +173,11 @@ export function OrderTab() {
         .mul(new Decimal(10).pow(mintDecimalB))
         .floor()
         .toString();
+
+      if (+inAmount && +inAmount > +tokenABalance) {
+        toast.error("Insufficient balance");
+        return;
+      }
 
       await hybirdTradeProgram.initialize_pool(poolIdData.pool_id, servicePoolInfo!);
 

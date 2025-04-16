@@ -216,12 +216,12 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
           <div className="col-span-3">
             <span className={"text-muted-foreground"}>
-              {Decimal(item.amount.place_order_amount)
+              {Decimal(item.amount.used_order_amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
               /
-              {Decimal(item.receive.amount)
-                .div(new Decimal(10).pow(item.output_token_decimal))
+              {Decimal(item.amount.place_order_amount)
+                .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
               ${item.receive.symbol}
             </span>

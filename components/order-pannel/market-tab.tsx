@@ -32,6 +32,7 @@ import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { getSymbolFromPoolInfo } from "@/lib/calc";
 import TooltipWrapper from "@/components/tooltip-wrapper";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
@@ -367,6 +368,11 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const handleBuy = async () => {
     if (!inputToken || !outputToken) return;
+
+    if (+inputTokenAmount > +tokenABalance) {
+      toast.error("Insufficient balance");
+      return;
+    }
 
     const amount = new Decimal(orderTokenAAmount)
       .mul(new Decimal(10).pow(mintDecimalA!))
