@@ -1,4 +1,5 @@
 import { SOL_ADDRESS } from "@/anchor/src";
+import config from "@/config";
 import { CpmmPoolInfo } from "@/types";
 import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
 import { NATIVE_MINT } from "@solana/spl-token";
@@ -46,6 +47,9 @@ export const getSymbolFromPoolInfo = (poolInfo?: ApiV3Token) => {
     return "SOL";
   }
 
-  // TODO MAINNET
+  if (config.isMainnet) {
+    return poolInfo?.symbol || "BOB";
+  }
+
   return poolInfo?.symbol || "BOB";
 };
