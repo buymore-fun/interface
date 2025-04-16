@@ -172,7 +172,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           new BN(item.order_id),
           item.pool_pubkey
         );
-        debugger;
+
         await hybirdTradeProgram.cancel_order(
           new BN(item.pool_id),
           new BN(item.order_id),
