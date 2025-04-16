@@ -10,7 +10,7 @@ import { TokenIcon } from "../token-icon";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { OrderType } from "@/consts/order";
 import { useCpmmPoolFetchAll, useCpmmPoolFetchOne, usePoolPrepareId } from "@/hooks/services";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import WalletIcon from "@/public/assets/token/wallet.svg";
 import { useMemo, useEffect } from "react";
@@ -88,14 +88,23 @@ export function OrderTab() {
     input_token: poolMintA?.address || "",
     output_token: poolMintB?.address || "",
   });
-  const { fetchMyOrders } = useMyOrders(poolMintA?.address || "", poolMintB?.address || "");
+  const searchParams = useSearchParams();
+
+  const inputMint = searchParams.get("inputMint");
+  const outputMint = searchParams.get("outputMint");
+  const { fetchMyOrders } = useMyOrders(inputMint || "", outputMint || "");
   // todo need change when input change
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true) => {
     const price = getCurrentPrice(cpmmPoolInfo, isReverse);
+
+    // Use orderPrice if it has changed, otherwise use the calculated price
+    const priceToUse = orderPrice ? Number(orderPrice) : price;
+
     const priceInUSD = new Intl.NumberFormat("en-US", {
       maximumFractionDigits: 9,
-    }).format(price * solPrice);
+    }).format(priceToUse * solPrice);
 
+    // Default to showing just the price in USD
     return priceInUSD;
   };
 
@@ -197,10 +206,11 @@ export function OrderTab() {
 
       await fetchSolBalance();
       await mutateTokenBalance();
-      await fetchMyOrders();
 
       console.log("Your transaction signature", sig1);
       transactionToast(sig1);
+
+      await fetchMyOrders();
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     } finally {
