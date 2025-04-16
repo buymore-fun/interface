@@ -143,8 +143,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   }, [isReverse, solBalance, tokenBalance, outputToken, inputToken]);
 
   const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
-    const price = getCurrentPrice(raydiumPoolInfo, isReverse);
-    const priceB = getCurrentPrice(raydiumPoolInfo, !isReverse);
+    const price = getCurrentPrice(raydiumPoolInfo, isReverse); //208
+    const priceB = getCurrentPrice(raydiumPoolInfo, !isReverse); //0.0048
 
     // Handle empty or invalid inputs to prevent Decimal errors
     const validTokenAAmount =

@@ -95,15 +95,18 @@ export function OrderTab() {
   const outputMint = searchParams.get("outputMint");
   const { fetchMyOrders } = useMyOrders(inputMint || "", outputMint || "");
 
-  const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true) => {
-    const price = getCurrentPrice(cpmmPoolInfo, isReverse);
+  const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo) => {
+    const price = getCurrentPrice(cpmmPoolInfo, isBuy);
 
-    // Use orderPrice if it has changed, otherwise use the calculated price
     const priceToUse = orderPrice ? Number(orderPrice) : price;
 
-    const priceInUSD = new Intl.NumberFormat("en-US", {
-      maximumFractionDigits: 9,
-    }).format(priceToUse * solPrice);
+    const priceInUSD = isBuy
+      ? new Intl.NumberFormat("en-US", {
+          maximumFractionDigits: 9,
+        }).format(solPrice / priceToUse)
+      : new Intl.NumberFormat("en-US", {
+          maximumFractionDigits: 9,
+        }).format(priceToUse * solPrice);
 
     // Default to showing just the price in USD
     return priceInUSD;
