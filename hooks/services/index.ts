@@ -30,12 +30,18 @@ export function useDashboardIndex(params: { inputMint: string; tt?: string }) {
 // done
 // https://api-test.buymore.fun/usurper/activity/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 export function useActivityList(params: { input_token: string; output_token: string }) {
-  const { data, error, isLoading, mutate } = useSWR(`/activity/list`, async (url: string) => {
-    const response = await axiosInstance.get(url, {
-      params,
-    });
-    return response.data?.data as IResponseActivityList;
-  });
+  const { data, error, isLoading, mutate } = useSWR(
+    `/activity/list`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      return response.data?.data as IResponseActivityList;
+    },
+    {
+      revalidateOnMount: false,
+    }
+  );
 
   return {
     data,
@@ -47,13 +53,23 @@ export function useActivityList(params: { input_token: string; output_token: str
 
 // done
 // https://api-test.buymore.fun/usurper/my-order/list?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&address=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
-export function useMyOrderList(params: { inputMint: string; address: string }) {
-  const { data, error, isLoading, mutate } = useSWR(`/my-order/list`, async (url: string) => {
-    const response = await axiosInstance.get(url, {
-      params,
-    });
-    return response.data.data as IResponseMyOrderList;
-  });
+export function useMyOrderList(params: {
+  input_token: string;
+  output_token: string;
+  address: string;
+}) {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/my-order/list`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      return response.data.data as IResponseMyOrderList;
+    },
+    {
+      revalidateOnMount: false,
+    }
+  );
 
   return {
     data,
@@ -70,12 +86,18 @@ export function useTradeHistoryList(params: {
   output_token: string;
   address: string;
 }) {
-  const { data, error, isLoading, mutate } = useSWR(`/trade-history/list`, async (url: string) => {
-    const response = await axiosInstance.get(url, {
-      params,
-    });
-    return response.data.data as IResponseTradeHistoryList;
-  });
+  const { data, error, isLoading, mutate } = useSWR(
+    `/trade-history/list`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      return response.data.data as IResponseTradeHistoryList;
+    },
+    {
+      revalidateOnMount: false,
+    }
+  );
 
   return {
     data,

@@ -75,6 +75,7 @@ interface IOrder {
 export interface IResponseActivityList extends IResponseCommonList<IActivityItem> {
   query?: {
     input_mint: string;
+    output_mint: string;
   };
 }
 
@@ -157,11 +158,10 @@ export interface IOrderbookDepthItem {
 
 export interface IMyOrderItem {
   amount: {
-    buy: string;
     coin_name: string;
     coin_token: string;
-    sell: string;
-    symbol: string;
+    used_order_amount: string;
+    place_order_amount: string;
   };
   price: string;
   receive: {
@@ -179,6 +179,8 @@ export interface IMyOrderItem {
   order_id: number;
   pool_pubkey: string;
   pool_id: number;
+  input_token_decimal: number;
+  output_token_decimal: number;
 }
 
 export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> {

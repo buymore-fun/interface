@@ -2,11 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletAuth } from "@/components/wallet-auth";
-import { getExplorerUrlFromTransaction } from "@/config";
+import { getExplorerUrlFromAddress, getExplorerUrlFromTransaction } from "@/config";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
+import { useActivityList, useMyOrderList, useTradeHistoryList } from "@/hooks/services";
 import { useCancelPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
-import { useActivities, useMyOrders, useTradeHistory } from "@/hooks/use-activities";
-import React from "react";
 
 import {
   cn,
@@ -17,24 +16,21 @@ import {
   formatTime,
   formatTimeAgo,
 } from "@/lib/utils";
-import { IMyOrderItem } from "@/types";
+import { IMyOrderItem, IResponseMyOrderList } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useState } from "react";
+
+import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { toast } from "react-hot-toast";
 
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
-  const [activeTab, setActiveTab] = React.useState("myOrders");
-
-  // Handle tab change
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-  };
-
   return (
-    <Tabs defaultValue="myOrders" onValueChange={handleTabChange}>
+    <Tabs defaultValue="myOrders">
       <TabsList className="w-full bg-transparent justify-start gap-4">
         <TabsTrigger value="activities" className="px-0 text-lg font-semibold">
           Activities
@@ -47,18 +43,16 @@ export function Activities({ inputMint, outputMint }: { inputMint: string; outpu
         </TabsTrigger>
       </TabsList>
       <TabsContent value="activities">
-        {activeTab === "activities" && (
-          <ActivitiesList inputMint={inputMint} outputMint={outputMint} />
-        )}
+        <ActivitiesList inputMint={inputMint} outputMint={outputMint} />
       </TabsContent>
       <TabsContent value="myOrders">
         <WalletAuth>
-          {activeTab === "myOrders" && <MyOrders inputMint={inputMint} outputMint={outputMint} />}
+          <MyOrders />
         </WalletAuth>
       </TabsContent>
       <TabsContent value="history">
         <WalletAuth>
-          {activeTab === "history" && <HistoryList inputMint={inputMint} outputMint={outputMint} />}
+          <HistoryList inputMint={inputMint} outputMint={outputMint} />
         </WalletAuth>
       </TabsContent>
     </Tabs>
@@ -66,12 +60,12 @@ export function Activities({ inputMint, outputMint }: { inputMint: string; outpu
 }
 
 const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMint: string }) => {
-  const { activityList, isActivityListLoading, fetchActivities } = useActivities(
-    inputMint as string,
-    outputMint as string
-  );
+  const { data, isLoading } = useActivityList({
+    input_token: inputMint as string,
+    output_token: outputMint as string,
+  });
 
-  if (isActivityListLoading) return <Skeleton className="h-[400px] w-full" />;
+  if (isLoading) return <Skeleton className="h-[400px] w-full" />;
 
   return (
     <div className="border rounded-lg">
@@ -85,7 +79,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
         <div className="col-span-2">Maker</div>
         <div className="col-span-1">Txn</div>
       </div>
-      {activityList?.map((item, index) => (
+      {data?.items?.map((item, index) => (
         <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
           <div className="col-span-1">
             <span className="text-muted-foreground">{formatTimeAgo(item.time * 1000)}</span>
@@ -132,26 +126,25 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           </div>
         </div>
       ))}
-      {activityList?.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">No activities found.</div>
-      )}
     </div>
   );
 };
 
-const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: string }) => {
-  const { myOrderList, isMyOrderListLoading, myOrderListError, fetchMyOrders } = useMyOrders(
-    inputMint as string,
-    outputMint as string
-  );
+const MyOrders = () => {
+  const { publicKey } = useWallet();
+  const { address } = useParams();
+
+  const { data, isLoading } = useMyOrderList({
+    inputMint: address as string,
+    address: publicKey!.toBase58(),
+  });
 
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
   const { cancelPoolInfo, isCancelPoolInfoLoading, fetchCancelPoolInfo } = useCancelPoolInfo();
   const [cancelTx, setCancelTx] = useState<string>("");
 
-  if (isMyOrderListLoading || isServicePoolInfoLoading)
-    return <Skeleton className="h-[400px] w-full" />;
+  if (isLoading || isServicePoolInfoLoading) return <Skeleton className="h-[400px] w-full" />;
 
   const handleCancelOrder = async (item: IMyOrderItem) => {
     try {
@@ -194,7 +187,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         <div className="col-span-1">Txn</div>
         <div className="col-span-1">Action</div>
       </div>
-      {myOrderList?.map((item, index) => (
+      {data?.items?.map((item, index) => (
         <div className="grid grid-cols-12 text-sm px-3 py-2 border-t" key={index}>
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
@@ -211,8 +204,8 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
           <div className="col-span-3">
             <span className={"text-muted-foreground"}>
-              {formatNumberCompact(item.amount.place_order_amount)}/
-              {formatNumberCompact(item.amount.used_order_amount)}
+              {formatNumberCompact(item.amount.buy)}/{formatNumberCompact(item.amount.sell)}
+              {item.amount.symbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -246,7 +239,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
         </div>
       ))}
-      {myOrderList?.length === 0 && (
+      {data?.total_page === 0 && (
         <div className="text-center py-8 text-muted-foreground">No active orders found.</div>
       )}
     </div>
@@ -262,10 +255,13 @@ export const HistoryList = ({
 }) => {
   const { publicKey } = useWallet();
 
-  const { tradeHistoryList, isTradeHistoryListLoading, tradeHistoryListError, fetchTradeHistory } =
-    useTradeHistory(inputMint as string, outputMint as string);
+  const { data, isLoading } = useTradeHistoryList({
+    input_token: inputMint as string,
+    output_token: outputMint as string,
+    address: publicKey!.toBase58(),
+  });
 
-  if (isTradeHistoryListLoading) return <Skeleton className="h-[400px] w-full" />;
+  if (isLoading) return <Skeleton className="h-[400px] w-full" />;
 
   return (
     <div className="border rounded-lg">
@@ -278,7 +274,7 @@ export const HistoryList = ({
         <div className="col-span-2">Buymore</div>
         <div className="col-span-1">Txn</div>
       </div>
-      {tradeHistoryList?.map((item, index) => (
+      {data?.items?.map((item, index) => (
         <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
           {/* time  */}
           <div className="col-span-2">
@@ -333,7 +329,7 @@ export const HistoryList = ({
           </div>
         </div>
       ))}
-      {tradeHistoryList?.length === 0 && (
+      {data?.total_page === 0 && (
         <div className="text-center py-8 text-muted-foreground">No trade history found.</div>
       )}
     </div>

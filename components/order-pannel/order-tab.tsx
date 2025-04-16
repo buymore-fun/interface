@@ -29,7 +29,7 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { getCurrentPrice, getSymbolFromPoolInfo } from "@/lib/calc";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
-
+import { useMyOrders } from "@/hooks/use-activities";
 // interface OrderTabProps {}
 
 export function OrderTab() {
@@ -88,7 +88,8 @@ export function OrderTab() {
     input_token: poolMintA?.address || "",
     output_token: poolMintB?.address || "",
   });
-
+  const { fetchMyOrders } = useMyOrders(poolMintA?.address || "", poolMintB?.address || "");
+  // todo need change when input change
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true) => {
     const price = getCurrentPrice(cpmmPoolInfo, isReverse);
     const priceInUSD = new Intl.NumberFormat("en-US", {
@@ -196,6 +197,7 @@ export function OrderTab() {
 
       await fetchSolBalance();
       await mutateTokenBalance();
+      await fetchMyOrders();
 
       console.log("Your transaction signature", sig1);
       transactionToast(sig1);
