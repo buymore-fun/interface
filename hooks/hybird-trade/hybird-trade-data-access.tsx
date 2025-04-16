@@ -909,7 +909,9 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         program.programId
       );
 
-      const default_pool = order_book( order_book_detail, new BN(0), this.token_0_mint, this.token_1_mint );
+      //TODO default default pool on testnet 
+      const default_pool = new PublicKey('4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7')
+      // order_book( order_book_detail, new BN(0), this.token_0_mint, this.token_1_mint );
 
       const [settle_pool] = PublicKey.findProgramAddressSync(
         [
