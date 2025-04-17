@@ -158,9 +158,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
     try {
       setCancelTx(item.tx);
       await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
-      console.log("🚀 ~ handleCancelOrder ~ setp:", 1);
 
-      console.log("🚀 ~ handleCancelOrder ~ setp:", 2);
       console.log("🚀 ~ handleCancelOrder ~ item:", item);
       console.log("🚀 ~ handleCancelOrder ~ cancelPoolInfo:", cancelPoolInfo);
       console.log(
@@ -176,7 +174,6 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         item.amount.coin_token,
         cancelPoolInfo!
       );
-      console.log("🚀 ~ handleCancelOrder ~ setp:", 3);
       setTimeout(() => {
         fetchMyOrders();
       }, 3000);
