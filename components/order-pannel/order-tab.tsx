@@ -98,7 +98,12 @@ export function OrderTab() {
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo) => {
     const price = getCurrentPrice(cpmmPoolInfo, isBuy);
 
+    // const priceToUse = orderPrice ? Number(orderPrice ) : price;
     const priceToUse = orderPrice ? Number(orderPrice) : price;
+
+    if (priceToUse === price) {
+      return "--";
+    }
 
     const priceInUSD = isBuy
       ? new Intl.NumberFormat("en-US", {
@@ -219,7 +224,10 @@ export function OrderTab() {
       console.log("Your transaction signature", sig1);
       transactionToast(sig1);
 
-      await fetchMyOrders();
+      // Wait 3 seconds before fetching orders to ensure transaction is processed
+      setTimeout(() => {
+        fetchMyOrders();
+      }, 3000);
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     } finally {

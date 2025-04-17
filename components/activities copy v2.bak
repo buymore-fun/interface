@@ -7,7 +7,7 @@ import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-ac
 import { useCancelPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { useActivities, useMyOrders, useTradeHistory } from "@/hooks/use-activities";
 import React from "react";
-import { getSymbolFromPoolInfo } from "@/lib/calc";
+
 import {
   cn,
   formatAddress,
@@ -76,33 +76,38 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2">
         <div className="col-span-1">Time</div>
-        <div className="col-span-2">From</div>
-        <div className="col-span-2">To</div>
+        <div className="col-span-1">Type</div>
+        <div className="col-span-1">USD</div>
+        <div className="col-span-2">Amount</div>
         <div className="col-span-2">Routing</div>
         <div className="col-span-2">Buymore</div>
         <div className="col-span-2">Maker</div>
-        <div className="col-span-1">TXN</div>
+        <div className="col-span-1">Txn</div>
       </div>
       {activityList?.map((item, index) => (
-        <div
-          className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center gap-0.5"
-          key={index}
-        >
+        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
           <div className="col-span-1">
             <span className="text-muted-foreground">{formatTimeAgo(item.time * 1000)}</span>
+          </div>
+          <div className="col-span-1">
+            <span
+              className={cn(
+                "bg-green-100/10 px-2 py-1 rounded-lg text-xs capitalize",
+                item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]"
+              )}
+            >
+              {item.type}
+            </span>
+          </div>
+          <div className="col-span-1">
+            <span className="text-muted-foreground">${formatNumber(item.usd)}</span>
           </div>
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
               {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "}
               ${item.input_token_symbol}
-            </span>
-          </div>
-          <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
-              {/* {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "} */}
-              {"--"}${item.input_token_symbol}
             </span>
           </div>
           <div className="col-span-2 flex flex-col">
@@ -111,14 +116,13 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
             </span>
           </div>
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
+            <span className="text-muted-foreground">
               {Decimal(item.buymore.amount)
                 .div(new Decimal(10).pow(item.output_token_decimal))
                 .toString()}{" "}
-              ${item.input_token_symbol}
+              ${item.buymore.symbol}
             </span>
           </div>
-
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatAddress(item.marker)}</span>
           </div>
@@ -158,7 +162,6 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
     try {
       setCancelTx(item.tx);
       await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
-      console.log("🚀 ~ handleCancelOrder ~ item:", item);
 
       if (cancelPoolInfo) {
         console.log("🚀 ~ handleCancelOrder ~ item:", item);
@@ -167,18 +170,15 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           "🚀 ~ handleCancelOrder ~ ",
           new BN(item.pool_id),
           new BN(item.order_id),
-          item.amount.coin_token
+          item.pool_pubkey
         );
 
         await hybirdTradeProgram.cancel_order(
           new BN(item.pool_id),
           new BN(item.order_id),
-          item.amount.coin_token,
+          item.pool_pubkey,
           cancelPoolInfo
         );
-        setTimeout(() => {
-          fetchMyOrders();
-        }, 3000);
       }
     } catch (error: any) {
       toast.error("Failed to cancel order");
@@ -190,34 +190,40 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2">
         <div className="col-span-2">Time</div>
-        <div className="col-span-2">From</div>
-        <div className="col-span-2">To</div>
+        <div className="col-span-1">Type</div>
+        <div className="col-span-3">Amount</div>
         <div className="col-span-2">Receive</div>
         <div className="col-span-2">Price</div>
         <div className="col-span-1">Txn</div>
-        <div className="col-span-1"></div>
+        <div className="col-span-1">Action</div>
       </div>
       {myOrderList?.map((item, index) => (
         <div className="grid grid-cols-12 text-sm px-3 py-2 border-t" key={index}>
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
-          <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
+          <div className="col-span-1">
+            <span
+              className={cn(
+                "bg-green-100/10 px-2 py-1 rounded-lg text-xs capitalize",
+                item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]"
+              )}
+            >
+              {item.type}
+            </span>
+          </div>
+          <div className="col-span-3">
+            <span className={"text-muted-foreground"}>
+              {Decimal(item.amount.used_order_amount)
+                .div(new Decimal(10).pow(item.input_token_decimal))
+                .toString()}{" "}
+              /
               {Decimal(item.amount.place_order_amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
-              ${item.amount.symbol}
-            </span>
-          </div>
-          <div className="col-span-2">
-            <span className={"text-muted-foreground"}>
-              {/* {Decimal(item.amount.used_order_amount)
-                .div(new Decimal(10).pow(item.input_token_decimal))
-                .toString()}{" "} */}
-              {"--"}${item.receive.symbol}
+              ${item.receive.symbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -279,8 +285,8 @@ export const HistoryList = ({
     <div className="border rounded-lg">
       <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2">
         <div className="col-span-2">Time</div>
-        <div className="col-span-2">From</div>
-        <div className="col-span-2">To</div>
+        <div className="col-span-2">Type</div>
+        <div className="col-span-2">Amount</div>
         <div className="col-span-1">Price</div>
         <div className="col-span-2">Routing</div>
         <div className="col-span-2">Buymore</div>
