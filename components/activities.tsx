@@ -158,11 +158,10 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
     try {
       setCancelTx(item.tx);
       await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
-      console.log("🚀 ~ handleCancelOrder ~ item:", item);
 
       if (cancelPoolInfo) {
         console.log("🚀 ~ handleCancelOrder ~ item:", item);
-        console.log("🚀 ~ handleCancelOrder ~ servicePoolInfo:", cancelPoolInfo);
+        console.log("🚀 ~ handleCancelOrder ~ cancelPoolInfo:", cancelPoolInfo);
         console.log(
           "🚀 ~ handleCancelOrder ~ ",
           new BN(item.pool_id),

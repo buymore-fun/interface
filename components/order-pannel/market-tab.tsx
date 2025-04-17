@@ -117,7 +117,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       .mul(new Decimal(10).pow(mintDecimalB!))
       .floor()
       .toString();
-    console.log("🚀 ~ const[inputTokenAmount,outputTokenAmount]=useMemo ~ outAmount:", outAmount);
 
     return [inAmount, outAmount];
   }, [raydiumPoolInfo, orderTokenAAmount, orderTokenBAmount, mintDecimalA, mintDecimalB]);
@@ -141,6 +140,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(outputToken)}`,
         ];
   }, [isReverse, solBalance, tokenBalance, outputToken, inputToken]);
+
+  const [currentAAmount, currentBAmount] = useMemo(() => {
+    return isReverse
+      ? [solBalance, tokenBalance?.amount || 0]
+      : [tokenBalance?.amount || 0, solBalance];
+  }, [isReverse, tokenBalance, solBalance]);
 
   const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
     const price = getCurrentPrice(raydiumPoolInfo, isReverse); //208
@@ -392,7 +397,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const handleBuy = async () => {
     if (!inputToken || !outputToken) return;
 
-    if (+inputTokenAmount > +tokenABalance) {
+    console.log("🚀 ~ handleBuy ~ inputAmount:", inputTokenAmount, currentAAmount);
+
+    if (+inputTokenAmount > +currentAAmount) {
       toast.error("Insufficient balance");
       return;
     }
