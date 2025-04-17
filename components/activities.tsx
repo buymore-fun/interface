@@ -6,6 +6,7 @@ import { getExplorerUrlFromTransaction } from "@/config";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { useCancelPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { useActivities, useMyOrders, useTradeHistory } from "@/hooks/use-activities";
+import { getCpmmPoolFetchOne } from "@/hooks/services";
 import React from "react";
 import { getSymbolFromPoolInfo } from "@/lib/calc";
 import {
@@ -91,7 +92,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           key={index}
         >
           <div className="col-span-1">
-            <span className="text-muted-foreground">{formatTimeAgo(item.time * 1000)}</span>
+            <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
@@ -157,10 +158,20 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
   const handleCancelOrder = async (item: IMyOrderItem) => {
     try {
       setCancelTx(item.tx);
+
+      const poolInfoResponse = await getCpmmPoolFetchOne({
+        mint_a: item.amount.coin_token,
+        mint_b: item.receive.coin_token,
+      });
+
+      if (!poolInfoResponse) {
+        throw new Error("Failed to fetch pool info");
+      }
+
       await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
 
       console.log("🚀 ~ handleCancelOrder ~ item:", item);
-      console.log("🚀 ~ handleCancelOrder ~ cancelPoolInfo:", cancelPoolInfo);
+      console.log("🚀 ~ handleCancelOrder ~ poolInfo:", poolInfoResponse);
       console.log(
         "🚀 ~ handleCancelOrder ~ ",
         new BN(item.pool_id),
@@ -172,8 +183,9 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         new BN(item.pool_id),
         new BN(item.order_id),
         item.amount.coin_token,
-        cancelPoolInfo!
+        poolInfoResponse
       );
+
       setTimeout(() => {
         fetchMyOrders();
       }, 3000);
@@ -278,10 +290,10 @@ export const HistoryList = ({
         <div className="col-span-2">Time</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
-        <div className="col-span-1">Price</div>
-        <div className="col-span-2">Routing</div>
+        <div className="col-span-2">Price</div>
+        {/* <div className="col-span-2">Routing</div> */}
         <div className="col-span-2">Buymore</div>
-        <div className="col-span-1">Txn</div>
+        <div className="col-span-2">Txn</div>
       </div>
       {tradeHistoryList?.map((item, index) => (
         <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
@@ -291,39 +303,33 @@ export const HistoryList = ({
           </div>
           {/* type */}
           <div className="col-span-2">
-            <span
-              className={cn(
-                "bg-green-100/10 px-2 py-1 rounded-lg text-xs capitalize",
-                item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]"
-              )}
-            >
-              {item.from}/{item.type}
+            <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
+              {Decimal(item.receive.amount)
+                .div(new Decimal(10).pow(item.input_token_decimal))
+                .toString()}{" "}
+              ${item.amount.symbol}
             </span>
           </div>
           {/* amount */}
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
-              {item.type === "sell"
-                ? Decimal(item.amount.amount)
-                    .div(new Decimal(10).pow(item.output_token_decimal))
-                    .toString()
-                : Decimal(item.receive.amount)
-                    .div(new Decimal(10).pow(item.input_token_decimal))
-                    .toString()}{" "}
-              ${item.amount.symbol}
+              {Decimal(item.receive.amount)
+                .div(new Decimal(10).pow(item.input_token_decimal))
+                .toString()}{" "}
+              ${item.receive.symbol}
             </span>
           </div>
           {/* price */}
-          <div className="col-span-1">
+          <div className="col-span-2">
             <span className="text-muted-foreground">${formatNumber(item.usd)}</span>
           </div>
           {/* routing */}
-          <div className="col-span-2">
+          {/* <div className="col-span-2">
             <span className="text-muted-foreground text-xs">
               Dex: {item.routing.dec} <br />
               Order: {item.routing.order}%
             </span>
-          </div>
+          </div> */}
           {/* buymore */}
           <div className="col-span-2">
             <span className="text-muted-foreground">
@@ -336,7 +342,7 @@ export const HistoryList = ({
             </span>
           </div>
           {/* txn */}
-          <div className="col-span-1">
+          <div className="col-span-2">
             <Link
               href={getExplorerUrlFromTransaction(item.tx)}
               className="text-muted-foreground hover:text-foreground"
