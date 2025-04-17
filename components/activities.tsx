@@ -8,7 +8,7 @@ import { useCancelPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { useActivities, useMyOrders, useTradeHistory } from "@/hooks/use-activities";
 import { getCpmmPoolFetchOne } from "@/hooks/services";
 import React from "react";
-import { getSymbolFromPoolInfo } from "@/lib/calc";
+
 import {
   cn,
   formatAddress,
@@ -26,6 +26,8 @@ import { useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 import { toast } from "react-hot-toast";
 import Decimal from "decimal.js";
+
+export const defaultSymbol = "T";
 
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
   const [activeTab, setActiveTab] = React.useState("myOrders");
@@ -97,13 +99,13 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
               {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "}
-              ${item.input_token_symbol}
+              ${item.input_token_symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
               {/* {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "} */}
-              {"--"}${item.input_token_symbol}
+              {"--"}${item.input_token_symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2 flex flex-col">
@@ -116,7 +118,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
               {Decimal(item.buymore.amount)
                 .div(new Decimal(10).pow(item.output_token_decimal))
                 .toString()}{" "}
-              ${item.input_token_symbol}
+              ${item.input_token_symbol || defaultSymbol}
             </span>
           </div>
 
@@ -214,7 +216,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
               {Decimal(item.amount.place_order_amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
-              ${item.amount.symbol}
+              ${item.amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -222,7 +224,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
               {Decimal(item.amount.used_order_amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
-              ${item.receive.symbol}
+              ${item.receive.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -230,7 +232,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
               {Decimal(item.receive.amount)
                 .div(new Decimal(10).pow(item.output_token_decimal))
                 .toString()}
-              ${item.receive.symbol}
+              ${item.receive.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -303,7 +305,7 @@ export const HistoryList = ({
               {Decimal(item.amount.amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
-              ${item.amount.symbol}
+              ${item.amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* amount */}
@@ -312,7 +314,7 @@ export const HistoryList = ({
               {Decimal(item.receive.amount)
                 .div(new Decimal(10).pow(item.output_token_decimal))
                 .toString()}{" "}
-              ${item.receive.symbol}
+              ${item.receive.symbol || defaultSymbol}
             </span>
           </div>
           {/* price */}
@@ -333,7 +335,7 @@ export const HistoryList = ({
                 ? `${Decimal(item.buymore.amount)
                     .div(new Decimal(10).pow(item.output_token_decimal))
                     .toString()} 
-                ${item.buymore.symbol}`
+                $${item.buymore.symbol || defaultSymbol}`
                 : "-"}
             </span>
           </div>
