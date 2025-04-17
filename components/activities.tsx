@@ -170,13 +170,13 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           "🚀 ~ handleCancelOrder ~ ",
           new BN(item.pool_id),
           new BN(item.order_id),
-          item.pool_pubkey
+          item.amount.coin_token
         );
 
         await hybirdTradeProgram.cancel_order(
           new BN(item.pool_id),
           new BN(item.order_id),
-          item.pool_pubkey,
+          item.amount.coin_token,
           cancelPoolInfo
         );
       }
