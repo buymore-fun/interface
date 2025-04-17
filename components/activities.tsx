@@ -286,7 +286,7 @@ export const HistoryList = ({
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white">
         <div className="col-span-2">Time</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
