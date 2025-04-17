@@ -158,27 +158,28 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
     try {
       setCancelTx(item.tx);
       await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
+      console.log("🚀 ~ handleCancelOrder ~ setp:", 1);
 
-      if (cancelPoolInfo) {
-        console.log("🚀 ~ handleCancelOrder ~ item:", item);
-        console.log("🚀 ~ handleCancelOrder ~ cancelPoolInfo:", cancelPoolInfo);
-        console.log(
-          "🚀 ~ handleCancelOrder ~ ",
-          new BN(item.pool_id),
-          new BN(item.order_id),
-          item.amount.coin_token
-        );
+      console.log("🚀 ~ handleCancelOrder ~ setp:", 2);
+      console.log("🚀 ~ handleCancelOrder ~ item:", item);
+      console.log("🚀 ~ handleCancelOrder ~ cancelPoolInfo:", cancelPoolInfo);
+      console.log(
+        "🚀 ~ handleCancelOrder ~ ",
+        new BN(item.pool_id),
+        new BN(item.order_id),
+        item.amount.coin_token
+      );
 
-        await hybirdTradeProgram.cancel_order(
-          new BN(item.pool_id),
-          new BN(item.order_id),
-          item.amount.coin_token,
-          cancelPoolInfo
-        );
-        setTimeout(() => {
-          fetchMyOrders();
-        }, 3000);
-      }
+      await hybirdTradeProgram.cancel_order(
+        new BN(item.pool_id),
+        new BN(item.order_id),
+        item.amount.coin_token,
+        cancelPoolInfo!
+      );
+      console.log("🚀 ~ handleCancelOrder ~ setp:", 3);
+      setTimeout(() => {
+        fetchMyOrders();
+      }, 3000);
     } catch (error: any) {
       toast.error("Failed to cancel order");
       console.log(error?.message);
