@@ -5,7 +5,6 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 //   devnet: "devnet",
 //   testnet: "testnet",
 // };
-export const network = "devnet";
 
 export const getWalletAdapterNetwork = (network: string) => {
   switch (network) {
@@ -19,10 +18,6 @@ export const getWalletAdapterNetwork = (network: string) => {
     default:
       return WalletAdapterNetwork.Devnet;
   }
-};
-
-export const config = {
-  walletAdapterNetwork: getWalletAdapterNetwork(network),
 };
 
 export function getClusterUrlParam(network: WalletAdapterNetwork): string {
@@ -61,3 +56,34 @@ export function getExplorerUrlFromAddress(address: string) {
 export function getExplorerUrlFromBlock(block: string) {
   return getExplorerUrl(`/block/${block}`);
 }
+
+export const network = "devnet";
+
+const walletAdapterNetwork = getWalletAdapterNetwork(network);
+const isMainnet = walletAdapterNetwork === WalletAdapterNetwork.Mainnet;
+
+function getConfig() {
+  if (network === "devnet") {
+    return devConfig;
+  }
+  return mainnetConfig;
+}
+
+const devConfig = {
+  defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+};
+
+const mainnetConfig = {
+  defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+};
+
+const mergeConfig = getConfig();
+
+const config = {
+  network: network,
+  walletAdapterNetwork: walletAdapterNetwork,
+  isMainnet,
+  ...mergeConfig,
+};
+
+export default config;

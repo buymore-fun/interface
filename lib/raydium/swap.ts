@@ -8,7 +8,6 @@ import { LAMPORTS_PER_SOL, PublicKey, Transaction, TransactionInstruction } from
 
 export const swap = async () => {
   // const raydium = raydiumInstance!;
-  // TODO: fix it
   const raydium: any = {};
 
   const amountIn = 1 * LAMPORTS_PER_SOL;

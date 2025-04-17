@@ -29,10 +29,12 @@ import { isNumber } from "@raydium-io/raydium-sdk-v2";
 import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
-import { getSymbolFromPoolInfo } from "@/lib/calc";
+import { getCurrentPrice, getCurrentPriceInUSD, getSymbolFromPoolInfo } from "@/lib/calc";
 import TooltipWrapper from "@/components/tooltip-wrapper";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import { useSolPrice } from "@/hooks/use-sol-price";
+import { CpmmPoolInfo } from "@/types/raydium";
 
 interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
@@ -53,6 +55,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [slippage, setSlippage] = useAtom(slippageAtom);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
+  const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
 
   const { servicePoolInfo } = useServicePoolInfo();
   const { raydiumPoolInfo } = useRaydiumPoolInfo();
@@ -138,6 +141,26 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(outputToken)}`,
         ];
   }, [isReverse, solBalance, tokenBalance, outputToken, inputToken]);
+
+  const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
+    const price = getCurrentPrice(raydiumPoolInfo, isReverse); //208
+    const priceB = getCurrentPrice(raydiumPoolInfo, !isReverse); //0.0048
+
+    // Handle empty or invalid inputs to prevent Decimal errors
+    const validTokenAAmount =
+      orderTokenAAmount && !isNaN(Number(orderTokenAAmount)) ? orderTokenAAmount : "0";
+    const validTokenBAmount =
+      orderTokenBAmount && !isNaN(Number(orderTokenBAmount)) ? orderTokenBAmount : "0";
+
+    const priceSolInUSD = isReverse
+      ? new Decimal(solPrice).mul(validTokenAAmount).toFixed(3)
+      : new Decimal(solPrice).mul(priceB).mul(validTokenAAmount).toFixed(3);
+    const priceTokenInUSD = isReverse
+      ? new Decimal(solPrice).mul(price).mul(validTokenBAmount).toFixed(3)
+      : new Decimal(solPrice).mul(validTokenBAmount).toFixed(3);
+
+    return isReverse ? [priceSolInUSD, priceTokenInUSD] : [priceTokenInUSD, priceSolInUSD];
+  }, [isReverse, raydiumPoolInfo, solPrice, orderTokenAAmount, orderTokenBAmount]);
 
   // console.log("🚀 ~ MarketTab ~ solBalance:", solBalance);
   // console.log(
@@ -478,6 +501,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             value={orderTokenAAmount}
           />
         </div>
+        <span className="text-muted-foreground text-xs flex justify-end ">
+          ${formatedTokenABalanceInUSD}
+        </span>
       </div>
       <div className="flex items-center justify-center h-0 relative">
         <Button
@@ -524,6 +550,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             />
           )}
         </div>
+        <span className="text-muted-foreground text-xs flex justify-end pr-4">
+          ${formatedTokenBBalanceInUSD}
+        </span>
       </div>
       <Collapsible
         open={isOpen}

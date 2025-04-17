@@ -1,4 +1,5 @@
 import { SOL_ADDRESS } from "@/anchor/src";
+import config from "@/config";
 import { CpmmPoolInfo } from "@/types";
 import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
 import { NATIVE_MINT } from "@solana/spl-token";
@@ -28,11 +29,27 @@ export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): 
   return +price.toFixed(9);
 };
 
+export const getCurrentPriceInUSD = (
+  cpmmPoolInfo?: CpmmPoolInfo,
+  isReverse = true,
+  solPrice: number = 0
+) => {
+  const price = getCurrentPrice(cpmmPoolInfo, isReverse);
+
+  const priceInUSD = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 9,
+  }).format(price * solPrice);
+  return priceInUSD;
+};
+
 export const getSymbolFromPoolInfo = (poolInfo?: ApiV3Token) => {
   if (poolInfo?.address === SOL_ADDRESS) {
     return "SOL";
   }
 
-  // TODO MAINNET
+  if (config.isMainnet) {
+    return poolInfo?.symbol || "BOB";
+  }
+
   return poolInfo?.symbol || "BOB";
 };
