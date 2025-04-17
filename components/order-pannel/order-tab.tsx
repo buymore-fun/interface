@@ -29,7 +29,7 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { getCurrentPrice, getSymbolFromPoolInfo } from "@/lib/calc";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
-import { useMyOrders } from "@/hooks/use-activities";
+// import { useMyOrders } from "@/hooks/use-activities";
 import { toast } from "react-hot-toast";
 // interface OrderTabProps {}
 
@@ -93,7 +93,7 @@ export function OrderTab() {
 
   const inputMint = searchParams.get("inputMint");
   const outputMint = searchParams.get("outputMint");
-  const { fetchMyOrders } = useMyOrders(inputMint || "", outputMint || "");
+  // const { fetchMyOrders } = useMyOrders(inputMint || "", outputMint || "");
 
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo) => {
     const price = getCurrentPrice(cpmmPoolInfo, isBuy);
@@ -223,11 +223,6 @@ export function OrderTab() {
 
       console.log("Your transaction signature", sig1);
       transactionToast(sig1);
-
-      // Wait 3 seconds before fetching orders to ensure transaction is processed
-      setTimeout(() => {
-        fetchMyOrders();
-      }, 3000);
     } catch (error) {
       console.error("Error preparing pool ID:", error);
     } finally {

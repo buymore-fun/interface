@@ -40,6 +40,7 @@ export function useActivityList(params: { input_token: string; output_token: str
     },
     {
       revalidateOnMount: false,
+      refreshInterval: 3000,
     }
   );
 
@@ -68,6 +69,7 @@ export function useMyOrderList(params: {
     },
     {
       revalidateOnMount: false,
+      refreshInterval: 3000,
     }
   );
 
@@ -96,6 +98,7 @@ export function useTradeHistoryList(params: {
     },
     {
       revalidateOnMount: false,
+      refreshInterval: 3000,
     }
   );
 

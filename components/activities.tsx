@@ -185,10 +185,6 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         item.amount.coin_token,
         poolInfoResponse
       );
-
-      setTimeout(() => {
-        fetchMyOrders();
-      }, 3000);
     } catch (error: any) {
       toast.error("Failed to cancel order");
       console.log(error?.message);
@@ -223,10 +219,10 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground"}>
-              {/* {Decimal(item.amount.used_order_amount)
+              {Decimal(item.amount.used_order_amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
-                .toString()}{" "} */}
-              {"--"}${item.receive.symbol}
+                .toString()}{" "}
+              ${item.receive.symbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -304,7 +300,7 @@ export const HistoryList = ({
           {/* type */}
           <div className="col-span-2">
             <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
-              {Decimal(item.receive.amount)
+              {Decimal(item.amount.amount)
                 .div(new Decimal(10).pow(item.input_token_decimal))
                 .toString()}{" "}
               ${item.amount.symbol}
@@ -312,16 +308,16 @@ export const HistoryList = ({
           </div>
           {/* amount */}
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
+            <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
               {Decimal(item.receive.amount)
-                .div(new Decimal(10).pow(item.input_token_decimal))
+                .div(new Decimal(10).pow(item.output_token_decimal))
                 .toString()}{" "}
               ${item.receive.symbol}
             </span>
           </div>
           {/* price */}
           <div className="col-span-2">
-            <span className="text-muted-foreground">${formatNumber(item.usd)}</span>
+            <span className="text-muted-foreground">${formatNumber(item.price)}</span>
           </div>
           {/* routing */}
           {/* <div className="col-span-2">
