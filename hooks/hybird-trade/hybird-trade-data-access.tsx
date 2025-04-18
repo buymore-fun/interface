@@ -29,6 +29,7 @@ import { IOrderbookDepthItem, IResponsePoolInfoItem } from "@/types/response";
 import { CpmmPoolInfo } from "@/types";
 import Decimal from "decimal.js";
 import config from "@/config";
+import { ORDER_BOOK_DETAIL_SEED, ORDER_BOOK_WITH_TOKEN_SEED } from "@/anchor/constants";
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
@@ -92,7 +93,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const token_1_mint = new PublicKey(cfg.cpmm.mintB);
 
       const [order_book_detail] = PublicKey.findProgramAddressSync(
-        [Buffer.from("buymore_order_detail_v1"), token_0_mint.toBytes(), token_1_mint.toBytes()],
+        [Buffer.from(ORDER_BOOK_DETAIL_SEED), token_0_mint.toBytes(), token_1_mint.toBytes()],
         program.programId
       );
 
@@ -286,149 +287,6 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     console.log(`Cancel Order ID: ${order_id}, pool_id: ${pool_id}`);
   }
 
-  // async function trade_in_v1(
-  //   in_amount: BN,
-  //   out_amount: BN,
-  //   cfg: IResponsePoolInfoItem,
-  //   trades: Trade[]
-  // ) {
-  //   const { getOrderBookDetail } = getProgramAddress();
-
-  //   const token_0_mint = new PublicKey(cfg.cpmm.mintA);
-  //   const token_1_mint = new PublicKey(cfg.cpmm.mintB);
-
-  //   const token_0_program = new PublicKey(cfg.cpmm.mintProgramA);
-  //   const token_1_program = new PublicKey(cfg.cpmm.mintProgramB);
-
-  //   const token_0_vault = new PublicKey(cfg.cpmm.vaultA);
-  //   const token_1_vault = new PublicKey(cfg.cpmm.vaultB);
-
-  //   const [order_book_authority] = make_pool_authority(token_0_mint, token_1_mint);
-
-  //   const token_0_pool_vault = getAssociatedTokenAddressSync(
-  //     token_0_mint,
-  //     order_book_authority,
-  //     true,
-  //     token_0_program
-  //   );
-
-  //   const token_1_pool_vault = getAssociatedTokenAddressSync(
-  //     token_1_mint,
-  //     order_book_authority,
-  //     true,
-  //     token_1_program
-  //   );
-
-  //   const input_token_account = getAssociatedTokenAddressSync(
-  //     token_0_mint,
-  //     wallet.publicKey!,
-  //     false,
-  //     token_0_program
-  //   );
-
-  //   const output_token_account = getAssociatedTokenAddressSync(
-  //     token_1_mint,
-  //     wallet.publicKey!,
-  //     false,
-  //     token_1_program
-  //   );
-
-  //   const settle_id = new BN(Date.now());
-  //   // const settle_id = new BN(0)
-  //   // const settle_id = Date.now() + ''
-  //   const raydium_pubkey = new PublicKey(raydium_cp_swap);
-  //   const POOL_AUTH_SEED = Buffer.from(utils.bytes.utf8.encode("vault_and_lp_mint_auth_seed"));
-  //   const POOL_SEED = Buffer.from(utils.bytes.utf8.encode("pool"));
-  //   const ORACLE_SEED = Buffer.from(utils.bytes.utf8.encode("observation"));
-
-  //   const [POOL_AUTH_PUBKEY, POOL_AUTH_BUMP] = PublicKey.findProgramAddressSync(
-  //     [POOL_AUTH_SEED],
-  //     raydium_pubkey
-  //   );
-  //   const pool_state = new PublicKey(cfg.cpmm.poolId);
-  //   const ammConfig = new PublicKey(cfg.cpmm.configId);
-  //   const swap_input_vault = new PublicKey(cfg.cpmm.vaultA);
-  //   const swap_output_vault = new PublicKey(cfg.cpmm.vaultB);
-  //   const swap_observation = new PublicKey(cfg.cpmm.observationId);
-
-  //   const order_book_detail = getOrderBookDetail(cfg);
-
-  //   /**
-  //    *   "Program log: Left:",
-  // "Program log: 9mh6ZAYvsjHBvirTvhmAn3n2rBob9KdJEq9BDC46cLaL",
-  // "Program log: Right:",
-  // "Program log: J1ZMFdUfSTUGYrnRNcNF3uTnYfLu1KGzWyPzpNgT15j5",
-  //    */
-  //   // console.log( settle_id.toArrayLike(Buffer, 'le', 8), token_0_mint.toBase58(), token_1_mint.toBase58() )
-
-  //   const [settle_pool] = PublicKey.findProgramAddressSync(
-  //     [
-  //       // Buffer.from("buymore_settle_pool_v1"),
-  //       SEEDS["SETTLE_POOL_SEED"],
-  //       settle_id.toArrayLike(Buffer, "le", 8),
-  //       // Buffer.from(settle_id),
-  //       // Buffer.from([255,255,255,255,255,255,255,255]),
-  //       token_0_mint.toBytes(),
-  //       token_1_mint.toBytes(),
-  //     ],
-  //     program.programId
-  //   );
-
-  //   //DUhdg6GumNwU1miBRTdf11WqvzuQhxoc98qkDrJHZaCD
-  //   console.log(`settle pool: `, settle_pool.toBase58());
-
-  //   const order_book_0 = order_book(order_book_detail, new BN(1), token_0_mint, token_1_mint);
-
-  //   const tx = new Transaction();
-
-  //   console.group("trade_in_v1");
-  //   console.log("order_book_authority", order_book_authority.toBase58());
-  //   console.log("token_0_pool_vault", token_0_pool_vault.toBase58());
-  //   console.log("token_1_pool_vault", token_1_pool_vault.toBase58());
-  //   console.log("settle_id", settle_id.toString());
-  //   console.log("in_amount", in_amount.toString());
-  //   console.log("out_amount", out_amount.toString());
-  //   console.log(
-  //     "trades",
-  //     trades.map((t) => `poolIndex: ${t.poolIndex.toString()} orderId: ${t.orderId.toString()}`)
-  //   );
-  //   console.groupEnd();
-
-  //   const ix = await program.methods
-  //     .proxySwapBaseInput(settle_id, in_amount, out_amount, trades)
-  //     .accounts({
-  //       cpSwapProgram: raydium_pubkey,
-  //       payer: wallet.publicKey!,
-  //       authority: POOL_AUTH_PUBKEY,
-  //       ammConfig,
-  //       poolState: pool_state,
-  //       inputTokenAccount: input_token_account,
-  //       outputTokenAccount: output_token_account,
-  //       inputVault: swap_input_vault,
-  //       outputVault: swap_output_vault,
-  //       inputTokenProgram: token_0_program,
-  //       outputTokenProgram: token_1_program,
-  //       inputTokenMint: token_0_mint,
-  //       outputTokenMint: token_1_mint,
-  //       observationState: swap_observation,
-  //       // buymore
-  //       orderBook0: order_book_0,
-  //       orderBook1: order_book_0, //not use
-  //       orderBookInputVault: token_0_pool_vault,
-  //       orderBookOutputVault: token_1_pool_vault,
-  //       orderBookDetail: order_book_detail,
-  //       orderBookAuthority: order_book_authority,
-  //       settlePool: settle_pool,
-  //     })
-  //     .instruction();
-
-  //   tx.add(ix);
-
-  //   const sig1 = await provider.sendAndConfirm(tx);
-  //   transactionToast(sig1);
-  //   console.log("Your transaction signature", sig1);
-  // }
-
   const make_pool_authority = (token_0_mint: PublicKey, token_1_mint: PublicKey) => {
     return PublicKey.findProgramAddressSync(
       [SEEDS["AUTHORITY_SEED"], token_0_mint.toBytes(), token_1_mint.toBytes()],
@@ -444,7 +302,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
   ) => {
     return PublicKey.findProgramAddressSync(
       [
-        Buffer.from("buymore_order_with_token_v1"),
+        Buffer.from(ORDER_BOOK_WITH_TOKEN_SEED),
         order_book_detail.toBytes(),
         new Uint8Array(pool_id.toArray("le", 8)),
         input_token_mint.toBytes(),
@@ -914,7 +772,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const swap_observation = new PublicKey(this.pool_state.cpmm.observationId);
       const [order_book_detail] = PublicKey.findProgramAddressSync(
         [
-          Buffer.from("buymore_order_detail_v1"),
+          Buffer.from(ORDER_BOOK_DETAIL_SEED),
           this.token_0_mint.toBytes(),
           this.token_1_mint.toBytes(),
         ],
@@ -1043,7 +901,6 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     initialize_pool,
     program,
     cancel_order,
-    // trade_in_v1,
     solToWsol,
     SwapInfo,
   };
