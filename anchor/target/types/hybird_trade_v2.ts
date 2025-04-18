@@ -5,7 +5,7 @@ export type HybirdTradeV2 = {
     {
       "name": "AUTHORITY_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 50]"
     },
     {
       "name": "MAX_ORDER_LIMIT",
@@ -15,27 +15,27 @@ export type HybirdTradeV2 = {
     {
       "name": "ORDER_BOOK_WITH_TOKEN_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 50]"
     },
     {
       "name": "ORDER_CONFIG_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 50]"
     },
     {
       "name": "ORDER_COUNTER_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 50]"
     },
     {
       "name": "SETTLE_POOL_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 50]"
     },
     {
       "name": "SOL_VAULT_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 50]"
     }
   ],
   "instructions": [
@@ -728,6 +728,10 @@ export type HybirdTradeV2 = {
             "type": "publicKey"
           },
           {
+            "name": "tokenProgram",
+            "type": "publicKey"
+          },
+          {
             "name": "count",
             "type": "u64"
           },
@@ -1233,6 +1237,11 @@ export type HybirdTradeV2 = {
           "index": false
         },
         {
+          "name": "orderBookDetail",
+          "type": "publicKey",
+          "index": false
+        },
+        {
           "name": "settlePubkey",
           "type": "publicKey",
           "index": false
@@ -1244,6 +1253,31 @@ export type HybirdTradeV2 = {
         },
         {
           "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "dexInAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "dexOutAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "orderInAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "orderOutAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "buyMoreAmount",
           "type": "u64",
           "index": false
         },
@@ -1354,7 +1388,7 @@ export type HybirdTradeV2 = {
     {
       "code": 6000,
       "name": "OrderQueueFull",
-      "msg": "Order queue fullA"
+      "msg": "Order queue full"
     },
     {
       "code": 6001,
@@ -1386,7 +1420,7 @@ export const IDL: HybirdTradeV2 = {
     {
       "name": "AUTHORITY_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 50]"
     },
     {
       "name": "MAX_ORDER_LIMIT",
@@ -1396,27 +1430,27 @@ export const IDL: HybirdTradeV2 = {
     {
       "name": "ORDER_BOOK_WITH_TOKEN_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 50]"
     },
     {
       "name": "ORDER_CONFIG_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 50]"
     },
     {
       "name": "ORDER_COUNTER_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 50]"
     },
     {
       "name": "SETTLE_POOL_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 50]"
     },
     {
       "name": "SOL_VAULT_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 49]"
+      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 50]"
     }
   ],
   "instructions": [
@@ -2109,6 +2143,10 @@ export const IDL: HybirdTradeV2 = {
             "type": "publicKey"
           },
           {
+            "name": "tokenProgram",
+            "type": "publicKey"
+          },
+          {
             "name": "count",
             "type": "u64"
           },
@@ -2614,6 +2652,11 @@ export const IDL: HybirdTradeV2 = {
           "index": false
         },
         {
+          "name": "orderBookDetail",
+          "type": "publicKey",
+          "index": false
+        },
+        {
           "name": "settlePubkey",
           "type": "publicKey",
           "index": false
@@ -2625,6 +2668,31 @@ export const IDL: HybirdTradeV2 = {
         },
         {
           "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "dexInAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "dexOutAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "orderInAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "orderOutAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "buyMoreAmount",
           "type": "u64",
           "index": false
         },
@@ -2735,7 +2803,7 @@ export const IDL: HybirdTradeV2 = {
     {
       "code": 6000,
       "name": "OrderQueueFull",
-      "msg": "Order queue fullA"
+      "msg": "Order queue full"
     },
     {
       "code": 6001,
