@@ -70,11 +70,15 @@ function getConfig() {
 }
 
 const devConfig = {
-  defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+  // defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+  defaultPool: "EQsVcoBFPeW3KtoenjKYY7zFhFmhooE2sdt5m3mKf8AK",
+  contractAddress: "kR2byBqUk8JHTWobckkmUVTafYaPgPT7QmbsMnCVZTY",
 };
 
 const mainnetConfig = {
-  defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+  // defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+  defaultPool: "EQsVcoBFPeW3KtoenjKYY7zFhFmhooE2sdt5m3mKf8AK",
+  contractAddress: "kR2byBqUk8JHTWobckkmUVTafYaPgPT7QmbsMnCVZTY",
 };
 
 const mergeConfig = getConfig();

@@ -4,6 +4,7 @@ import { Cluster, clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import HybirdTradeIDL from "../target/idl/hybird_trade_v2.json";
 import type { HybirdTradeV2 } from "../target/types/hybird_trade_v2";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import config from "@/config";
 
 // Import SOL address constant
 export const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
@@ -13,9 +14,9 @@ export { HybirdTradeV2, HybirdTradeIDL };
 
 // The programId is imported from the program IDL.
 // export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(HybirdTradeIDL.address);
-export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey("mRky6NNEuXwzVNecYRGjXRiK3Y992JMFE38gXiMhRVw");
+export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(config.contractAddress);
 
-const BUY_MORE_PROGRAM_ID = "mRky6NNEuXwzVNecYRGjXRiK3Y992JMFE38gXiMhRVw";
+const BUY_MORE_PROGRAM_ID = config.contractAddress;
 
 const BUYMORE_PROGRAM = new PublicKey(BUY_MORE_PROGRAM_ID);
 
@@ -28,7 +29,7 @@ export function getHybirdTradeProgram(provider: AnchorProvider) {
 export function getHybirdTradeProgramId(cluster: Cluster) {
   switch (cluster) {
     case WalletAdapterNetwork.Devnet:
-      return new PublicKey("mRky6NNEuXwzVNecYRGjXRiK3Y992JMFE38gXiMhRVw");
+      return new PublicKey(config.contractAddress);
     case WalletAdapterNetwork.Testnet:
     case WalletAdapterNetwork.Mainnet:
     default:
