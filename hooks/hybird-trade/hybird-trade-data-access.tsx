@@ -9,6 +9,7 @@ import {
   Signer,
   Connection,
   TokenAmount,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import { useMemo } from "react";
 
@@ -163,10 +164,24 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     return associatedTokenAccount;
   };
 
-  async function wrap_sol(amount: BN) {
+  async function wrap_sol(amount: BN): Promise<TransactionInstruction[]> {
     const wsol_account = getNativeTokenAccount();
 
-    // console.log("🚀 ~ wrap_sol ~ wsol_account:", wsol_account.toBase58());
+    const wsol_account_info = await program.provider.connection.getAccountInfo(wsol_account);
+
+    const ixs: TransactionInstruction[] = [];
+
+    if (!wsol_account_info) {
+      console.log("WSOL account not found, will attempt to create.");
+      ixs.push(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey!,
+          wsol_account,
+          wallet.publicKey!,
+          NATIVE_MINT
+        )
+      );
+    }
 
     const ix = await program.methods
       .wrapSol(amount)
@@ -179,7 +194,9 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       })
       .instruction();
 
-    return ix;
+    ixs.push(ix);
+
+    return ixs;
   }
 
   async function unwrap_sol() {
@@ -423,8 +440,10 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     const isNativeMint = input_token_mint.equals(NATIVE_MINT);
 
     if (isNativeMint) {
-      const ix = await wrap_sol(in_amount);
-      tx.add(ix);
+      const ixs = await wrap_sol(in_amount);
+      ixs.forEach((ix) => {
+        tx.add(ix);
+      });
     }
 
     const ix = await program.methods
@@ -848,8 +867,8 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const isNativeMint = this.input_token_mint.equals(NATIVE_MINT);
 
       if (isNativeMint) {
-        const ix = await wrap_sol(input_amount);
-        tx.add(ix);
+        const ixs = await wrap_sol(input_amount);
+        tx.add(...ixs);
       }
 
       // debugger;
