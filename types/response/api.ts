@@ -79,23 +79,53 @@ export interface IResponseActivityList extends IResponseCommonList<IActivityItem
   };
 }
 
+// interface IActivityItem {
+//   amount: string;
+//   buymore: {
+//     address: string;
+//     amount: string;
+//     coin_name: string;
+//     symbol: string;
+//   };
+//   marker: string;
+//   routing: {
+//     dec: number;
+//     order: number;
+//   };
+//   time: number;
+//   tx: string;
+//   type: "sell" | "buy";
+//   usd: string;
+// }
 interface IActivityItem {
-  amount: string;
-  buymore: {
-    address: string;
+  time: number;
+  from_amount: {
     amount: string;
-    coin_name: string;
+    name: string;
+    address: string;
     symbol: string;
+    decimal: number;
   };
-  marker: string;
+  to_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
+  };
   routing: {
     dec: number;
     order: number;
   };
-  time: number;
+  buymore_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
+  };
+  marker: string;
   tx: string;
-  type: "sell" | "buy";
-  usd: string;
 }
 
 interface ITradeHistoryItem {

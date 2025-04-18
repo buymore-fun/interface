@@ -97,15 +97,19 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
-              {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "}
-              ${item.input_token_symbol || defaultSymbol}
+            <span className="text-muted-foreground">
+              {Decimal(item.from_amount.amount)
+                .div(new Decimal(10).pow(item.from_amount.decimal))
+                .toString()}{" "}
+              ${item.from_amount.symbol}
             </span>
           </div>
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
-              {/* {Decimal(item.amount).div(new Decimal(10).pow(item.output_token_decimal)).toString()}{" "} */}
-              {"--"}${item.input_token_symbol || defaultSymbol}
+            <span className="text-muted-foreground">
+              {Decimal(item.to_amount.amount)
+                .div(new Decimal(10).pow(item.to_amount.decimal))
+                .toString()}{" "}
+              ${item.to_amount.symbol}
             </span>
           </div>
           <div className="col-span-2 flex flex-col">
@@ -114,11 +118,12 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
             </span>
           </div>
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
-              {Decimal(item.buymore.amount)
-                .div(new Decimal(10).pow(item.output_token_decimal))
+            {/* className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")} */}
+            <span className="text-muted-foreground">
+              {Decimal(item.buymore_amount.amount)
+                .div(new Decimal(10).pow(item.buymore_amount.decimal))
                 .toString()}{" "}
-              ${item.input_token_symbol || defaultSymbol}
+              ${item.buymore_amount.symbol}
             </span>
           </div>
 
