@@ -98,18 +98,12 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {Decimal(item.from_amount.amount)
-                .div(new Decimal(10).pow(item.from_amount.decimal))
-                .toString()}{" "}
-              ${item.from_amount.symbol}
+              {item.from_amount.amount} ${item.from_amount.symbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {Decimal(item.to_amount.amount)
-                .div(new Decimal(10).pow(item.to_amount.decimal))
-                .toString()}{" "}
-              ${item.to_amount.symbol}
+              {item.to_amount.amount} ${item.to_amount.symbol}
             </span>
           </div>
           <div className="col-span-2 flex flex-col">
@@ -120,10 +114,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           <div className="col-span-2">
             {/* className={''} */}
             <span className="text-muted-foreground  text-wrap break-words">
-              {Decimal(item.buymore_amount.amount)
-                .div(new Decimal(10).pow(item.buymore_amount.decimal))
-                .toString()}{" "}
-              ${item.buymore_amount.symbol}
+              {item.buymore_amount.amount} ${item.buymore_amount.symbol}
             </span>
           </div>
 
@@ -221,26 +212,17 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {Decimal(item.from_amount.amount)
-                .div(new Decimal(10).pow(item.from_amount.decimal))
-                .toString()}{" "}
-              ${item.from_amount.symbol || defaultSymbol}
+              {item.from_amount.amount} ${item.from_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground  text-wrap break-words"}>
-              {Decimal(item.to_amount.amount)
-                .div(new Decimal(10).pow(item.to_amount.decimal))
-                .toString()}{" "}
-              ${item.to_amount.symbol || defaultSymbol}
+              {item.to_amount.amount} ${item.to_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground  text-wrap break-words"}>
-              {Decimal(item.receive_amount.amount)
-                .div(new Decimal(10).pow(item.receive_amount.decimal))
-                .toString()}
-              ${item.receive_amount.symbol || defaultSymbol}
+              {item.receive_amount.amount}${item.receive_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -313,19 +295,13 @@ export const HistoryList = ({
 
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {Decimal(item.from_amount.amount)
-                .div(new Decimal(10).pow(item.from_amount.decimal))
-                .toString()}{" "}
-              ${item.from_amount.symbol || defaultSymbol}
+              {item.from_amount.amount} ${item.from_amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* amount */}
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {Decimal(item.to_amount.amount)
-                .div(new Decimal(10).pow(item.to_amount.decimal))
-                .toString()}{" "}
-              ${item.to_amount.symbol || defaultSymbol}
+              {item.to_amount.amount} ${item.to_amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* price */}
@@ -343,9 +319,7 @@ export const HistoryList = ({
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
               {item.buymore_amount.amount
-                ? `${Decimal(item.buymore_amount.amount)
-                    .div(new Decimal(10).pow(item.buymore_amount.decimal))
-                    .toString()} 
+                ? `${item.buymore_amount.amount} 
                 $${item.buymore_amount.symbol || defaultSymbol}`
                 : "-"}
             </span>
