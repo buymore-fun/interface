@@ -214,7 +214,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       .mul(new Decimal(percent))
       .div(new Decimal(100))
       .div(new Decimal(10).pow(mintDecimalA!))
-      .toString();
+      .toFixed(mintDecimalA!);
     setOrderTokenAAmount(calculatedAmount);
     console.log("🚀 ~ onPercentButtonClick ~ calculatedAmount:", calculatedAmount);
     handleQuery(calculatedAmount);

@@ -37,6 +37,7 @@ export function OrderTab() {
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const [orderPrice, setOrderPrice] = useState<string>("");
   const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
+  const [isHovered, setIsHovered] = useState(false);
 
   const submitOrderLoading = useBoolean(false);
 
@@ -238,7 +239,7 @@ export function OrderTab() {
     <div className="p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="text-sm text-muted-foreground">
-          Order type: {isBuy ? "Buying" : "Selling"}
+          {/* Order type: {isBuy ? "Buying" : "Selling"} */}
         </div>
         <div className="text-sm text-muted-foreground flex items-center gap-1 ">
           <Image src={WalletIcon} alt="Wallet" />
@@ -365,9 +366,15 @@ export function OrderTab() {
             onClick={() => {
               toggleOrderType();
             }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             className="flex items-center justify-center"
           >
-            <Icon name="switch-v2" className="text-primary" />
+            {isHovered ? (
+              <Icon name="switch-v2" className="text-primary w-6 h-6" />
+            ) : (
+              <Icon name="arrow-right" className="text-primary w-6 h-6" />
+            )}
           </Button>
 
           <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">

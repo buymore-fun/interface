@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 interface IconProps {
-  name: "switch" | "refresh" | "switch-v2";
+  name: "switch" | "refresh" | "switch-v2" | "arrow-right";
   className?: string;
 }
 
@@ -88,6 +88,56 @@ export function Icon({ name, className }: IconProps) {
                 mode="normal"
                 in="SourceGraphic"
                 in2="effect1_dropShadow_845_407"
+                result="shape"
+              />
+            </filter>
+          </defs>
+        </svg>
+      );
+    case "arrow-right":
+      return (
+        <svg
+          width="30"
+          height="20"
+          viewBox="0 0 30 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g filter="url(#filter0_d_836_3)">
+            <path
+              d="M25 6H5M25 6L20.3846 1M25 6L20.3846 11"
+              stroke="#26878D"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              shape-rendering="crispEdges"
+            />
+          </g>
+          <defs>
+            <filter
+              id="filter0_d_836_3"
+              x="0.5"
+              y="0.5"
+              width="29"
+              height="19"
+              filterUnits="userSpaceOnUse"
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset dy="4" />
+              <feGaussianBlur stdDeviation="2" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_836_3" />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="effect1_dropShadow_836_3"
                 result="shape"
               />
             </filter>
