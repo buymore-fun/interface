@@ -328,7 +328,15 @@ export function OrderTab() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-3  gap-2">
+        <div className="flex items-center gap-2 pt-3 ">
+          <div className="flex items-center  w-[220px] px-2">
+            <div className="text-sm ">From</div>
+          </div>
+          <div className="flex items-center w-[180px] px-2">
+            <div className="text-sm ">To</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-between pb-3 pt-1 gap-2">
           <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">
             {tokenA ? (
               <Button variant="ghost" className="px-0">
@@ -357,8 +365,9 @@ export function OrderTab() {
             onClick={() => {
               toggleOrderType();
             }}
+            className="flex items-center justify-center"
           >
-            <Icon name="switch" className="text-primary" />
+            <Icon name="switch-v2" className="text-primary" />
           </Button>
 
           <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">

@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 interface IconProps {
-  name: "switch" | "refresh";
+  name: "switch" | "refresh" | "switch-v2";
   className?: string;
 }
 
@@ -42,6 +42,56 @@ export function Icon({ name, className }: IconProps) {
             d="M13.7452 3.73927C13.5008 3.65108 13.2311 3.77959 13.1455 4.024L12.7826 5.04198C12.3568 4.08196 11.684 3.23785 10.8273 2.60539C8.10348 0.589602 4.22308 1.1389 2.18209 3.83502C1.19436 5.14025 0.776081 6.74784 1.0079 8.36047C1.23971 9.98067 2.09894 11.4144 3.42181 12.3946C4.53049 13.2135 5.82816 13.6116 7.11574 13.6116C8.99799 13.6116 10.855 12.7675 12.067 11.1675C12.6037 10.4594 12.9691 9.66822 13.1581 8.81151C13.2135 8.55701 13.0522 8.30756 12.8003 8.25212C12.5483 8.19669 12.2963 8.35543 12.2409 8.60993C12.0821 9.33309 11.7722 10.0033 11.3187 10.6005C9.5876 12.8859 6.29431 13.3521 3.98119 11.6387C2.8599 10.8097 2.13422 9.59766 1.93768 8.22693C1.74114 6.86375 2.0939 5.50561 2.93046 4.40197C4.659 2.11656 7.94977 1.64789 10.2654 3.36131C11.1045 3.98117 11.7319 4.8404 12.0721 5.8105L10.4569 5.18056C10.215 5.08733 9.94289 5.20576 9.84714 5.44766C9.75139 5.68955 9.87233 5.96168 10.1142 6.05743L12.4929 6.98722C12.5483 7.00989 12.6063 7.01997 12.6642 7.01997C12.6718 7.01997 12.6793 7.01745 12.6869 7.01745C12.7045 7.01997 12.7222 7.02753 12.7398 7.02753C12.9338 7.02753 13.1152 6.90658 13.1833 6.71508L14.0299 4.34653C14.1156 4.09708 13.9896 3.82747 13.7452 3.73927Z"
             fill="#26878D"
           />
+        </svg>
+      );
+    case "switch-v2":
+      return (
+        <svg
+          width="30"
+          height="20"
+          viewBox="0 0 30 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g filter="url(#filter0_d_845_407)">
+            <path
+              d="M25 6H5M25 6L21.25 1M25 6L21.25 11M5 6L8.75 1M5 6L8.75 11"
+              stroke="#26878D"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              shapeRendering="crispEdges"
+            />
+          </g>
+          <defs>
+            <filter
+              id="filter0_d_845_407"
+              x="0.5"
+              y="0.5"
+              width="29"
+              height="19"
+              filterUnits="userSpaceOnUse"
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset dy="4" />
+              <feGaussianBlur stdDeviation="2" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_845_407" />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="effect1_dropShadow_845_407"
+                result="shape"
+              />
+            </filter>
+          </defs>
         </svg>
       );
     default:

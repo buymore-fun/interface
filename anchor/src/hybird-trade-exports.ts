@@ -14,9 +14,9 @@ export { HybirdTradeV2, HybirdTradeIDL };
 
 // The programId is imported from the program IDL.
 // export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(HybirdTradeIDL.address);
-export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(config.contractAddress);
+export const HYBIRD_TRADE_PROGRAM_ID = new PublicKey(config.programId);
 
-const BUY_MORE_PROGRAM_ID = config.contractAddress;
+const BUY_MORE_PROGRAM_ID = config.programId;
 
 const BUYMORE_PROGRAM = new PublicKey(BUY_MORE_PROGRAM_ID);
 
@@ -29,7 +29,7 @@ export function getHybirdTradeProgram(provider: AnchorProvider) {
 export function getHybirdTradeProgramId(cluster: Cluster) {
   switch (cluster) {
     case WalletAdapterNetwork.Devnet:
-      return new PublicKey(config.contractAddress);
+      return new PublicKey(config.programId);
     case WalletAdapterNetwork.Testnet:
     case WalletAdapterNetwork.Mainnet:
     default:

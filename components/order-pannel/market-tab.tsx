@@ -453,7 +453,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     <div className="p-4">
       <div className="p-4 rounded-t-lg bg-accent border border-primary shadow-md shadow-primary/20">
         <div className="flex items-center justify-between h-6">
-          <span className="text-sm">Selling</span>
+          <span>From</span>
           {formatedTokenABalance !== undefined ? (
             <div className="flex space-x-2 items-center">
               <div className="flex items-center space-x-1">
@@ -525,7 +525,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       </div>
       <div className="py-4 rounded-b-lg z-100 relative bg-[#2E3C4E]/80">
         <div className="px-4 flex items-center justify-between h-6 ">
-          <span className="text-sm">Buying</span>
+          <span>To</span>
           {formatedTokenBBalance !== undefined ? (
             <div className="flex items-center space-x-1 ">
               <Wallet className="text-muted-foreground size-3" />
