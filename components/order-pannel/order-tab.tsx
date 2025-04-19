@@ -153,6 +153,15 @@ export function OrderTab() {
     setOrderTokenAAmount("");
   };
 
+  const cleanInput = () => {
+    setOrderTokenAAmount("");
+    setOrderTokenBAmount("");
+    if (raydiumPoolInfo?.poolInfo) {
+      const price = getCurrentPrice(raydiumPoolInfo, !isBuy);
+      setOrderPrice(price.toString());
+    }
+  };
+
   const refreshTokenPrice = () => {
     if (isRaydiumLoading) return;
     fetchRaydiumPoolInfo(servicePoolInfo!.cpmm.poolId);
@@ -228,6 +237,7 @@ export function OrderTab() {
       console.error("Error preparing pool ID:", error);
     } finally {
       submitOrderLoading.setFalse();
+      cleanInput();
     }
   };
 

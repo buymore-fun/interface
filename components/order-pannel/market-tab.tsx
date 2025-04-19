@@ -182,8 +182,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   //   formatedTokenABalance
   // );
 
-  const toggleToken = () => {
-    setIsReverse((reverse) => !reverse);
+  const cleanInput = () => {
     setOrderTokenAAmount("");
     setOrderTokenBAmount("");
     setRouting({
@@ -195,6 +194,11 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       maxReceive: "",
       fee: "",
     });
+  };
+
+  const toggleToken = () => {
+    setIsReverse((reverse) => !reverse);
+    cleanInput();
   };
 
   const onPercentButtonClick = (percent: number) => {
@@ -440,6 +444,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       console.log("🚀 ~ handleBuy ~ error:", error);
     } finally {
       isSubmitting.off();
+      cleanInput();
     }
   };
 

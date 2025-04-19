@@ -97,7 +97,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
           <div className="col-span-2">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {Decimal(item.from_amount.amount)
                 .div(new Decimal(10).pow(item.from_amount.decimal))
                 .toString()}{" "}
@@ -105,7 +105,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
             </span>
           </div>
           <div className="col-span-2">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {Decimal(item.to_amount.amount)
                 .div(new Decimal(10).pow(item.to_amount.decimal))
                 .toString()}{" "}
@@ -119,7 +119,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           </div>
           <div className="col-span-2">
             {/* className={''} */}
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {Decimal(item.buymore_amount.amount)
                 .div(new Decimal(10).pow(item.buymore_amount.decimal))
                 .toString()}{" "}
@@ -202,7 +202,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white gap-1">
         <div className="col-span-2">Time</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
@@ -212,12 +212,15 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         <div className="col-span-1"></div>
       </div>
       {myOrderList?.map((item, index) => (
-        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t" key={index}>
+        <div
+          className="grid grid-cols-12 text-sm px-3 py-2 border-t gap-1 items-center"
+          key={index}
+        >
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
           <div className="col-span-2">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {Decimal(item.from_amount.amount)
                 .div(new Decimal(10).pow(item.from_amount.decimal))
                 .toString()}{" "}
@@ -225,7 +228,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
             </span>
           </div>
           <div className="col-span-2">
-            <span className={"text-muted-foreground"}>
+            <span className={"text-muted-foreground  text-wrap break-words"}>
               {Decimal(item.to_amount.amount)
                 .div(new Decimal(10).pow(item.to_amount.decimal))
                 .toString()}{" "}
@@ -233,7 +236,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
             </span>
           </div>
           <div className="col-span-2">
-            <span className={"text-muted-foreground"}>
+            <span className={"text-muted-foreground  text-wrap break-words"}>
               {Decimal(item.receive_amount.amount)
                 .div(new Decimal(10).pow(item.receive_amount.decimal))
                 .toString()}
@@ -289,7 +292,7 @@ export const HistoryList = ({
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white gap-1">
         <div className="col-span-2">Time</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
@@ -299,14 +302,17 @@ export const HistoryList = ({
         <div className="col-span-2">TXN</div>
       </div>
       {tradeHistoryList?.map((item, index) => (
-        <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>
+        <div
+          className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center gap-1"
+          key={index}
+        >
           {/* time  */}
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
 
           <div className="col-span-2">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {Decimal(item.from_amount.amount)
                 .div(new Decimal(10).pow(item.from_amount.decimal))
                 .toString()}{" "}
@@ -315,7 +321,7 @@ export const HistoryList = ({
           </div>
           {/* amount */}
           <div className="col-span-2">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {Decimal(item.to_amount.amount)
                 .div(new Decimal(10).pow(item.to_amount.decimal))
                 .toString()}{" "}
@@ -335,7 +341,7 @@ export const HistoryList = ({
           </div> */}
           {/* buymore */}
           <div className="col-span-2">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground  text-wrap break-words">
               {item.buymore_amount.amount
                 ? `${Decimal(item.buymore_amount.amount)
                     .div(new Decimal(10).pow(item.buymore_amount.decimal))
