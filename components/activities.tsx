@@ -208,7 +208,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         <div className="col-span-2">To</div>
         <div className="col-span-2">Receive</div>
         <div className="col-span-2">Price</div>
-        <div className="col-span-1">Txn</div>
+        <div className="col-span-1">TXN</div>
         <div className="col-span-1"></div>
       </div>
       {myOrderList?.map((item, index) => (
@@ -296,7 +296,7 @@ export const HistoryList = ({
         <div className="col-span-2">Price</div>
         {/* <div className="col-span-2">Routing</div> */}
         <div className="col-span-2">Buymore</div>
-        <div className="col-span-2">Txn</div>
+        <div className="col-span-2">TXN</div>
       </div>
       {tradeHistoryList?.map((item, index) => (
         <div className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center" key={index}>

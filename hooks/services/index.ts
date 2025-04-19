@@ -60,16 +60,21 @@ export function useMyOrderList(params: {
   address: string;
 }) {
   const { data, error, isLoading, mutate } = useSWR(
-    `/my-order/list`,
+    params.address ? `/my-order/list` : null,
     async (url: string) => {
       const response = await axiosInstance.get(url, {
         params,
       });
+      console.log("SWR fetching my orders:", response.data.data);
       return response.data.data as IResponseMyOrderList;
     },
     {
-      revalidateOnMount: false,
-      refreshInterval: 3000,
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
+      refreshInterval: 5000, // 更频繁地检查更新
+      dedupingInterval: 1000, // 降低去重间隔，使得更容易触发重新获取
+      shouldRetryOnError: true,
+      errorRetryCount: 3,
     }
   );
 

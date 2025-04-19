@@ -27,43 +27,33 @@ export function useActivities(inputMint: string, outputMint: string) {
   const [totalPage, setTotalPage] = useAtom(totalPageAtom);
   const isFetchingRef = useRef(false);
 
-  const { mutate: fetchActivityList } = useActivityList({
+  const { data, error, isLoading, mutate } = useActivityList({
     input_token: inputMint,
     output_token: outputMint,
   });
 
-  const fetchActivities = useCallback(async () => {
-    // Prevent duplicate API calls
-    if (isFetchingRef.current) return;
-
-    isFetchingRef.current = true;
-    setIsActivityListLoading(true);
-    setActivityListError(null);
-
-    try {
-      const activities = await fetchActivityList();
-      setActivityList(activities?.items || []);
-      setTotalPage(activities?.total_page || 0);
-    } catch (err) {
-      console.error("Error fetching activity list:", err);
-      setActivityListError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsActivityListLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [
-    fetchActivityList,
-    setActivityList,
-    setIsActivityListLoading,
-    setActivityListError,
-    setTotalPage,
-  ]);
-
-  // Call only once on initialization
   useEffect(() => {
-    fetchActivities();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (data) {
+      setActivityList(data.items || []);
+      setTotalPage(data.total_page || 0);
+    }
+  }, [data, setActivityList, setTotalPage]);
+
+  useEffect(() => {
+    setIsActivityListLoading(isLoading);
+  }, [isLoading, setIsActivityListLoading]);
+
+  useEffect(() => {
+    if (error) {
+      setActivityListError(error instanceof Error ? error : new Error(String(error)));
+    } else {
+      setActivityListError(null);
+    }
+  }, [error, setActivityListError]);
+
+  const fetchActivities = useCallback(() => {
+    return mutate();
+  }, [mutate]);
 
   return {
     activityList,
@@ -79,49 +69,43 @@ export function useMyOrders(inputMint: string, outputMint: string) {
   const [isMyOrderListLoading, setIsMyOrderListLoading] = useAtom(myOrderListLoadingAtom);
   const [myOrderListError, setMyOrderListError] = useAtom(myOrderListErrorAtom);
   const [myOrderTotalPage, setMyOrderTotalPage] = useAtom(myOrderTotalPageAtom);
-  const isFetchingRef = useRef(false);
 
-  const { mutate: fetchMyOrderList } = useMyOrderList({
+  const { data, error, isLoading, mutate } = useMyOrderList({
     input_token: inputMint,
     output_token: outputMint,
     address: publicKey?.toBase58() || "",
   });
 
-  const fetchMyOrders = useCallback(async () => {
-    if (!publicKey || isFetchingRef.current) return;
-
-    isFetchingRef.current = true;
-    setIsMyOrderListLoading(true);
-    setMyOrderListError(null);
-
-    try {
-      const orders = await fetchMyOrderList();
-      console.log("🚀 ~ fetchMyOrders ~ orders:", orders);
-      setMyOrderList(orders?.items || []);
-      setMyOrderTotalPage(orders?.total_page || 0);
-    } catch (err) {
-      console.error("Error fetching my order list:", err);
-      setMyOrderListError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsMyOrderListLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [
-    publicKey,
-    fetchMyOrderList,
-    setMyOrderList,
-    setIsMyOrderListLoading,
-    setMyOrderListError,
-    setMyOrderTotalPage,
-  ]);
-
-  // Call only once on initialization
   useEffect(() => {
-    if (publicKey) {
-      fetchMyOrders();
+    if (data) {
+      console.log("🚀 ~ useMyOrders ~ SWR data updated:", data);
+      setMyOrderList(data.items || []);
+      setMyOrderTotalPage(data.total_page || 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicKey]);
+  }, [data, setMyOrderList, setMyOrderTotalPage]);
+
+  useEffect(() => {
+    setIsMyOrderListLoading(isLoading);
+  }, [isLoading, setIsMyOrderListLoading]);
+
+  useEffect(() => {
+    if (error) {
+      setMyOrderListError(error instanceof Error ? error : new Error(String(error)));
+    } else {
+      setMyOrderListError(null);
+    }
+  }, [error, setMyOrderListError]);
+
+  const fetchMyOrders = useCallback(
+    (shouldRevalidate: boolean = false) => {
+      console.log(
+        "🚀 ~ fetchMyOrders ~ triggering SWR revalidation",
+        shouldRevalidate ? "(forced)" : ""
+      );
+      return mutate(undefined, { revalidate: true });
+    },
+    [mutate]
+  );
 
   return {
     myOrderList,
@@ -139,48 +123,35 @@ export function useTradeHistory(inputMint: string, outputMint: string) {
   );
   const [tradeHistoryListError, setTradeHistoryListError] = useAtom(tradeHistoryListErrorAtom);
   const [tradeHistoryTotalPage, setTradeHistoryTotalPage] = useAtom(tradeHistoryTotalPageAtom);
-  const isFetchingRef = useRef(false);
 
-  const { mutate: fetchTradeHistoryList } = useTradeHistoryList({
+  const { data, error, isLoading, mutate } = useTradeHistoryList({
     input_token: inputMint,
     output_token: outputMint,
     address: publicKey?.toBase58() || "",
   });
 
-  const fetchTradeHistory = useCallback(async () => {
-    if (!publicKey || isFetchingRef.current) return;
-
-    isFetchingRef.current = true;
-    setIsTradeHistoryListLoading(true);
-    setTradeHistoryListError(null);
-
-    try {
-      const history = await fetchTradeHistoryList();
-      setTradeHistoryList(history?.items || []);
-      setTradeHistoryTotalPage(history?.total_page || 0);
-    } catch (err) {
-      console.error("Error fetching trade history list:", err);
-      setTradeHistoryListError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsTradeHistoryListLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [
-    publicKey,
-    fetchTradeHistoryList,
-    setTradeHistoryList,
-    setIsTradeHistoryListLoading,
-    setTradeHistoryListError,
-    setTradeHistoryTotalPage,
-  ]);
-
-  // Call only once on initialization
   useEffect(() => {
-    if (publicKey) {
-      fetchTradeHistory();
+    if (data) {
+      setTradeHistoryList(data.items || []);
+      setTradeHistoryTotalPage(data.total_page || 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicKey]);
+  }, [data, setTradeHistoryList, setTradeHistoryTotalPage]);
+
+  useEffect(() => {
+    setIsTradeHistoryListLoading(isLoading);
+  }, [isLoading, setIsTradeHistoryListLoading]);
+
+  useEffect(() => {
+    if (error) {
+      setTradeHistoryListError(error instanceof Error ? error : new Error(String(error)));
+    } else {
+      setTradeHistoryListError(null);
+    }
+  }, [error, setTradeHistoryListError]);
+
+  const fetchTradeHistory = useCallback(() => {
+    return mutate();
+  }, [mutate]);
 
   return {
     tradeHistoryList,
