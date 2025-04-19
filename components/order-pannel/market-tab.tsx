@@ -452,6 +452,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     const amount = e.target.value;
     setOrderTokenAAmount(amount);
     handleQuery(amount);
+    if (amount === "") {
+      cleanInput();
+    }
   };
 
   return (

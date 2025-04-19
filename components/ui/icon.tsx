@@ -107,9 +107,9 @@ export function Icon({ name, className }: IconProps) {
             <path
               d="M25 6H5M25 6L20.3846 1M25 6L20.3846 11"
               stroke="#26878D"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              shape-rendering="crispEdges"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              shapeRendering="crispEdges"
             />
           </g>
           <defs>
