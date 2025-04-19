@@ -79,24 +79,6 @@ export interface IResponseActivityList extends IResponseCommonList<IActivityItem
   };
 }
 
-// interface IActivityItem {
-//   amount: string;
-//   buymore: {
-//     address: string;
-//     amount: string;
-//     coin_name: string;
-//     symbol: string;
-//   };
-//   marker: string;
-//   routing: {
-//     dec: number;
-//     order: number;
-//   };
-//   time: number;
-//   tx: string;
-//   type: "sell" | "buy";
-//   usd: string;
-// }
 interface IActivityItem {
   time: number;
   from_amount: {
@@ -129,33 +111,34 @@ interface IActivityItem {
 }
 
 interface ITradeHistoryItem {
-  amount: {
-    buy: string;
-    coin_name: string;
-    sell: string;
-    symbol: string;
-  };
-  buymore: {
-    address: string;
+  time: number;
+  from_amount: {
     amount: string;
-    coin_name: string;
+    name: string;
+    address: string;
     symbol: string;
+    decimal: number;
   };
-  marker: string;
+  to_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
+  };
   routing: {
     dec: number;
     order: number;
   };
-  time: number;
-  tx: string;
-  type: "sell" | "buy";
-  usd: string;
-  from: string;
-  receive: {
+  buymore_amount: {
     amount: string;
-    coin_name: string;
+    name: string;
+    address: string;
     symbol: string;
+    decimal: number;
   };
+  marker: string;
+  tx: string;
 }
 
 export interface IResponseTradeHistoryList extends IResponseCommonList<ITradeHistoryItem> {
@@ -187,30 +170,33 @@ export interface IOrderbookDepthItem {
 // }
 
 export interface IMyOrderItem {
-  amount: {
-    coin_name: string;
-    coin_token: string;
-    used_order_amount: string;
-    place_order_amount: string;
+  time: number;
+  from_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
+  };
+  to_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
+  };
+  receive_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
   };
   price: string;
-  receive: {
-    amount: string;
-    coin_name: string;
-    coin_token: string;
-    symbol: string;
-  };
-  time: number;
   tx: string;
-  type: "sell" | "buy";
-  usd: string;
-  id?: string;
-  symbol?: string;
   order_id: number;
   pool_pubkey: string;
   pool_id: number;
-  input_token_decimal: number;
-  output_token_decimal: number;
 }
 
 export interface IResponseMyOrderList extends IResponseCommonList<IMyOrderItem> {

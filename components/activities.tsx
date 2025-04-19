@@ -118,7 +118,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
             </span>
           </div>
           <div className="col-span-2">
-            {/* className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")} */}
+            {/* className={''} */}
             <span className="text-muted-foreground">
               {Decimal(item.buymore_amount.amount)
                 .div(new Decimal(10).pow(item.buymore_amount.decimal))
@@ -167,15 +167,15 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
       setCancelTx(item.tx);
 
       const poolInfoResponse = await getCpmmPoolFetchOne({
-        mint_a: item.amount.coin_token,
-        mint_b: item.receive.coin_token,
+        mint_a: item.from_amount.address,
+        mint_b: item.to_amount.address,
       });
 
       if (!poolInfoResponse) {
         throw new Error("Failed to fetch pool info");
       }
 
-      await fetchCancelPoolInfo(item.amount.coin_token, item.receive.coin_token);
+      await fetchCancelPoolInfo(item.from_amount.address, item.to_amount.address);
 
       console.log("🚀 ~ handleCancelOrder ~ item:", item);
       console.log("🚀 ~ handleCancelOrder ~ poolInfo:", poolInfoResponse);
@@ -183,13 +183,13 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         "🚀 ~ handleCancelOrder ~ ",
         new BN(item.pool_id),
         new BN(item.order_id),
-        item.amount.coin_token
+        item.from_amount.address
       );
 
       await hybirdTradeProgram.cancel_order(
         new BN(item.pool_id),
         new BN(item.order_id),
-        item.amount.coin_token,
+        item.from_amount.address,
         poolInfoResponse
       );
     } catch (error: any) {
@@ -217,27 +217,27 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
-              {Decimal(item.amount.place_order_amount)
-                .div(new Decimal(10).pow(item.input_token_decimal))
+            <span className="text-muted-foreground">
+              {Decimal(item.from_amount.amount)
+                .div(new Decimal(10).pow(item.from_amount.decimal))
                 .toString()}{" "}
-              ${item.amount.symbol || defaultSymbol}
+              ${item.from_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground"}>
-              {Decimal(item.amount.used_order_amount)
-                .div(new Decimal(10).pow(item.input_token_decimal))
+              {Decimal(item.to_amount.amount)
+                .div(new Decimal(10).pow(item.to_amount.decimal))
                 .toString()}{" "}
-              ${item.receive.symbol || defaultSymbol}
+              ${item.to_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground"}>
-              {Decimal(item.receive.amount)
-                .div(new Decimal(10).pow(item.output_token_decimal))
+              {Decimal(item.receive_amount.amount)
+                .div(new Decimal(10).pow(item.receive_amount.decimal))
                 .toString()}
-              ${item.receive.symbol || defaultSymbol}
+              ${item.receive_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -304,22 +304,22 @@ export const HistoryList = ({
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
           </div>
-          {/* type */}
+
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#D8697E]" : "text-[#9ad499]")}>
-              {Decimal(item.amount.amount)
-                .div(new Decimal(10).pow(item.input_token_decimal))
+            <span className="text-muted-foreground">
+              {Decimal(item.from_amount.amount)
+                .div(new Decimal(10).pow(item.from_amount.decimal))
                 .toString()}{" "}
-              ${item.amount.symbol || defaultSymbol}
+              ${item.from_amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* amount */}
           <div className="col-span-2">
-            <span className={cn(item.type === "sell" ? "text-[#9ad499]" : "text-[#D8697E]")}>
-              {Decimal(item.receive.amount)
-                .div(new Decimal(10).pow(item.output_token_decimal))
+            <span className="text-muted-foreground">
+              {Decimal(item.to_amount.amount)
+                .div(new Decimal(10).pow(item.to_amount.decimal))
                 .toString()}{" "}
-              ${item.receive.symbol || defaultSymbol}
+              ${item.to_amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* price */}
@@ -336,11 +336,11 @@ export const HistoryList = ({
           {/* buymore */}
           <div className="col-span-2">
             <span className="text-muted-foreground">
-              {item.buymore.amount
-                ? `${Decimal(item.buymore.amount)
-                    .div(new Decimal(10).pow(item.output_token_decimal))
+              {item.buymore_amount.amount
+                ? `${Decimal(item.buymore_amount.amount)
+                    .div(new Decimal(10).pow(item.buymore_amount.decimal))
                     .toString()} 
-                $${item.buymore.symbol || defaultSymbol}`
+                $${item.buymore_amount.symbol || defaultSymbol}`
                 : "-"}
             </span>
           </div>
