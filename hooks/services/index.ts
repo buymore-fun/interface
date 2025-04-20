@@ -39,7 +39,7 @@ export function useActivityList(params: { input_token: string; output_token: str
       return response.data?.data as IResponseActivityList;
     },
     {
-      revalidateOnMount: false,
+      revalidateOnMount: true,
       refreshInterval: 3000,
     }
   );
@@ -69,12 +69,8 @@ export function useMyOrderList(params: {
       return response.data.data as IResponseMyOrderList;
     },
     {
-      revalidateOnFocus: true,
       revalidateOnMount: true,
-      refreshInterval: 5000, // 更频繁地检查更新
-      dedupingInterval: 1000, // 降低去重间隔，使得更容易触发重新获取
-      shouldRetryOnError: true,
-      errorRetryCount: 3,
+      refreshInterval: 3000,
     }
   );
 
@@ -102,7 +98,7 @@ export function useTradeHistoryList(params: {
       return response.data.data as IResponseTradeHistoryList;
     },
     {
-      revalidateOnMount: false,
+      revalidateOnMount: true,
       refreshInterval: 3000,
     }
   );

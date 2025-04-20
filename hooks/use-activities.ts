@@ -52,7 +52,7 @@ export function useActivities(inputMint: string, outputMint: string) {
   }, [error, setActivityListError]);
 
   const fetchActivities = useCallback(() => {
-    return mutate();
+    return mutate(undefined, { revalidate: true });
   }, [mutate]);
 
   return {
@@ -150,7 +150,7 @@ export function useTradeHistory(inputMint: string, outputMint: string) {
   }, [error, setTradeHistoryListError]);
 
   const fetchTradeHistory = useCallback(() => {
-    return mutate();
+    return mutate(undefined, { revalidate: true });
   }, [mutate]);
 
   return {

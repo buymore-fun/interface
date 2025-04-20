@@ -30,7 +30,7 @@ import Decimal from "decimal.js";
 export const defaultSymbol = "T";
 
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
-  const [activeTab, setActiveTab] = React.useState("myOrders");
+  const [activeTab, setActiveTab] = React.useState("myOrder");
 
   // Handle tab change
   const handleTabChange = (value: string) => {
@@ -38,26 +38,26 @@ export function Activities({ inputMint, outputMint }: { inputMint: string; outpu
   };
 
   return (
-    <Tabs defaultValue="myOrders" onValueChange={handleTabChange}>
+    <Tabs defaultValue="myOrder" onValueChange={handleTabChange}>
       <TabsList className="w-full bg-transparent justify-start gap-4">
-        <TabsTrigger value="activities" className="px-0 text-lg font-semibold">
-          Activities
+        <TabsTrigger value="activity" className="px-0 text-lg font-semibold">
+          Activity
         </TabsTrigger>
-        <TabsTrigger value="myOrders" className="px-0 text-lg font-semibold">
-          My orders
+        <TabsTrigger value="myOrder" className="px-0 text-lg font-semibold">
+          My order
         </TabsTrigger>
         <TabsTrigger value="history" className="px-0 text-lg font-semibold">
           Trade History
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="activities">
-        {activeTab === "activities" && (
+      <TabsContent value="activity">
+        {activeTab === "activity" && (
           <ActivitiesList inputMint={inputMint} outputMint={outputMint} />
         )}
       </TabsContent>
-      <TabsContent value="myOrders">
+      <TabsContent value="myOrder">
         <WalletAuth>
-          {activeTab === "myOrders" && <MyOrders inputMint={inputMint} outputMint={outputMint} />}
+          {activeTab === "myOrder" && <MyOrders inputMint={inputMint} outputMint={outputMint} />}
         </WalletAuth>
       </TabsContent>
       <TabsContent value="history">
