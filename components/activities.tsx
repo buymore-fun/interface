@@ -276,12 +276,13 @@ export const HistoryList = ({
     <div className="border rounded-lg">
       <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white gap-1">
         <div className="col-span-2">Time</div>
+        <div className="col-span-1">Type</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
         <div className="col-span-2">Price</div>
         {/* <div className="col-span-2">Routing</div> */}
         <div className="col-span-2">Buymore</div>
-        <div className="col-span-2">TXN</div>
+        <div className="col-span-1">TXN</div>
       </div>
       {tradeHistoryList?.map((item, index) => (
         <div
@@ -291,6 +292,15 @@ export const HistoryList = ({
           {/* time  */}
           <div className="col-span-2">
             <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
+          </div>
+          <div className="col-span-1">
+            <span
+              className={`capitalize ${
+                item.order_type === "market" ? "text-[#26878D]" : "text-white"
+              }`}
+            >
+              {item.order_type}
+            </span>
           </div>
 
           <div className="col-span-2">
@@ -325,7 +335,7 @@ export const HistoryList = ({
             </span>
           </div>
           {/* txn */}
-          <div className="col-span-2">
+          <div className="col-span-1">
             <Link
               href={getExplorerUrlFromTransaction(item.tx)}
               className="text-muted-foreground hover:text-foreground"
