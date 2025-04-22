@@ -10,7 +10,7 @@
     {
       "name": "MAX_ORDER_LIMIT",
       "type": "u64",
-      "value": "100"
+      "value": "10"
     },
     {
       "name": "ORDER_BOOK_WITH_TOKEN_SEED",
@@ -138,6 +138,42 @@
         {
           "name": "max",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "modifyComReceiver",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "orderBookDetail",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "token0Mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "token1Mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "comReceiver",
+          "type": "publicKey"
         }
       ]
     },
@@ -342,174 +378,6 @@
           "name": "orderBook1",
           "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "orderBookInputVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "orderBookOutputVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "orderBookDetail",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "orderBookAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "settlePool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "settleId",
-          "type": "u64"
-        },
-        {
-          "name": "amountIn",
-          "type": "u64"
-        },
-        {
-          "name": "minimumAmountOut",
-          "type": "u64"
-        },
-        {
-          "name": "trades",
-          "type": {
-            "vec": {
-              "defined": "Trade"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "proxySwapBaseInputV2",
-      "accounts": [
-        {
-          "name": "cpSwapProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The user performing the swap"
-          ]
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "ammConfig",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The factory state to read protocol fees"
-          ]
-        },
-        {
-          "name": "poolState",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The program account of the pool in which the swap will be performed"
-          ]
-        },
-        {
-          "name": "inputTokenAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The user token account for input token"
-          ]
-        },
-        {
-          "name": "outputTokenAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The user token account for output token"
-          ]
-        },
-        {
-          "name": "inputVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The vault token account for input token"
-          ]
-        },
-        {
-          "name": "outputVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The vault token account for output token"
-          ]
-        },
-        {
-          "name": "inputTokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "SPL program for input token transfers"
-          ]
-        },
-        {
-          "name": "outputTokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "SPL program for output token transfers"
-          ]
-        },
-        {
-          "name": "inputTokenMint",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The mint of input token"
-          ]
-        },
-        {
-          "name": "outputTokenMint",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The mint of output token"
-          ]
-        },
-        {
-          "name": "observationState",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The program account for the most recent oracle observation"
-          ]
         },
         {
           "name": "orderBookInputVault",
@@ -1422,6 +1290,21 @@
         {
           "name": "amount",
           "type": "u64",
+          "index": false
+        },
+        {
+          "name": "sender",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "inputTokenMint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "outputTokenMint",
+          "type": "publicKey",
           "index": false
         },
         {
