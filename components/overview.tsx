@@ -1,6 +1,6 @@
 import { useDashboardIndex } from "@/hooks/services";
 import { useParams } from "next/navigation";
-import { formatNumber } from "@/lib/utils/format-number";
+import { formatPrice } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function Overview() {
@@ -13,39 +13,39 @@ export function Overview() {
   return (
     <div>
       <div className="flex justify-between">
-        <span className="font-semibold text-lg">Overview</span>
+        <span className="font-semibold text-lg">Dashboard</span>
       </div>
-      <div className="border rounded-lg mt-2 grid grid-cols-4 py-3 bg-secondary/20">
-        <div className="flex flex-col items-center justify-center border-r">
+      <div className="border rounded-lg mt-2 flex justify-between py-3 bg-secondary/20 px-5 ">
+        <div className="flex flex-col ">
           <span className="text-sm text-muted-foreground">Total volume</span>
           {isLoading ? (
             <Skeleton className="h-6 w-24" />
           ) : (
-            <span className="font-semibold">${formatNumber(data?.total_volume)}</span>
+            <span className="font-semibold">${formatPrice(data!.total_volume)}</span>
           )}
         </div>
-        <div className="flex flex-col items-center justify-center border-r">
+        <div className="flex flex-col  ">
           <span className="text-sm text-muted-foreground">Traders</span>
           {isLoading ? (
             <Skeleton className="h-6 w-24" />
           ) : (
-            <span className="font-semibold">{formatNumber(data?.traders)}</span>
+            <span className="font-semibold">{formatPrice(data!.traders)}</span>
           )}
         </div>
-        <div className="flex flex-col items-center justify-center border-r">
+        <div className="flex flex-col  ">
           <span className="text-sm text-muted-foreground">Orders</span>
           {isLoading ? (
             <Skeleton className="h-6 w-24" />
           ) : (
-            <span className="font-semibold">{formatNumber(data?.orders)}</span>
+            <span className="font-semibold">{formatPrice(data!.orders)}</span>
           )}
         </div>
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col ">
           <span className="text-sm text-muted-foreground">Value of Buymore</span>
           {isLoading ? (
             <Skeleton className="h-6 w-24" />
           ) : (
-            <span className="font-semibold">${formatNumber(data?.value_of_buymore)}</span>
+            <span className="font-semibold">${formatPrice(data!.value_of_buymore)}</span>
           )}
         </div>
       </div>

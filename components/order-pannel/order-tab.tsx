@@ -17,7 +17,7 @@ import { useMemo, useEffect } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import Decimal from "decimal.js";
-import { formatNumber, formatBalance } from "@/lib/utils";
+import { formatBalance } from "@/lib/utils";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";

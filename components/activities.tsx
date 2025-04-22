@@ -79,7 +79,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-muted-foreground/15 px-3 py-2 text-white">
         <div className="col-span-1">Time</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
@@ -193,7 +193,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white gap-1">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-muted-foreground/15 px-3 py-2 text-white gap-1">
         <div className="col-span-2">Time</div>
         <div className="col-span-2">From</div>
         <div className="col-span-2">To</div>
@@ -274,7 +274,7 @@ export const HistoryList = ({
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-secondary/30 px-3 py-2 text-white gap-1">
+      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-muted-foreground/15 px-3 py-2 text-white gap-1">
         <div className="col-span-2">Time</div>
         <div className="col-span-1">Type</div>
         <div className="col-span-2">From</div>

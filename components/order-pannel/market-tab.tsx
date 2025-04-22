@@ -6,7 +6,7 @@ import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { cn, formatBalance, formatNumber } from "@/lib/utils";
+import { cn, formatBalance } from "@/lib/utils";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { ChevronsUpDown } from "../ui/icon";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";

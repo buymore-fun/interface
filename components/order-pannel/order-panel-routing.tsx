@@ -27,7 +27,7 @@ export function OrderPanelRouting({ routing, isQuoting, outputToken }: OrderPane
 
       <div className="flex justify-between items-center gap-1">
         <div className="flex items-center gap-1">
-          <span className="text-sm text-primary-highlight">Buymore</span>
+          <span className="text-sm text-primary">Buymore</span>
           <div className="relative inline-block">
             <TooltipWrapper
               content={`Compared to trading directly in an AMM, you can acquire more tokens here.`}
