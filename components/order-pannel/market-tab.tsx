@@ -163,7 +163,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       ? new Decimal(solPrice).div(price).mul(validTokenBAmount).toFixed(3)
       : new Decimal(solPrice).div(price).mul(validTokenAAmount).toFixed(3);
 
-    console.log("🚀 ~ priceSolInUSD:", price, priceSolInUSD, priceTokenInUSD);
+    // console.log("🚀 ~ priceSolInUSD:", price, priceSolInUSD, priceTokenInUSD);
 
     return isReverse ? [priceSolInUSD, priceTokenInUSD] : [priceTokenInUSD, priceSolInUSD];
   }, [isReverse, raydiumPoolInfo, solPrice, orderTokenAAmount, orderTokenBAmount]);

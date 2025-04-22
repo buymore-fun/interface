@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import { Topbar } from "@/components/topbar";
 import { ConnectWalletModal } from "@/components/connect-wallet-modal";
@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description: "Buy more",
 };
 
+export const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${poppins.variable} ${poppins.variable} antialiased`}>
         <ReactQueryProvider>
           <SolanaProvider>
             <GlobalInit />

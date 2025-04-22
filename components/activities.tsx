@@ -296,7 +296,7 @@ export const HistoryList = ({
           <div className="col-span-1">
             <span
               className={`capitalize ${
-                item.order_type === "market" ? "text-[#26878D]" : "text-white"
+                item.order_type === "market" ? "text-primary" : "text-white"
               }`}
             >
               {item.order_type}

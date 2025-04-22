@@ -3,40 +3,43 @@
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Search } from "lucide-react";
+import { Search, Wallet } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaTelegramPlane, FaRegFileWord } from "react-icons/fa";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ellipseMiddle } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Topbar() {
   const [, setOpen] = useConnectWalletModalOpen();
   const { publicKey, disconnect, wallet } = useWallet();
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-cetner">
-          <div className="flex-1">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              className="w-14"
-              width={1896}
-              height={1132}
-            />
-          </div>
-          <div className="flex-none w-1/3 hidden sm:block">
-            <div className="flex border bg-secondary/30 border-input rounded-lg focus-within:border-primary text-muted-foreground focus-within:text-foreground items-center px-2">
-              <Search className="size-4" />
-              <Input
-                placeholder="Search token/contract"
-                className="border-none outline-none p-0 ml-2 flex-1"
-              />
+      <div className="max-w-6xl mx-auto ">
+        <div className="flex justify-between items-center w-full gap-6">
+          <div className="flex justify-between items-center flex-1">
+            <div className="flex-1 -my-2">
+              <Image src="/logo.png" alt="Logo" className="size-16" width={1896} height={1132} />
+            </div>
+
+            <div className="flex-grow  hidden sm:block ">
+              <div className="flex border bg-secondary/30  rounded-lg  border-primary focus-within:border-primary text-muted-foreground focus-within:text-foreground items-center p-2">
+                <Search className="size-3 text-primary" />
+                <Input
+                  placeholder="Search token/contract"
+                  className="border-none outline-none p-0 ml-2 flex-1 text-sm"
+                />
+              </div>
             </div>
           </div>
-          <div className="flex-1 flex justify-end space-x-4">
-            <div className="flex gap-1">
+          <div className="flex-1 flex justify-end space-x-4 sm:max-w-[420px]">
+            <div className="flex gap-2">
               <Button size="icon" variant="ghost" className="rounded-full">
                 <FaXTwitter className="size-5" />
               </Button>
@@ -48,24 +51,46 @@ export function Topbar() {
               </Button>
             </div>
             {publicKey ? (
-              <Button
-                variant="secondary"
-                onClick={disconnect}
-                className="px-3 rounded-full"
-              >
-                {wallet ? (
-                  <Image
-                    src={wallet.adapter.icon}
-                    alt={wallet.adapter.name}
-                    width={64}
-                    height={64}
-                    className="size-6 rounded-full"
-                  />
-                ) : null}
-                {ellipseMiddle(publicKey.toString())}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={disconnect}
+                    className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    {wallet ? (
+                      <Image
+                        src={wallet.adapter.icon}
+                        alt={wallet.adapter.name}
+                        width={64}
+                        height={64}
+                        className="size-6 rounded-full"
+                      />
+                    ) : null}
+                    {ellipseMiddle(publicKey.toString())}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <Button
+                      variant="ghost"
+                      onClick={disconnect}
+                      className="w-full text-white flex justify-between px-1"
+                    >
+                      <Wallet className="text-muted-foreground size-3" />
+                      Disconnect
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Button onClick={() => setOpen(true)}>Connect</Button>
+              <Button
+                variant="outline"
+                className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                onClick={() => setOpen(true)}
+              >
+                Connect
+              </Button>
             )}
           </div>
         </div>
