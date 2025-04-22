@@ -148,8 +148,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   }, [isReverse, tokenBalance, solBalance]);
 
   const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
-    const price = getCurrentPrice(raydiumPoolInfo, !isReverse);
-    const priceB = getCurrentPrice(raydiumPoolInfo, isReverse);
+    const price = getCurrentPrice(raydiumPoolInfo, false);
 
     // Handle empty or invalid inputs to prevent Decimal errors
     const validTokenAAmount =
@@ -159,10 +158,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
     const priceSolInUSD = isReverse
       ? new Decimal(solPrice).mul(validTokenAAmount).toFixed(3)
-      : new Decimal(solPrice).div(priceB).mul(validTokenAAmount).toFixed(3);
+      : new Decimal(solPrice).mul(validTokenBAmount).toFixed(3);
     const priceTokenInUSD = isReverse
       ? new Decimal(solPrice).div(price).mul(validTokenBAmount).toFixed(3)
-      : new Decimal(solPrice).mul(validTokenBAmount).toFixed(3);
+      : new Decimal(solPrice).div(price).mul(validTokenAAmount).toFixed(3);
+
+    console.log("🚀 ~ priceSolInUSD:", price, priceSolInUSD, priceTokenInUSD);
 
     return isReverse ? [priceSolInUSD, priceTokenInUSD] : [priceTokenInUSD, priceSolInUSD];
   }, [isReverse, raydiumPoolInfo, solPrice, orderTokenAAmount, orderTokenBAmount]);
