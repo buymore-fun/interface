@@ -890,7 +890,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
           outputTokenMint: this.output_token_mint,
           observationState: swap_observation,
           orderBook0: buymore_info.trades.pools[0],
-          orderBook1: buymore_info.trades.pools[1] || buymore_info.trades.pools[0], // set by yourself.
+          // orderBook1: buymore_info.trades.pools[1] || buymore_info.trades.pools[0], // set by yourself.
           orderBookInputVault: orderbook_input_vault,
           orderBookOutputVault: orderbook_output_vault,
           orderBookDetail: order_book_detail,
