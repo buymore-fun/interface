@@ -375,11 +375,6 @@ export type HybirdTradeV2 = {
           "isSigner": false
         },
         {
-          "name": "orderBook1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "orderBookInputVault",
           "isMut": true,
           "isSigner": false
@@ -1438,28 +1433,43 @@ export type HybirdTradeV2 = {
   "errors": [
     {
       "code": 6000,
-      "name": "InvalidSettleIndex",
-      "msg": "Not found settlement proof."
+      "name": "OrderQueueFull",
+      "msg": "Order queue full"
     },
     {
       "code": 6001,
-      "name": "InvalidSettlementTrade",
-      "msg": "Invalid settlement trade."
+      "name": "InvalidTokenAccount",
+      "msg": "Invalid token account"
     },
     {
       "code": 6002,
-      "name": "InvalidSettlementMaker",
-      "msg": "Invalid settlement maker."
+      "name": "InvalidTokenMint",
+      "msg": "Invalid token mint"
     },
     {
       "code": 6003,
-      "name": "SettlementFaildOnCount",
-      "msg": "Settlement faild. Not match count value"
+      "name": "InvalidHasTransferFeeTokenMint",
+      "msg": "Invalid token mint that it has transfer fee"
     },
     {
       "code": 6004,
-      "name": "SettlementFaildOnTotal",
-      "msg": "Settlement faild. Not match total value"
+      "name": "NotOwner",
+      "msg": "Not owner"
+    },
+    {
+      "code": 6005,
+      "name": "OrderNotFound",
+      "msg": "Order not found"
+    },
+    {
+      "code": 6006,
+      "name": "SelectedOrderInvalid",
+      "msg": "Invalid selected order."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidSwap",
+      "msg": "Invalid Swap Info"
     }
   ]
 };
@@ -1841,11 +1851,6 @@ export const IDL: HybirdTradeV2 = {
           "isSigner": false
         },
         {
-          "name": "orderBook1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "orderBookInputVault",
           "isMut": true,
           "isSigner": false
@@ -2904,28 +2909,43 @@ export const IDL: HybirdTradeV2 = {
   "errors": [
     {
       "code": 6000,
-      "name": "InvalidSettleIndex",
-      "msg": "Not found settlement proof."
+      "name": "OrderQueueFull",
+      "msg": "Order queue full"
     },
     {
       "code": 6001,
-      "name": "InvalidSettlementTrade",
-      "msg": "Invalid settlement trade."
+      "name": "InvalidTokenAccount",
+      "msg": "Invalid token account"
     },
     {
       "code": 6002,
-      "name": "InvalidSettlementMaker",
-      "msg": "Invalid settlement maker."
+      "name": "InvalidTokenMint",
+      "msg": "Invalid token mint"
     },
     {
       "code": 6003,
-      "name": "SettlementFaildOnCount",
-      "msg": "Settlement faild. Not match count value"
+      "name": "InvalidHasTransferFeeTokenMint",
+      "msg": "Invalid token mint that it has transfer fee"
     },
     {
       "code": 6004,
-      "name": "SettlementFaildOnTotal",
-      "msg": "Settlement faild. Not match total value"
+      "name": "NotOwner",
+      "msg": "Not owner"
+    },
+    {
+      "code": 6005,
+      "name": "OrderNotFound",
+      "msg": "Order not found"
+    },
+    {
+      "code": 6006,
+      "name": "SelectedOrderInvalid",
+      "msg": "Invalid selected order."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidSwap",
+      "msg": "Invalid Swap Info"
     }
   ]
 };

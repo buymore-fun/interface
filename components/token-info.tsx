@@ -30,11 +30,7 @@ export function TokenInfo({
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center space-x-2">
-        {token ? (
-          <TokenIcon token={token} />
-        ) : (
-          <Skeleton className="size-8 rounded-full" />
-        )}
+        {token ? <TokenIcon token={token} /> : <Skeleton className="size-8 rounded-full" />}
         <div className="flex flex-col">
           <div className="flex space-x-2 items-center">
             {token && SOL ? (
@@ -48,9 +44,7 @@ export function TokenInfo({
               <span
                 className={cn(
                   "text-xs",
-                  token.priceChange24h >= 0
-                    ? "text-[#9ad499]"
-                    : "text-[#de5569]"
+                  token.priceChange24h >= 0 ? "text-[#9ad499]" : "text-[#de5569]"
                 )}
               >
                 ${formatNumber(token.priceUsd)}
@@ -58,29 +52,29 @@ export function TokenInfo({
             ) : null}
           </div>
           <div className="space-x-1 flex items-center">
-            <span className="text-xs text-muted-foreground">
-              {ellipseMiddle(tokenAddress)}
-            </span>
+            <span className="text-xs text-muted-foreground">{ellipseMiddle(tokenAddress)}</span>
             <Button
               variant="ghost"
               className="w-5 h-5 p-0 text-muted-foreground hover:text-foreground"
               onClick={onCopy}
             >
-              {hasCopied ? (
-                <Check className="size-3" />
-              ) : (
-                <Clipboard className="size-3" />
-              )}
+              {hasCopied ? <Check className="size-3" /> : <Clipboard className="size-3" />}
             </Button>
           </div>
         </div>
       </div>
-      <div className="flex items-center space-x-1">
-        {Object.values(ChartType).map((chartType) => (
+      <div className="flex items-center space-x-1 pr-2">
+        {Object.values(ChartType).map((chartType, index) => (
           <Button
-            variant={type === chartType ? "secondary" : "outline"}
+            variant="secondary"
             size="xs"
-            className={type !== chartType ? "text-muted-foreground" : "'"}
+            className={cn(
+              "text-muted-foreground hover:text-white hover:bg-primary/80",
+              type === chartType && "text-white bg-primary",
+              index === 0 && "rounded-l-full",
+              index === Object.values(ChartType).length - 1 && "rounded-r-full",
+              index !== 0 && index !== Object.values(ChartType).length - 1 && "rounded-none"
+            )}
             onClick={() => onTypeChange(chartType)}
             key={chartType}
           >

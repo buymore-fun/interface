@@ -663,7 +663,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     find_orders(input_amount: BN) {
       // const { getOrderBookDetail } = getProgramAddress();
 
-      const max = 2; // max = 2
+      const max = 1; // max = 2
       const pools = [] as PublicKey[];
       const trades = [] as Trade[];
       let count = 0;

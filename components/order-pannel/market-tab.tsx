@@ -6,7 +6,7 @@ import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { formatBalance, formatNumber } from "@/lib/utils";
+import { cn, formatBalance, formatNumber } from "@/lib/utils";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { ChevronsUpDown } from "../ui/icon";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";
@@ -77,6 +77,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const [isQuoting, setIsQuoting] = useState(false);
   const [isReverse, setIsReverse] = useState(true);
 
+  const [percent, setPercent] = useState(0);
+  const [calculatedAmount, setCalculatedAmount] = useState("");
   const [routing, setRouting] = useState<Routing>({
     onlySwap: "",
     dexRatio: "",
@@ -215,12 +217,14 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
     console.log("🚀 ~ onPercentButtonClick ~ maxAmount:", maxAmount);
     // Calculate amount regardless of token direction since logic is identical
+    setPercent(percent);
     const calculatedAmount = new Decimal(+maxAmount)
       .mul(new Decimal(percent))
       .div(new Decimal(100))
       .div(new Decimal(10).pow(mintDecimalA!))
       .toFixed(mintDecimalA!);
     setOrderTokenAAmount(calculatedAmount);
+    setCalculatedAmount(calculatedAmount);
     console.log("🚀 ~ onPercentButtonClick ~ calculatedAmount:", calculatedAmount);
     handleQuery(calculatedAmount);
   };
@@ -475,7 +479,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
               <Button
                 size="xs"
                 variant="secondary"
-                className="text-muted-foreground "
+                className={cn(
+                  "text-muted-foreground hover:text-white hover:bg-primary/80",
+                  percent === 25 &&
+                    calculatedAmount === orderTokenAAmount &&
+                    "text-white bg-primary"
+                )}
                 onClick={() => onPercentButtonClick(25)}
               >
                 25%
@@ -483,7 +492,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
               <Button
                 size="xs"
                 variant="secondary"
-                className="text-muted-foreground"
+                className={cn(
+                  "text-muted-foreground hover:text-white hover:bg-primary/80",
+                  percent === 50 &&
+                    calculatedAmount === orderTokenAAmount &&
+                    "text-white bg-primary"
+                )}
                 onClick={() => onPercentButtonClick(50)}
               >
                 50%
@@ -491,7 +505,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
               <Button
                 size="xs"
                 variant="secondary"
-                className="text-muted-foreground"
+                className={cn(
+                  "text-muted-foreground hover:text-white hover:bg-primary/80",
+                  percent === 100 &&
+                    calculatedAmount === orderTokenAAmount &&
+                    "text-white bg-primary"
+                )}
                 onClick={() => onPercentButtonClick(100)}
               >
                 100%
