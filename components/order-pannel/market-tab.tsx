@@ -56,6 +56,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const [slippage, setSlippage] = useAtom(slippageAtom);
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   const { servicePoolInfo } = useServicePoolInfo();
   const { raydiumPoolInfo } = useRaydiumPoolInfo();
@@ -151,11 +152,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const [priceState, setPriceState] = useState(0);
 
-  useEffect(() => {
-    const newPrice = getCurrentPrice(raydiumPoolInfo, false);
-    setPriceState(newPrice);
-  }, [raydiumPoolInfo, isReverse]);
-
   const recalculateUSDValues = useCallback(() => {
     setPriceState((prevPrice) => {
       return prevPrice;
@@ -165,6 +161,19 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   useEffect(() => {
     recalculateUSDValues();
   }, [orderTokenAAmount, orderTokenBAmount, recalculateUSDValues]);
+
+  useEffect(() => {
+    handleQuery(orderTokenAAmount);
+  }, [slippage]);
+
+  const hybirdTradeProgram = useHybirdTradeProgram();
+  const { SwapInfo } = hybirdTradeProgram;
+
+  const swapInfo = useMemo(() => {
+    if (!servicePoolInfo || !inputToken || !outputToken) return null;
+    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [servicePoolInfo, inputToken, outputToken]);
 
   const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
     // Handle empty or invalid inputs to prevent Decimal errors
@@ -177,10 +186,14 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       ? new Decimal(solPrice).mul(validTokenAAmount).toFixed(3)
       : new Decimal(solPrice).mul(validTokenBAmount).toFixed(3);
     const priceTokenInUSD = isReverse
-      ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toFixed(3)
-      : new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toFixed(3);
+      ? priceState && priceState !== 0
+        ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toFixed(3)
+        : "0.000"
+      : priceState && priceState !== 0
+        ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toFixed(3)
+        : "0.000";
 
-    console.log("🚀 ~ priceSolInUSD:", priceState, priceSolInUSD, priceTokenInUSD);
+    console.log("🚀 ~ priceSolInUSD:", solPrice, priceState, priceSolInUSD, priceTokenInUSD);
 
     return isReverse ? [priceSolInUSD, priceTokenInUSD] : [priceTokenInUSD, priceSolInUSD];
   }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
@@ -248,19 +261,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
     // return () => clearInterval(timer);
   }, [orderTokenAAmount]);
-
-  useEffect(() => {
-    handleQuery(orderTokenAAmount);
-  }, [slippage]);
-
-  const hybirdTradeProgram = useHybirdTradeProgram();
-  const { SwapInfo } = hybirdTradeProgram;
-
-  const swapInfo = useMemo(() => {
-    if (!servicePoolInfo || !inputToken || !outputToken) return null;
-    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [servicePoolInfo, inputToken, outputToken]);
 
   const handleQuery = useCallback(
     debounce(async (value: string) => {
@@ -403,6 +403,37 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     [isQuoting, swapInfo, mintDecimalA, mintDecimalB, inputToken, outputToken, slippage]
   );
 
+  const pollPoolInfo = async () => {
+    if (inputTokenAmount && servicePoolInfo) {
+      try {
+        await fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
+        const newPrice = getCurrentPrice(raydiumPoolInfo, false);
+        setPriceState(newPrice);
+      } catch (error) {
+        console.error("Error polling pool info:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (inputTokenAmount && servicePoolInfo) {
+      // Initial fetch
+      pollPoolInfo();
+
+      // Set up polling interval (every 3 seconds)
+      const newIntervalId = setInterval(pollPoolInfo, 3000);
+      setIntervalId(newIntervalId);
+    }
+
+    // Clean up interval on component unmount or when dependencies change
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
+    };
+  }, [inputTokenAmount, servicePoolInfo]);
+
   const handleBuy = async () => {
     if (!inputToken || !outputToken) return;
 
@@ -411,6 +442,10 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     if (+inputTokenAmount > +currentAAmount) {
       toast.error("Insufficient balance");
       return;
+    }
+    // Stop polling when initiating a buy transaction
+    if (intervalId) {
+      clearInterval(intervalId);
     }
 
     const amount = new Decimal(orderTokenAAmount)
