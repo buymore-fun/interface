@@ -24,8 +24,10 @@ export function Topbar() {
       <div className="max-w-6xl mx-auto ">
         <div className="flex justify-between items-center w-full gap-6">
           <div className="flex justify-between items-center flex-1">
-            <div className="flex-1 -my-2">
-              <Image src="/logo.png" alt="Logo" className="size-16" width={1896} height={1132} />
+            <div className="flex-1">
+              <video autoPlay muted loop className="size-14">
+                <source src="/logo.mp4" type="video/mp4" />
+              </video>
             </div>
 
             <div className="flex-grow  hidden sm:block ">
