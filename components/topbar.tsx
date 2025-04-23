@@ -8,7 +8,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { FaTelegramPlane, FaRegFileWord } from "react-icons/fa";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { ellipseMiddle } from "@/lib/utils";
+import { cn, ellipseMiddle } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,9 +25,14 @@ export function Topbar() {
         <div className="flex justify-between items-center w-full gap-6">
           <div className="flex justify-between items-center flex-1">
             <div className="flex-1 -my-4">
-              <video autoPlay muted loop className="size-20">
-                <source src="/logo.mp4" type="video/mp4" />
-              </video>
+              <Image
+                src="/logo.gif"
+                alt="Logo"
+                width={80}
+                height={80}
+                className={cn("size-20", "animate-pulse", "object-cover")}
+                unoptimized
+              />
             </div>
 
             <div className="flex-grow  hidden sm:block ">
