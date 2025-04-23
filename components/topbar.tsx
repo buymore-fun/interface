@@ -15,10 +15,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
 
 export function Topbar() {
   const [, setOpen] = useConnectWalletModalOpen();
   const { publicKey, disconnect, wallet } = useWallet();
+  const [isAnimating, setIsAnimating] = useState(true);
+
+  useEffect(() => {
+    const animationDuration = 1400;
+
+    const timer = setTimeout(() => {
+      setIsAnimating(false);
+    }, animationDuration);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto ">
@@ -26,12 +39,14 @@ export function Topbar() {
           <div className="flex justify-between items-center flex-1">
             <div className="flex-1 -my-4">
               <Image
-                src="/logo.gif"
+                src={isAnimating ? "/logo.gif" : "/logo_v3.png"}
                 alt="Logo"
                 width={80}
                 height={80}
-                className={cn("size-20", "animate-pulse", "object-cover")}
+                className={cn("size-20", "object-cover")}
                 unoptimized
+                priority
+                loading="eager"
               />
             </div>
 
