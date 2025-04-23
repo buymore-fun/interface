@@ -26,7 +26,7 @@ export function Topbar() {
           <div className="flex justify-between items-center flex-1">
             <div className="flex-1 -my-4">
               <video autoPlay muted loop className="size-20">
-                <source src="/logo_v2.mp4" type="video/mp4" />
+                <source src="/logo.mp4" type="video/mp4" />
               </video>
             </div>
 
