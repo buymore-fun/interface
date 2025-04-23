@@ -25,7 +25,7 @@ import { debounce } from "lodash";
 
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
-import { isNumber } from "@raydium-io/raydium-sdk-v2";
+import { div, isNumber } from "@raydium-io/raydium-sdk-v2";
 import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
@@ -149,9 +149,24 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       : [tokenBalance?.amount || 0, solBalance];
   }, [isReverse, tokenBalance, solBalance]);
 
-  const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
-    const price = getCurrentPrice(raydiumPoolInfo, false);
+  const [priceState, setPriceState] = useState(0);
 
+  useEffect(() => {
+    const newPrice = getCurrentPrice(raydiumPoolInfo, false);
+    setPriceState(newPrice);
+  }, [raydiumPoolInfo, isReverse]);
+
+  const recalculateUSDValues = useCallback(() => {
+    setPriceState((prevPrice) => {
+      return prevPrice;
+    });
+  }, []);
+
+  useEffect(() => {
+    recalculateUSDValues();
+  }, [orderTokenAAmount, orderTokenBAmount, recalculateUSDValues]);
+
+  const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
     // Handle empty or invalid inputs to prevent Decimal errors
     const validTokenAAmount =
       orderTokenAAmount && !isNaN(Number(orderTokenAAmount)) ? orderTokenAAmount : "0";
@@ -162,28 +177,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       ? new Decimal(solPrice).mul(validTokenAAmount).toFixed(3)
       : new Decimal(solPrice).mul(validTokenBAmount).toFixed(3);
     const priceTokenInUSD = isReverse
-      ? new Decimal(solPrice).div(price).mul(validTokenBAmount).toFixed(3)
-      : new Decimal(solPrice).div(price).mul(validTokenAAmount).toFixed(3);
+      ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toFixed(3)
+      : new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toFixed(3);
 
-    // console.log("🚀 ~ priceSolInUSD:", price, priceSolInUSD, priceTokenInUSD);
+    console.log("🚀 ~ priceSolInUSD:", priceState, priceSolInUSD, priceTokenInUSD);
 
     return isReverse ? [priceSolInUSD, priceTokenInUSD] : [priceTokenInUSD, priceSolInUSD];
-  }, [isReverse, raydiumPoolInfo, solPrice, orderTokenAAmount, orderTokenBAmount]);
-
-  // console.log("🚀 ~ MarketTab ~ solBalance:", solBalance);
-  // console.log(
-  //   "🚀 ~ const[formatedTokenABalance,formatedTokenBBalance]=useMemo ~ uiAmountString:",
-  //   tokenBalance?.uiAmountString
-  // );
-
-  // console.log(
-  //   "🚀 ~ const[formatedTokenABalance,formatedTokenBBalance]=useMemo ~ formatedTokenBBalance:",
-  //   formatedTokenBBalance
-  // );
-  // console.log(
-  //   "🚀 ~ const[formatedTokenABalance,formatedTokenBBalance]=useMemo ~ formatedTokenABalance:",
-  //   formatedTokenABalance
-  // );
+  }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
 
   const cleanInput = () => {
     setOrderTokenAAmount("");
@@ -468,7 +468,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         <div className="flex items-center justify-between h-6">
           <span>From</span>
           {formatedTokenABalance !== undefined ? (
-            <div className="flex space-x-2 items-center">
+            <div className="flex space-x-1 items-center">
               <div className="flex items-center space-x-1">
                 <Wallet className="text-muted-foreground size-3" />
                 <span className="text-muted-foreground text-xs">
@@ -520,30 +520,38 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             <Skeleton className="h-full w-24" />
           ) : null}
         </div>
-        <div className="mt-2 flex ">
+        <div className="pt-3 flex ">
           {tokenA ? (
-            <Button variant="secondary" className="bg-secondary/60 hvoer:bg-secondary/60 px-2">
+            <Button
+              variant="secondary"
+              className="bg-light-card/80 hover:bg-light-card/85 px-6 shadow-md"
+            >
               <TokenIcon token={tokenA} size="sm" />
-              {inputToken?.symbol}
+              {getSymbolFromPoolInfo(inputToken)}
             </Button>
           ) : (
-            <Skeleton className="h-9 w-24" />
+            <div className="flex flex-col items-end gap-1">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-2 w-18" />
+            </div>
           )}
-          <Input
-            className="border-none text-lg font-semibold text-right outline-none p-0"
-            placeholder="0.00"
-            onChange={handleOrderTokenAAmountChange}
-            value={orderTokenAAmount}
-          />
+          <div className="flex flex-col items-end gap-1">
+            <Input
+              className="border-none text-2xl font-semibold text-right outline-none p-0 h-6"
+              placeholder="0.00"
+              onChange={handleOrderTokenAAmountChange}
+              value={orderTokenAAmount}
+            />
+            <span className="text-muted-foreground text-sm flex justify-end ">
+              ${formatedTokenABalanceInUSD}
+            </span>
+          </div>
         </div>
-        <span className="text-muted-foreground text-xs flex justify-end ">
-          ${formatedTokenABalanceInUSD}
-        </span>
       </div>
       <div className="flex items-center justify-center h-0 relative">
         <Button
           size="icon"
-          className="rounded-full size-8 border-2 border-accent hover:text-foreground text-muted-foreground relative z-10"
+          className="rounded-full size-8 border-2 border-accent hover:text-primary text-muted-foreground relative z-10"
           variant="secondary"
           onClick={() => toggleToken()}
         >
@@ -551,7 +559,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         </Button>
         <div className="absolute inset-x-0 top-[50%] bg-border/60 h-[1px]" />
       </div>
-      <div className="py-4 rounded-b-lg z-100 relative bg-[#2E3C4E]/80">
+      <div className="py-4 rounded-b-lg z-100 relative bg-light-card/80">
         <div className="px-4 flex items-center justify-between h-6 ">
           <span>To</span>
           {formatedTokenBBalance !== undefined ? (
@@ -563,36 +571,41 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             <Skeleton className="h-full w-24" />
           ) : null}
         </div>
-        <div className="mt-4 px-4 flex ">
+        <div className="py-3 px-4 flex ">
           {tokenB ? (
-            <Button variant="secondary" className="bg-light-card hover:bg-light-card px-2">
+            <Button variant="secondary" className="bg-card/60 hover:bg-card/65 px-6 shadow-md">
               <TokenIcon token={tokenB} size="sm" />
-              {tokenB.symbol}
+              {getSymbolFromPoolInfo(outputToken)}
             </Button>
           ) : (
-            <Skeleton className="h-9 w-24" />
+            <div className="flex flex-col items-end gap-1">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-2 w-18" />
+            </div>
           )}
           {isQuoting ? (
             <div className="flex-1 flex justify-end">
               <Skeleton className="w-32 h-8" />
             </div>
           ) : (
-            <Input
-              className="border-none text-lg disabled:cursor-not-allowed font-semibold text-right outline-none p-0"
-              placeholder="0.00"
-              value={orderTokenBAmount}
-              readOnly
-            />
+            <div className="flex flex-col items-end gap-1">
+              <Input
+                className="border-none text-2xl disabled:cursor-not-allowed font-semibold text-right outline-none p-0 h-6"
+                placeholder="0.00"
+                value={orderTokenBAmount}
+                readOnly
+              />
+              <span className="text-muted-foreground text-sm flex justify-end h-2">
+                ${formatedTokenBBalanceInUSD}
+              </span>
+            </div>
           )}
         </div>
-        <span className="text-muted-foreground text-xs flex justify-end pr-4">
-          ${formatedTokenBBalanceInUSD}
-        </span>
       </div>
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
-        className="space-y-2 border-[0.5px] border-[#797979] rounded-lg py-2 mt-3"
+        className="space-y-2 border-[0.5px] border-muted-foreground/50 rounded-lg py-2 mt-3"
       >
         <OrderPanelRouting routing={routing} isQuoting={isQuoting} outputToken={outputToken} />
         <CollapsibleContent className="space-y-2">
@@ -603,9 +616,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           />
         </CollapsibleContent>
 
-        <div className="flex items-center justify-center h-4">
+        <div className="flex items-center justify-center h-2">
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="icon">
               <ChevronsUpDown isOpen={isOpen} />
             </Button>
           </CollapsibleTrigger>

@@ -96,6 +96,13 @@ export function OrderTab() {
   const outputMint = searchParams.get("outputMint");
   // const { fetchMyOrders } = useMyOrders(inputMint || "", outputMint || "");
 
+  const [priceState, setPriceState] = useState(0);
+
+  useEffect(() => {
+    const newPrice = getCurrentPrice(raydiumPoolInfo, false);
+    setPriceState(newPrice);
+  }, [raydiumPoolInfo, isBuy]);
+
   const getCurrentPriceInUSD = (cpmmPoolInfo?: CpmmPoolInfo) => {
     const price = getCurrentPrice(cpmmPoolInfo, isBuy);
 
