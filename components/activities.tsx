@@ -39,14 +39,29 @@ export function Activities({ inputMint, outputMint }: { inputMint: string; outpu
 
   return (
     <Tabs defaultValue="myOrder" onValueChange={handleTabChange}>
-      <TabsList className="w-full bg-transparent justify-start gap-4">
-        <TabsTrigger value="activity" className="px-0 text-lg font-semibold">
+      <TabsList className="w-full bg-transparent justify-start gap-8 flex mb-4 border-b-[0.5px] border-muted-foreground rounded-none">
+        <TabsTrigger
+          value="activity"
+          className={cn(
+            "px-0 text-lg font-semibold relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-primary after:w-0 data-[state=active]:after:w-full after:transition-all after:duration-300 after:ease-in-out"
+          )}
+        >
           Activity
         </TabsTrigger>
-        <TabsTrigger value="myOrder" className="px-0 text-lg font-semibold">
+        <TabsTrigger
+          value="myOrder"
+          className={cn(
+            "px-0 text-lg font-semibold relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-primary after:w-0 data-[state=active]:after:w-full after:transition-all after:duration-300 after:ease-in-out"
+          )}
+        >
           My order
         </TabsTrigger>
-        <TabsTrigger value="history" className="px-0 text-lg font-semibold">
+        <TabsTrigger
+          value="history"
+          className={cn(
+            "px-0 text-lg font-semibold relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-primary after:w-0 data-[state=active]:after:w-full after:transition-all after:duration-300 after:ease-in-out"
+          )}
+        >
           Trade History
         </TabsTrigger>
       </TabsList>
