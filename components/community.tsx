@@ -27,7 +27,7 @@ export function Community() {
       <div className="flex justify-between">
         <span className="font-semibold text-lg">Community</span>
       </div>
-      <div className="border border-muted-foreground/15 rounded-lg mt-2 gap-5 flex flex-col pb-4">
+      <div className="border border-muted-foreground/15 rounded-lg  gap-5 flex flex-col pb-4">
         <div className="px-4 flex py-3 border rounded-t-lg bg-muted-foreground/15 space-x-4 justify-between">
           {isLoading ? (
             <Skeleton className="w-10 h-4" />
@@ -50,6 +50,7 @@ export function Community() {
               )}
               {data?.contact?.dex?.enable && (
                 <Link href={data?.contact?.dex?.url} target="_blank" className="hover:text-primary">
+                  {/* ToDo svg */}
                   <Image
                     src="/dexscreener.png"
                     width={64}

@@ -115,10 +115,10 @@ export function OrderTab() {
 
     const priceInUSD = isBuy
       ? new Intl.NumberFormat("en-US", {
-          maximumFractionDigits: 9,
+          maximumFractionDigits: 4,
         }).format(solPrice / priceToUse)
       : new Intl.NumberFormat("en-US", {
-          maximumFractionDigits: 9,
+          maximumFractionDigits: 4,
         }).format(priceToUse * solPrice);
 
     // Default to showing just the price in USD
@@ -254,7 +254,7 @@ export function OrderTab() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="text-sm text-muted-foreground">
           {/* Order type: {isBuy ? "Buying" : "Selling"} */}
         </div>
@@ -268,8 +268,8 @@ export function OrderTab() {
         </div>
       </div>
 
-      <div className="p-4 bg-accent border border-primary rounded-lg ">
-        <div className="flex items-center justify-between bg-light-card/70 p-2 rounded-lg h-[60px]">
+      <div className="p-4 bg-accent border-[0.5px] border-primary rounded-lg shadow-lg shadow-primary/20">
+        <div className="flex items-center justify-between bg-light-card/70 p-2 rounded-lg h-[60px] shadow-md shadow-background/25">
           <div className="flex items-center gap-2 ">
             <Image src="/assets/token/price.svg" width={28} height={28} alt="Price" />
             <div className="flex flex-col">
@@ -299,7 +299,7 @@ export function OrderTab() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end ">
             <div className="flex flex-row items-center gap-1">
               <span className="text-xs text-muted-foreground">
                 1 {getSymbolFromPoolInfo(poolMintA)} =
@@ -310,7 +310,7 @@ export function OrderTab() {
                 <Input
                   id="price"
                   type="number"
-                  className="border-none text-lg font-semibold text-right outline-none p-0 w-[110px]"
+                  className="border-none text-lg font-semibold text-right outline-none p-0 w-[110px] h-6"
                   placeholder="0.00"
                   value={orderPrice}
                   onChange={(e) => setOrderPrice(e.target.value)}
@@ -354,8 +354,8 @@ export function OrderTab() {
             <div className="text-sm ">To</div>
           </div>
         </div>
-        <div className="flex items-center justify-between pb-3 pt-1 gap-2">
-          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">
+        <div className="flex items-center justify-between pb-3 pt-1 gap-2 ">
+          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]  shadow-md shadow-background/25">
             {tokenA ? (
               <Button variant="ghost" className="px-0">
                 <TokenIcon token={tokenA} size="sm" />
@@ -394,7 +394,7 @@ export function OrderTab() {
             )}
           </Button>
 
-          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]">
+          <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]  shadow-md shadow-background/25">
             {tokenB ? (
               <Button variant="ghost" className="px-0">
                 <TokenIcon token={tokenB} size="sm" />
@@ -414,11 +414,11 @@ export function OrderTab() {
         </div>
       </div>
 
-      <div className="mt-3 text-sm text-muted-foreground text-right">
+      <div className="mt-5 text-sm text-muted-foreground text-right">
         Fee: 0% (<span className="line-through">0.25%</span>)
       </div>
 
-      <div className="mt-3">
+      <div className="mt-4 mb-2">
         {publicKey ? (
           <div className="flex flex-col gap-2">
             {/* <Button className="w-full" size="lg" onClick={handleSolToWsol}>

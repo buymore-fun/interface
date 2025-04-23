@@ -387,13 +387,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         setOrderTokenBAmount(_orderTokenBAmount);
         setRouting({
-          onlySwap: `${onlySwapOutput}`,
+          onlySwap: `${(+onlySwapOutput).toFixed(4)}`,
           dexRatio: swapRatio.toString(),
           orderRatio: orderRatio.toString(),
-          buyMore: `${resultBuyMore}`,
-          minReceive: minReceive.toString(),
-          maxReceive: maxReceive.toString(),
-          fee: fee.toString(),
+          buyMore: `${(+resultBuyMore).toFixed(4)}`,
+          minReceive: `${(+minReceive).toFixed(4)}`,
+          maxReceive: `${(+maxReceive).toFixed(4)}`,
+          fee: `${(+fee).toFixed(4)}`,
         });
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);

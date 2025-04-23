@@ -8,6 +8,8 @@ import { MarketTab } from "./market-tab";
 import { OrderTab } from "./order-tab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
+import { cn } from "@/lib/utils";
+import { Icon } from "@/components/ui/icon";
 
 enum Tab {
   MARKET = "market",
@@ -42,7 +44,13 @@ export function OrderPanel() {
                 className={`rounded-none ${tab === Tab.MARKET ? "bg-transparent text-foreground" : "bg-accent text-muted-foreground"}`}
               >
                 <div className="flex items-center gap-2 justify-center">
-                  <Image src={Market} alt="Market" className="size-4" />
+                  <Icon
+                    name="market"
+                    className={cn(
+                      "size-4",
+                      tab === Tab.MARKET ? "text-primary" : "text-muted-foreground"
+                    )}
+                  />
                   Market
                 </div>
               </TabsTrigger>
@@ -51,7 +59,13 @@ export function OrderPanel() {
                 className={`rounded-none ${tab === Tab.ORDER ? "bg-transparent text-foreground" : "bg-accent text-muted-foreground"}`}
               >
                 <div className="flex items-center gap-2 justify-center">
-                  <Image src={Order} alt="Order" className="size-4" />
+                  <Icon
+                    name="order"
+                    className={cn(
+                      "size-4",
+                      tab === Tab.ORDER ? "text-primary" : "text-muted-foreground"
+                    )}
+                  />
                   Order
                 </div>
               </TabsTrigger>
