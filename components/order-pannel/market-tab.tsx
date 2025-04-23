@@ -164,7 +164,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   useEffect(() => {
     handleQuery(orderTokenAAmount);
-  }, [slippage]);
+  }, [slippage, priceState]);
 
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { SwapInfo } = hybirdTradeProgram;
@@ -210,6 +210,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       maxReceive: "",
       fee: "",
     });
+    cleanInterval();
   };
 
   const toggleToken = () => {
@@ -415,6 +416,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     }
   };
 
+  const cleanInterval = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  };
+
   useEffect(() => {
     if (inputTokenAmount && servicePoolInfo) {
       // Initial fetch
@@ -427,10 +435,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
     // Clean up interval on component unmount or when dependencies change
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        setIntervalId(null);
-      }
+      cleanInterval();
     };
   }, [inputTokenAmount, servicePoolInfo]);
 
@@ -444,9 +449,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       return;
     }
     // Stop polling when initiating a buy transaction
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
+    cleanInterval();
 
     const amount = new Decimal(orderTokenAAmount)
       .mul(new Decimal(10).pow(mintDecimalA!))
