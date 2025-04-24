@@ -15,7 +15,7 @@ export function Overview() {
       <div className="flex justify-between">
         <span className="font-semibold text-lg">Dashboard</span>
       </div>
-      <div className="border rounded-lg mt-2 flex justify-between py-3 bg-secondary/20 px-5 ">
+      <div className="border rounded-lg mt-2 flex justify-between py-3 bg-secondary/20 px-5 flex-col md:flex-row gap-2">
         <div className="flex flex-col ">
           <span className="text-sm text-muted-foreground">Total volume</span>
           {isLoading ? (

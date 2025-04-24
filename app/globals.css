@@ -90,3 +90,23 @@ body {
     margin: 0;
   }
 }
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px hsl(var(--primary));
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px hsl(var(--primary));
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 8px 16px hsl(var(--primary));
+  }
+
+  .text-shadow-primary {
+    text-shadow:
+      0 0 5px hsl(var(--primary)),
+      0 0 10px hsl(var(--primary-highlight));
+  }
+}
