@@ -6,7 +6,7 @@ import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { cn, formatBalance } from "@/lib/utils";
+import { cn, formatBalance, formatFloor } from "@/lib/utils";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { ChevronsUpDown } from "../ui/icon";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";
@@ -387,13 +387,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         setOrderTokenBAmount(_orderTokenBAmount);
         setRouting({
-          onlySwap: `${(+onlySwapOutput).toFixed(4)}`,
+          onlySwap: `${formatFloor(onlySwapOutput)}`,
           dexRatio: swapRatio.toString(),
           orderRatio: orderRatio.toString(),
-          buyMore: `${(+resultBuyMore).toFixed(4)}`,
-          minReceive: `${(+minReceive).toFixed(4)}`,
-          maxReceive: `${(+maxReceive).toFixed(4)}`,
-          fee: `${(+fee).toFixed(4)}`,
+          buyMore: `${formatFloor(resultBuyMore)}`,
+          minReceive: `${formatFloor(minReceive)}`,
+          maxReceive: `${formatFloor(maxReceive)}`,
+          fee: `${formatFloor(fee)}`,
         });
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);

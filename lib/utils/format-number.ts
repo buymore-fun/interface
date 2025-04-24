@@ -97,7 +97,7 @@ export function formatNumber(input: number | string | undefined, placeholder = "
 
 export function formatBalance(
   balance: number | string,
-  toFixed: number = 3,
+  toFixed: number = 4,
   decimals: number = LAMPORTS_PER_SOL
 ): string {
   const solBalance = new Decimal(balance).div(new Decimal(decimals)).toNumber();
@@ -206,4 +206,49 @@ export function formatNumberCompact(input: number | string) {
   const { formatterOptions } = getFormatterRuleCompact(+input);
 
   return new Intl.NumberFormat("en-US", formatterOptions as any).format(+input);
+}
+
+/**
+ * Formats a number to a specified number of decimal places with rounding options
+ * @param input - The number to format
+ * @param decimals - Number of decimal places to keep (default: 4)
+ * @param roundDown - Whether to round down (floor) or round to nearest (default: true)
+ * @returns The formatted number as a string
+ */
+export function formatDecimal(
+  input: number | string,
+  decimals: number = 4,
+  roundDown: boolean = true
+): string {
+  if (!input && input !== 0) return "";
+
+  const num = typeof input === "string" ? parseFloat(input) : input;
+
+  // For very small numbers, use scientific notation
+  if (num !== 0 && Math.abs(num) < 0.0001) {
+    return num.toExponential(decimals);
+  }
+
+  // Format based on rounding preference
+  const factor = Math.pow(10, decimals);
+  const formattedValue = roundDown
+    ? Math.floor(num * factor) / factor // Round down (floor)
+    : Math.round(num * factor) / factor; // Round to nearest
+
+  // Format the number to show exactly the specified number of decimal places
+  return formattedValue.toFixed(decimals);
+}
+/**
+ * Formats a number by rounding down and removing trailing zeros
+ * @param input - The number to format
+ * @param decimals - Maximum number of decimal places to keep (default: 4)
+ * @returns Formatted number as a string with unnecessary zeros removed
+ */
+export function formatFloor(input: number | string, decimals?: number, isFloor?: boolean): string {
+  if (!input && input !== 0) return "";
+
+  const flooredValue = formatDecimal(input, decimals, isFloor);
+
+  // Remove trailing zeros after the decimal point
+  return flooredValue.replace(/\.?0+$/, "").replace(/\.$/, "");
 }

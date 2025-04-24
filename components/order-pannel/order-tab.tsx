@@ -17,7 +17,7 @@ import { useMemo, useEffect } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import Decimal from "decimal.js";
-import { formatBalance } from "@/lib/utils";
+import { formatBalance, formatFloor } from "@/lib/utils";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";
@@ -130,7 +130,7 @@ export function OrderTab() {
       const price = getCurrentPrice(raydiumPoolInfo, !isBuy);
       setOrderPrice(price.toString());
     }
-  }, [raydiumPoolInfo, isBuy]);
+  }, [raydiumPoolInfo, isBuy, priceState]);
 
   useEffect(() => {
     if (orderTokenAAmount && orderPrice) {
@@ -312,8 +312,11 @@ export function OrderTab() {
                   type="number"
                   className="border-none text-lg font-semibold text-right outline-none p-0 w-[110px] h-6"
                   placeholder="0.00"
-                  value={orderPrice}
-                  onChange={(e) => setOrderPrice(e.target.value)}
+                  min={0}
+                  value={formatFloor(orderPrice)}
+                  onChange={(e) => {
+                    setOrderPrice(e.target.value);
+                  }}
                 />
               )}
               <span className="text-xs text-muted-foreground">
@@ -407,7 +410,7 @@ export function OrderTab() {
               id="tokenB"
               className="border-none text-lg font-semibold text-right outline-none p-0 disabled:cursor-not-allowed"
               placeholder="0.00"
-              value={orderTokenBAmount}
+              value={(+(+orderTokenBAmount).toFixed(4)).toString()}
               disabled={true}
             />
           </div>
