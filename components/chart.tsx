@@ -6,8 +6,10 @@ import {
   ColorType,
   UTCTimestamp,
   TickMarkType,
+  PriceScaleOptions,
 } from "lightweight-charts";
 import React, { useEffect, useRef } from "react";
+import { formatFloor } from "@/lib/utils";
 
 export function formatTickMarks(
   time: UTCTimestamp,
@@ -83,8 +85,23 @@ export function Chart({
         fixLeftEdge: true,
         fixRightEdge: true,
       },
+      rightPriceScale: {
+        borderVisible: false,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
     });
     chart.timeScale().fitContent();
+
+    // Set price formatter using the correct API
+    chart.priceScale("right").applyOptions({});
+    chart.applyOptions({
+      localization: {
+        priceFormatter: (price: number) => formatFloor(price),
+      },
+    });
 
     const newSeries = chart.addSeries(CandlestickSeries);
     newSeries.setData(data);

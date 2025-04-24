@@ -3,7 +3,7 @@
 import { Button } from "./ui/button";
 import { Check, Clipboard } from "lucide-react";
 
-import { formatNumber, cn } from "@/lib/utils";
+import { formatNumber, cn, formatFloor } from "@/lib/utils";
 
 import { SOL_ADDRESS } from "@/lib/constants";
 import { useToken } from "@/hooks/use-token";
@@ -47,7 +47,7 @@ export function TokenInfo({
                   token.priceChange24h >= 0 ? "text-[#9ad499]" : "text-[#de5569]"
                 )}
               >
-                ${formatNumber(token.priceUsd)}
+                ${formatFloor(token.priceUsd)}
               </span>
             ) : null}
           </div>
