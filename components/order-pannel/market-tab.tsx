@@ -133,14 +133,19 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   );
 
   const [formatedTokenABalance, formatedTokenBBalance] = useMemo(() => {
+    console.log(
+      "~formatBalance",
+      formatBalance(solBalance, 9),
+      formatFloor(formatBalance(solBalance, 9))
+    );
     return isReverse
       ? [
-          `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(inputToken)}`,
-          `${tokenBalance?.uiAmountString} ${getSymbolFromPoolInfo(outputToken)}`,
+          `${formatFloor(formatBalance(solBalance, 9))} ${getSymbolFromPoolInfo(inputToken)}`,
+          `${formatFloor(tokenBalance?.uiAmountString || "0")} ${getSymbolFromPoolInfo(outputToken)}`,
         ]
       : [
-          `${tokenBalance?.uiAmountString} ${getSymbolFromPoolInfo(inputToken)}`,
-          `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(outputToken)}`,
+          `${formatFloor(tokenBalance?.uiAmountString || "0")} ${getSymbolFromPoolInfo(inputToken)}`,
+          `${formatFloor(formatBalance(solBalance, 9))} ${getSymbolFromPoolInfo(outputToken)}`,
         ];
   }, [isReverse, solBalance, tokenBalance, outputToken, inputToken]);
 
@@ -183,19 +188,21 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       orderTokenBAmount && !isNaN(Number(orderTokenBAmount)) ? orderTokenBAmount : "0";
 
     const priceSolInUSD = isReverse
-      ? new Decimal(solPrice).mul(validTokenAAmount).toFixed(3)
-      : new Decimal(solPrice).mul(validTokenBAmount).toFixed(3);
+      ? new Decimal(solPrice).mul(validTokenAAmount).toString()
+      : new Decimal(solPrice).mul(validTokenBAmount).toString();
     const priceTokenInUSD = isReverse
       ? priceState && priceState !== 0
-        ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toFixed(3)
+        ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toString()
         : "0.000"
       : priceState && priceState !== 0
-        ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toFixed(3)
+        ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toString()
         : "0.000";
 
     console.log("🚀 ~ priceSolInUSD:", solPrice, priceState, priceSolInUSD, priceTokenInUSD);
 
-    return isReverse ? [priceSolInUSD, priceTokenInUSD] : [priceTokenInUSD, priceSolInUSD];
+    return isReverse
+      ? [formatFloor(priceSolInUSD), formatFloor(priceTokenInUSD)]
+      : [formatFloor(priceTokenInUSD), formatFloor(priceSolInUSD)];
   }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
 
   const cleanInput = () => {
@@ -342,15 +349,15 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .mul(new Decimal(100).sub(slippage))
           .div(100)
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(isReverse ? 2 : mintDecimalB!);
+          .toFixed(isReverse ? 9 : mintDecimalB!);
 
         const maxReceive = new Decimal(result.buy_more.result.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(isReverse ? 2 : mintDecimalB!);
+          .toFixed(isReverse ? 9 : mintDecimalB!);
 
         const fee = new Decimal(resultBuyMore.toString())
           .mul(0.4)
-          .toFixed(isReverse ? 2 : mintDecimalB!);
+          .toFixed(isReverse ? 9 : mintDecimalB!);
 
         console.log("totalOutput", totalOutput.toString());
         console.log("fromOrderOutput", fromOrderOutput.toString());
@@ -376,14 +383,14 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         const _orderTokenBAmount = new Decimal(result.buy_more.result.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(isReverse ? 2 : mintDecimalB!);
+          .toFixed(isReverse ? 9 : mintDecimalB!);
 
         console.log("🚀 ~ const_orderTokenBAmount:", _orderTokenBAmount);
 
         // debugger;
         const onlySwapOutput = new Decimal(result.only_swap.output.toString())
           .div(new Decimal(10).pow(mintDecimalB!))
-          .toFixed(isReverse ? 2 : mintDecimalB!);
+          .toFixed(isReverse ? 9 : mintDecimalB!);
 
         setOrderTokenBAmount(_orderTokenBAmount);
         setRouting({
@@ -509,10 +516,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
             <div className="flex space-x-1 items-center">
               <div className="flex items-center space-x-1">
                 <Wallet className="text-muted-foreground size-3" />
-                <span className="text-muted-foreground text-xs">
-                  {/* {formatBalance(tokenABalance)} */}
-                  {formatedTokenABalance}
-                </span>
+                <span className="text-muted-foreground text-xs">{formatedTokenABalance}</span>
               </div>
               <Button
                 size="xs"
@@ -630,7 +634,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
               <Input
                 className="border-none text-2xl disabled:cursor-not-allowed font-semibold text-right outline-none p-0 h-6"
                 placeholder="0.00"
-                value={orderTokenBAmount}
+                value={formatFloor(orderTokenBAmount)}
                 readOnly
               />
               <span className="text-muted-foreground text-sm flex justify-end h-2">

@@ -209,42 +209,89 @@ export function formatNumberCompact(input: number | string) {
 }
 
 /**
- * Formats a number to a specified number of decimal places with rounding options
+ * Formats a number according to specific rules:
+ * 1. For numbers < 1: Shows 4 digits after the first non-zero digit
+ * 2. For numbers >= 1: Shows exactly 2 decimal places
+ *
  * @param input - The number to format
- * @param decimals - Number of decimal places to keep (default: 4)
+ * @param decimals - Optional specific number of decimal places to use
  * @param roundDown - Whether to round down (floor) or round to nearest (default: true)
  * @returns The formatted number as a string
  */
 export function formatDecimal(
   input: number | string,
-  decimals: number = 4,
+  decimals?: number,
   roundDown: boolean = true
 ): string {
   if (!input && input !== 0) return "";
 
   const num = typeof input === "string" ? parseFloat(input) : input;
 
-  // For very small numbers, use scientific notation
-  if (num !== 0 && Math.abs(num) < 0.0001) {
-    return num.toExponential(decimals);
+  // If decimals is explicitly provided, use that
+  if (decimals !== undefined) {
+    const factor = Math.pow(10, decimals);
+    const formattedValue = roundDown
+      ? Math.floor(num * factor) / factor
+      : Math.round(num * factor) / factor;
+    return formattedValue.toFixed(decimals);
   }
 
-  // Format based on rounding preference
-  const factor = Math.pow(10, decimals);
-  const formattedValue = roundDown
-    ? Math.floor(num * factor) / factor // Round down (floor)
-    : Math.round(num * factor) / factor; // Round to nearest
+  // For numbers >= 1, always show exactly 2 decimal places
+  if (num >= 1) {
+    const factor = Math.pow(10, 2);
+    const formattedValue = roundDown
+      ? Math.floor(num * factor) / factor
+      : Math.round(num * factor) / factor;
+    return formattedValue.toFixed(2);
+  }
 
-  // Format the number to show exactly the specified number of decimal places
-  return formattedValue.toFixed(decimals);
+  // For numbers < 1, show 4 digits after first non-zero digit
+  if (num > 0) {
+    // Convert to string to analyze the digits
+    const strNum = num.toString();
+    const decimalPos = strNum.indexOf(".");
+
+    // Find position of first non-zero digit after decimal
+    let firstNonZeroPos = -1;
+
+    for (let i = decimalPos + 1; i < strNum.length; i++) {
+      if (strNum[i] !== "0") {
+        firstNonZeroPos = i;
+        break;
+      }
+    }
+
+    if (firstNonZeroPos !== -1) {
+      // Calculate significant digits to show (4 digits after first non-zero)
+      const significantDigits = 4;
+      const totalDecimals = firstNonZeroPos - decimalPos + significantDigits - 1;
+
+      // Format with the calculated precision
+      const factor = Math.pow(10, totalDecimals);
+      const formattedValue = roundDown
+        ? Math.floor(num * factor) / factor
+        : Math.round(num * factor) / factor;
+
+      return formattedValue.toFixed(totalDecimals);
+    }
+  }
+
+  // Handle zero or other edge cases
+  return num.toFixed(4);
 }
+
 /**
  * Formats a number by rounding down and removing trailing zeros
  * @param input - The number to format
- * @param decimals - Maximum number of decimal places to keep (default: 4)
+ * @param decimals - Maximum number of decimal places to keep
+ * @param isFloor - Whether to round down (true) or round to nearest (false)
  * @returns Formatted number as a string with unnecessary zeros removed
  */
-export function formatFloor(input: number | string, decimals?: number, isFloor?: boolean): string {
+export function formatFloor(
+  input: number | string,
+  decimals?: number,
+  isFloor: boolean = true
+): string {
   if (!input && input !== 0) return "";
 
   const flooredValue = formatDecimal(input, decimals, isFloor);

@@ -262,8 +262,8 @@ export function OrderTab() {
           <Image src={WalletIcon} alt="Wallet" />
           <span>
             {isBuy
-              ? `${formatBalance(solBalance)} ${getSymbolFromPoolInfo(poolMintA)}`
-              : `${tokenBalance?.uiAmountString} ${getSymbolFromPoolInfo(poolMintA)}`}
+              ? `${formatFloor(formatBalance(solBalance, 9))} ${getSymbolFromPoolInfo(poolMintA)}`
+              : `${formatFloor(tokenBalance!.uiAmountString || "0")} ${getSymbolFromPoolInfo(poolMintA)}`}
           </span>
         </div>
       </div>
@@ -410,7 +410,7 @@ export function OrderTab() {
               id="tokenB"
               className="border-none text-lg font-semibold text-right outline-none p-0 disabled:cursor-not-allowed"
               placeholder="0.00"
-              value={(+(+orderTokenBAmount).toFixed(4)).toString()}
+              value={formatFloor(orderTokenBAmount)}
               disabled={true}
             />
           </div>
