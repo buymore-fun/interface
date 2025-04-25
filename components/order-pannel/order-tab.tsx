@@ -30,10 +30,12 @@ import { getCurrentPrice, getSymbolFromPoolInfo } from "@/lib/calc";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 // import { useMyOrders } from "@/hooks/use-activities";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
+import { useCommonToast } from "@/hooks/use-common-toast";
 // interface OrderTabProps {}
 
 export function OrderTab() {
+  const { errorToast } = useCommonToast();
   const [, setConnectWalletModalOpen] = useConnectWalletModalOpen();
   const [orderPrice, setOrderPrice] = useState<string>("");
   const { solPrice, isLoading: isSolPriceLoading } = useSolPrice();
@@ -200,7 +202,7 @@ export function OrderTab() {
         .toString();
 
       if (+inAmount && +inAmount > +tokenABalance) {
-        toast.error("Insufficient balance");
+        errorToast("Swap Failed", "Insufficient balance");
         return;
       }
 
@@ -242,6 +244,13 @@ export function OrderTab() {
       transactionToast(sig1);
     } catch (error) {
       console.error("Error preparing pool ID:", error);
+      errorToast(
+        "Swap Failed",
+        <>
+          Request signature: <br />
+          user denied request signature.
+        </>
+      );
     } finally {
       submitOrderLoading.setFalse();
       cleanInput();

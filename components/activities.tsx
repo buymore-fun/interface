@@ -24,14 +24,14 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { BN } from "@coral-xyz/anchor";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
+import { useCommonToast } from "@/hooks/use-common-toast";
 import Decimal from "decimal.js";
 
 export const defaultSymbol = "T";
 
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
   const [activeTab, setActiveTab] = React.useState("myOrder");
-
   // Handle tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -155,6 +155,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
 };
 
 const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: string }) => {
+  const { errorToast } = useCommonToast();
   const { myOrderList, isMyOrderListLoading, myOrderListError, fetchMyOrders } = useMyOrders(
     inputMint as string,
     outputMint as string
@@ -199,7 +200,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         poolInfoResponse
       );
     } catch (error: any) {
-      toast.error("Failed to cancel order");
+      errorToast("Operation Failed", "Failed to cancel order");
       console.log(error?.message);
     } finally {
       setCancelTx("");

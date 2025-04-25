@@ -16,8 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
-
+import { useRouter } from "next/navigation";
 export function Topbar() {
+  const router = useRouter();
   const [, setOpen] = useConnectWalletModalOpen();
   const { publicKey, disconnect, wallet } = useWallet();
   const [isAnimating, setIsAnimating] = useState(true);
@@ -37,7 +38,7 @@ export function Topbar() {
       <div className="max-w-6xl mx-auto ">
         <div className="flex justify-between items-center w-full gap-6">
           <div className="flex justify-between items-center flex-1">
-            <div className="flex-1 -my-4">
+            <div className="flex-1 -my-4 cursor-pointer" onClick={() => router.push("/")}>
               <Image
                 src={isAnimating ? "/logo.gif" : "/logo_v3.png"}
                 alt="Logo"

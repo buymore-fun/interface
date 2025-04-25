@@ -37,7 +37,13 @@ export function OrderPanel() {
         <Skeleton className="w-full h-[360px]" />
       ) : (
         <>
-          <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
+          {/* <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}> */}
+          <Tabs
+            value={tab}
+            onValueChange={(value) => {
+              setTab(value as Tab);
+            }}
+          >
             <TabsList className="w-full grid grid-cols-2 h-11 text-lg font-semibold">
               <TabsTrigger
                 value={Tab.MARKET}

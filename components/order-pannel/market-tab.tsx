@@ -32,10 +32,10 @@ import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { getCurrentPrice, getCurrentPriceInUSD, getSymbolFromPoolInfo } from "@/lib/calc";
 import TooltipWrapper from "@/components/tooltip-wrapper";
 import Image from "next/image";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 import { useSolPrice } from "@/hooks/use-sol-price";
 import { CpmmPoolInfo } from "@/types/raydium";
-
+import { useCommonToast } from "@/hooks/use-common-toast";
 interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
 }
@@ -51,6 +51,7 @@ export interface Routing {
 }
 
 export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
+  const { errorToast } = useCommonToast();
   const { fetchRaydiumPoolInfo } = useRaydiumPoolInfo();
   const [isOpen, setIsOpen] = useState(false);
   const [slippage, setSlippage] = useAtom(slippageAtom);
@@ -452,7 +453,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     console.log("🚀 ~ handleBuy ~ inputAmount:", inputTokenAmount, currentAAmount);
 
     if (+inputTokenAmount > +currentAAmount) {
-      toast.error("Insufficient balance");
+      errorToast("Swap Failed", "Insufficient balance");
       return;
     }
     // Stop polling when initiating a buy transaction
@@ -492,6 +493,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       await fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
     } catch (error) {
       console.log("🚀 ~ handleBuy ~ error:", error);
+      errorToast(
+        "Swap Failed",
+        <>
+          Request signature: <br />
+          user denied request signature.
+        </>
+      );
     } finally {
       isSubmitting.off();
       cleanInput();
