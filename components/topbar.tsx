@@ -94,6 +94,12 @@ export function Topbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
+                  {/* <DropdownMenuItem> */}
+                  <div className="flex flex-col gap-1 text-sm px-3 pt-2">
+                    <span className="text-muted-foreground">Total Buymore </span>
+                    <span className="text-white">$888.999</span>
+                  </div>
+                  {/* </DropdownMenuItem> */}
                   <DropdownMenuItem>
                     <Button
                       variant="ghost"

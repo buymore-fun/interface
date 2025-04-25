@@ -113,12 +113,12 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {item.from_amount.amount} ${item.from_amount.symbol}
+              {item.from_amount.amount} {item.from_amount.symbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {item.to_amount.amount} ${item.to_amount.symbol}
+              {item.to_amount.amount} {item.to_amount.symbol}
             </span>
           </div>
           <div className="col-span-2 flex flex-col">
@@ -129,7 +129,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
           <div className="col-span-2">
             {/* className={''} */}
             <span className="text-muted-foreground  text-wrap break-words">
-              {item.buymore_amount.amount} ${item.buymore_amount.symbol}
+              {item.buymore_amount.amount} {item.buymore_amount.symbol}
             </span>
           </div>
 
@@ -228,17 +228,17 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {item.from_amount.amount} ${item.from_amount.symbol || defaultSymbol}
+              {item.from_amount.amount} {item.from_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground  text-wrap break-words"}>
-              {item.to_amount.amount} ${item.to_amount.symbol || defaultSymbol}
+              {item.to_amount.amount} {item.to_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
             <span className={"text-muted-foreground  text-wrap break-words"}>
-              {item.receive_amount.amount}${item.receive_amount.symbol || defaultSymbol}
+              {item.receive_amount.amount} {item.receive_amount.symbol || defaultSymbol}
             </span>
           </div>
           <div className="col-span-2">
@@ -321,13 +321,13 @@ export const HistoryList = ({
 
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {item.from_amount.amount} ${item.from_amount.symbol || defaultSymbol}
+              {item.from_amount.amount} {item.from_amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* amount */}
           <div className="col-span-2">
             <span className="text-muted-foreground  text-wrap break-words">
-              {item.to_amount.amount} ${item.to_amount.symbol || defaultSymbol}
+              {item.to_amount.amount} {item.to_amount.symbol || defaultSymbol}
             </span>
           </div>
           {/* price */}
@@ -346,7 +346,7 @@ export const HistoryList = ({
             <span className="text-muted-foreground  text-wrap break-words">
               {item.buymore_amount.amount
                 ? `${item.buymore_amount.amount} 
-                $${item.buymore_amount.symbol || defaultSymbol}`
+                ${item.buymore_amount.symbol || defaultSymbol}`
                 : "-"}
             </span>
           </div>

@@ -2,18 +2,27 @@ import { useDashboardIndex } from "@/hooks/services";
 import { useParams } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardTime } from "@/types/chart";
+import { TimeGroup } from "@/components/time-group";
+import { useState } from "react";
 
 export function Overview() {
   const { address } = useParams();
+  const [tableType, setTableType] = useState<DashboardTime>(DashboardTime.ALL);
 
   const { data, isLoading } = useDashboardIndex({
     inputMint: address as string,
   });
 
   return (
-    <div>
+    <div className="pt-4">
       <div className="flex justify-between">
         <span className="font-semibold text-lg">Dashboard</span>
+        <TimeGroup
+          typeObject={DashboardTime}
+          onTypeChange={(type) => setTableType(type as DashboardTime)}
+          selectedType={tableType}
+        />
       </div>
       <div className="border rounded-lg mt-2 flex justify-between py-3 bg-secondary/20 px-5 flex-col md:flex-row gap-2">
         <div className="flex flex-col ">

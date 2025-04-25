@@ -12,3 +12,10 @@ export enum TableTime {
   TWELVE_HOUR = "12H",
   TWENTY_FOUR_HOUR = "24H",
 }
+
+export enum DashboardTime {
+  ONE_HOUR = "1H",
+  SIX_HOUR = "6H",
+  TWENTY_FOUR_HOUR = "24H",
+  ALL = "All",
+}
