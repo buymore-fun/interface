@@ -9,15 +9,7 @@ import { useActivities, useMyOrders, useTradeHistory } from "@/hooks/use-activit
 import { getCpmmPoolFetchOne } from "@/hooks/services";
 import React from "react";
 
-import {
-  cn,
-  formatAddress,
-  formatNumber,
-  formatNumberCompact,
-  formatPrice,
-  formatTime,
-  formatTimeAgo,
-} from "@/lib/utils";
+import { cn, formatAddress, formatNumber, formatPrice, formatTime } from "@/lib/utils";
 import { IMyOrderItem } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ExternalLink } from "lucide-react";

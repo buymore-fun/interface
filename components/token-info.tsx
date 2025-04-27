@@ -15,52 +15,26 @@ import { ChartType } from "@/types/chart";
 import { TimeGroup } from "@/components/time-group";
 import { Switch } from "@/components/ui/switch";
 import React from "react";
-import { BroadcastBox, Order } from "@/components/broadcast-box";
+import { OrderFeedSocket } from "@/components/OrderFeedSocket";
 
 export function TokenInfo({
   tokenAddress,
   onTypeChange,
   type,
+  inputMint,
+  outputMint,
 }: {
   tokenAddress: string;
   type: ChartType;
   onTypeChange: (type: ChartType) => void;
+  inputMint?: string;
+  outputMint?: string;
 }) {
   const token = useToken(tokenAddress);
   const SOL = useToken(SOL_ADDRESS);
 
   const { hasCopied, onCopy } = useClipboard(tokenAddress);
   const [showOrders, setShowOrders] = React.useState(true);
-
-  const [orders, setOrders] = React.useState<Order[]>([
-    {
-      id: "1",
-      type: "SELL",
-      time: "51s",
-      address: "2yTYM...7tS3Dg",
-      price: "999.999",
-      amount: "999",
-      token: "SOL",
-    },
-    {
-      id: "2",
-      type: "BUY",
-      time: "52s",
-      address: "2yTYM...7tS3Dg",
-      price: "999.999",
-      amount: "999",
-      token: "BoB",
-    },
-    {
-      id: "3",
-      type: "SELL",
-      time: "53s",
-      address: "2yTYM...7tS3Dg",
-      price: "999.999",
-      amount: "999",
-      token: "BoB",
-    },
-  ]);
 
   return (
     <div className="flex justify-between items-start flex-col-reverse md:flex-row gap-2">
@@ -106,12 +80,8 @@ export function TokenInfo({
             </div>
           </div>
           <div className="absolute top-8 left-0 w-full h-full z-20">
-            {showOrders ? (
-              orders.length > 0 ? (
-                <BroadcastBox orders={orders} />
-              ) : (
-                <div className="text-muted-foreground text-sm">No orders found</div>
-              )
+            {showOrders && inputMint && outputMint ? (
+              <OrderFeedSocket inputToken={inputMint} outputToken={outputMint} />
             ) : null}
           </div>
         </div>

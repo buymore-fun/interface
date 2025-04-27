@@ -52,6 +52,8 @@ function SwapContent() {
                   tokenAddress={inputMint as string}
                   type={chartType}
                   onTypeChange={setChartType}
+                  inputMint={inputMint}
+                  outputMint={outputMint}
                 />
                 <div className="mt-2 h-[360px]">
                   {chartData?.length ? (
