@@ -54,8 +54,6 @@ export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: Orde
         // Create a direct WebSocket connection
         const encodedInputToken = encodeURIComponent(inputToken);
         const encodedOutputToken = encodeURIComponent(outputToken);
-
-        // 使用wss协议，确保与提供的地址格式匹配
         const wsUrl = `wss://api-test.buymore.fun/usurper/order-feed/subscribe?input_token=${encodedInputToken}&output_token=${encodedOutputToken}`;
 
         console.log("Connecting to WebSocket:", wsUrl);
@@ -64,21 +62,21 @@ export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: Orde
 
         // WebSocket event handlers
         ws.onopen = () => {
-          console.log("WebSocket connection established");
+          // console.log("WebSocket connection established");
           setIsConnected(true);
           setConnectionError(null);
         };
 
         ws.onmessage = (event) => {
           try {
-            console.log("Received WebSocket message:", event.data);
+            // console.log("Received WebSocket message:", event.data);
             const response: OrderResponse = JSON.parse(event.data);
 
             // Check if it's a message event with order data
             if (response.event === "message" && Array.isArray(response.data)) {
               const newOrders = response.data.map((item) => ({
                 time: item.time,
-                order_type: item.order_type,
+                order_type: item.order_type.toLowerCase(),
                 order_amount: item.order_amount,
                 owner: item.owner,
                 price: item.price,
@@ -164,13 +162,12 @@ export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: Orde
 
   return (
     <div className="flex flex-col">
-      {/* Connection status indicator */}
       {/* <div className="flex justify-between items-center mb-2">
         <div className="flex items-center">
           <div
             className={`w-2 h-2 rounded-full mr-2 ${isConnected ? "bg-green-500" : "bg-red-500"}`}
           ></div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {isConnected
               ? "Connected to order feed"
               : connectionError || "Connecting to order feed..."}
@@ -182,9 +179,14 @@ export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: Orde
         <BroadcastBox orders={orders} />
       ) : (
         <div className="p-4 bg-accent/50 rounded-lg border border-accent text-muted-foreground text-center">
-          {isConnected ? "Waiting for orders..." : null}
+          {isConnected ? "Waiting for orders..." : "Cannot connect to order feed"}
         </div>
       )}
+
+      <div className="mt-2 text-xs text-muted-foreground/70">
+        <p className="truncate">Input Token: {inputToken.slice(0, 16)}...</p>
+        <p className="truncate">Output Token: {outputToken.slice(0, 16)}...</p>
+      </div>
     </div>
   );
 }

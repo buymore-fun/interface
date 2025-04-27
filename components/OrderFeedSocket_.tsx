@@ -1,0 +1,262 @@
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
+import { BroadcastBox, Order } from "@/components/broadcast-box";
+import { io, Socket } from "socket.io-client";
+import config from "@/config";
+
+interface OrderFeedSocketProps {
+  inputToken: string;
+  outputToken: string;
+  maxOrders?: number;
+}
+
+// Define the actual response format from the Socket.IO
+interface OrderResponse {
+  event: string;
+  token_0_mint: string;
+  token_1_mint: string;
+  data: {
+    time: number;
+    order_type: string;
+    order_amount: {
+      amount: string;
+      name: string;
+      address: string;
+      symbol: string;
+      decimal: number;
+    };
+    owner: string;
+    price: string;
+  }[];
+}
+
+export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: OrderFeedSocketProps) {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Create Socket.IO connection
+    const connectSocket = () => {
+      try {
+        // Clean up previous connection if exists
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+
+        // Clear any existing reconnect timeout
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+        // Encode tokens for URL parameters
+        const encodedInputToken = encodeURIComponent(inputToken);
+        const encodedOutputToken = encodeURIComponent(outputToken);
+
+        const socketUrl = `wss://api-test.buymore.fun`;
+
+        console.log("Connecting to Socket.IO:", socketUrl);
+        // console.log("WebSocket URL (for reference):", wsUrl);
+
+        // Updated Socket.IO configuration with more robust connection options
+        const socket = io(socketUrl, {
+          // path: `/usurper/order-feed/subscribe?input_token=${encodedInputToken}&output_token=${encodedOutputToken}`,
+          path: `/usurper/order-feed/subscribe`,
+          reconnectionAttempts: 10, // Increased from 5
+          reconnectionDelay: 3000, // Decreased from 5000 for faster reconnection
+          timeout: 20000, // Increased from 10000 to allow more time for connection
+          autoConnect: true, // Ensure auto connection is enabled
+          query: {
+            input_token: encodedInputToken,
+            output_token: encodedOutputToken,
+          },
+          transports: ["websocket"], // Force WebSocket transport only
+          // upgrade: false, // Prevent transport upgrades
+        });
+
+        socketRef.current = socket;
+
+        socket.onAny((event, data) => {
+          debugger;
+          console.log("Socket.IO event:", event, data);
+        });
+
+        // Socket.IO event handlers
+        socket.on("connect", () => {
+          console.log("Socket.IO connection established");
+          setIsConnected(true);
+          setConnectionError(null);
+
+          // Subscribe to order feed
+          // socket.emit("subscribe", {
+          //   route: "order-feed",
+          //   input_token: inputToken,
+          //   output_token: outputToken,
+          // });
+        });
+
+        socket.on("message", (response: OrderResponse) => {
+          debugger;
+
+          try {
+            console.log("Received Socket.IO message:", response);
+
+            // Check if we have order data
+            if (Array.isArray(response.data)) {
+              const newOrders = response.data.map((item) => ({
+                time: item.time,
+                order_type: item.order_type.toLowerCase(),
+                order_amount: item.order_amount,
+                owner: item.owner,
+                price: item.price,
+              }));
+
+              // Update orders state with the new orders
+              setOrders((prevOrders) => {
+                // Combine new orders with existing ones and limit to maxOrders
+                const combinedOrders = [...newOrders, ...prevOrders];
+
+                // Remove duplicates by checking owner and time
+                const uniqueOrders = combinedOrders.filter(
+                  (order, index, self) =>
+                    index ===
+                    self.findIndex((o) => o.owner === order.owner && o.time === order.time)
+                );
+
+                return uniqueOrders.slice(0, maxOrders);
+              });
+            }
+          } catch (error) {
+            console.error("Error processing Socket.IO message:", error);
+          }
+        });
+
+        socket.on("connect_error", (error) => {
+          console.error("Socket.IO connection error:", error);
+          setConnectionError(`Socket.IO connection error: ${error.message}`);
+          setIsConnected(false);
+
+          // Force reconnection on error
+          socket.connect();
+        });
+
+        socket.on("disconnect", (reason) => {
+          console.log("Socket.IO disconnected:", reason);
+          setIsConnected(false);
+
+          // If the disconnection wasn't clean or intentional, attempt to reconnect
+          if (
+            reason === "io server disconnect" ||
+            reason === "transport close" ||
+            reason === "transport error"
+          ) {
+            setConnectionError(`Connection closed unexpectedly (Reason: ${reason})`);
+
+            // Socket.IO should automatically attempt to reconnect due to the config,
+            // but we can add a manual fallback
+            if (!socket.connected) {
+              reconnectTimeoutRef.current = setTimeout(() => {
+                console.log("Manually attempting to reconnect...");
+                socket.connect(); // Try to reconnect the existing socket first
+                if (!socket.connected) {
+                  connectSocket(); // If that fails, create a new connection
+                }
+              }, 3000);
+            }
+          }
+        });
+
+        socket.on("error", (error) => {
+          console.error("Socket.IO error:", error);
+          setConnectionError(`Socket.IO error occurred: ${error}`);
+        });
+
+        socket.on("reconnect", (attemptNumber) => {
+          console.log(`Socket.IO reconnected after ${attemptNumber} attempts`);
+          setIsConnected(true);
+          setConnectionError(null);
+        });
+
+        socket.on("reconnect_error", (error) => {
+          console.error("Socket.IO reconnection error:", error);
+          setConnectionError(`Reconnection error: ${error.message}`);
+        });
+
+        socket.on("reconnect_failed", () => {
+          console.error("Socket.IO reconnection failed after all attempts");
+          setConnectionError("Reconnection failed after multiple attempts");
+        });
+
+        // Add a manual ping to keep connection alive
+        const pingInterval = setInterval(() => {
+          if (socket && socket.connected) {
+            socket.emit("ping", { timestamp: Date.now() });
+          }
+        }, 25000);
+
+        return () => {
+          clearInterval(pingInterval);
+        };
+      } catch (error) {
+        console.error("Error setting up Socket.IO:", error);
+        setConnectionError(
+          `Failed to connect to Socket.IO: ${error instanceof Error ? error.message : String(error)}`
+        );
+        setIsConnected(false);
+
+        // Attempt to reconnect after a delay
+        reconnectTimeoutRef.current = setTimeout(() => {
+          console.log("Attempting to reconnect after error...");
+          connectSocket();
+        }, 3000);
+      }
+    };
+
+    // Initialize connection
+    connectSocket();
+
+    // Cleanup function
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [inputToken, outputToken, maxOrders]);
+
+  return (
+    <div className="flex flex-col">
+      {/* <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center">
+          <div
+            className={`w-2 h-2 rounded-full mr-2 ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+          ></div>
+          <span className="text-sm text-muted-foreground">
+            {isConnected
+              ? "Connected to order feed"
+              : connectionError || "Connecting to order feed..."}
+          </span>
+        </div>
+      </div> */}
+
+      {orders.length > 0 ? (
+        <BroadcastBox orders={orders} />
+      ) : (
+        <div className="p-4 bg-accent/50 rounded-lg border border-accent text-muted-foreground text-center">
+          {isConnected ? "Waiting for orders..." : null}
+        </div>
+      )}
+
+      {/* <div className="mt-2 text-xs text-muted-foreground/70">
+        <p className="truncate">Input Token: {inputToken.slice(0, 16)}...</p>
+        <p className="truncate">Output Token: {outputToken.slice(0, 16)}...</p>
+      </div> */}
+    </div>
+  );
+}

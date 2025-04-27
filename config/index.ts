@@ -87,6 +87,7 @@ const config = {
   network: network,
   walletAdapterNetwork: walletAdapterNetwork,
   isMainnet,
+  baseUrl: "https://api-test.buymore.fun/usurper",
   ...mergeConfig,
 };
 

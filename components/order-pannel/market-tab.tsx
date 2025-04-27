@@ -198,12 +198,28 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       : priceState && priceState !== 0
         ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toString()
         : "0.000";
+    const priceWithSlippage = isReverse
+      ? new Decimal(priceTokenInUSD)
+          .mul(100 - slippage)
+          .div(100)
+          .toString()
+      : new Decimal(priceSolInUSD)
+          .mul(100 - slippage)
+          .div(100)
+          .toString();
 
-    console.log("🚀 ~ priceSolInUSD:", solPrice, priceState, priceSolInUSD, priceTokenInUSD);
+    console.log(
+      "🚀 ~ priceSolInUSD:",
+      solPrice,
+      priceState,
+      priceSolInUSD,
+      priceTokenInUSD,
+      priceWithSlippage
+    );
 
     return isReverse
-      ? [formatFloor(priceSolInUSD), formatFloor(priceTokenInUSD)]
-      : [formatFloor(priceTokenInUSD), formatFloor(priceSolInUSD)];
+      ? [formatFloor(priceSolInUSD), formatFloor(priceWithSlippage)]
+      : [formatFloor(priceTokenInUSD), formatFloor(priceWithSlippage)];
   }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
 
   const cleanInput = () => {

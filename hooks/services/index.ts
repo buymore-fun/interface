@@ -65,7 +65,7 @@ export function useMyOrderList(params: {
       const response = await axiosInstance.get(url, {
         params,
       });
-      console.log("SWR fetching my orders:", response.data.data);
+      // console.log("SWR fetching my orders:", response.data.data);
       return response.data.data as IResponseMyOrderList;
     },
     {

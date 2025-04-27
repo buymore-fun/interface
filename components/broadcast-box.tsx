@@ -37,7 +37,7 @@ export function BroadcastBox({ orders }: BroadcastBoxProps) {
               <span
                 className={cn(
                   "text-xs font-bold px-2 py-0.5 rounded capitalize",
-                  order.order_type === "buy"
+                  order.order_type == "buy"
                     ? "bg-green-500/20 text-[#9ad499]"
                     : "bg-red-500/20 text-[#de5569]"
                 )}
