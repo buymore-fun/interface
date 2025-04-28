@@ -496,6 +496,8 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     output_token_vault: PublicKey;
     input_token_balance?: TokenAmount;
     output_token_balance?: TokenAmount;
+    input_token_decimal: number;
+    output_token_decimal: number;
     orders: IOrderbookDepthItem[];
     token_0_mint: PublicKey;
     token_1_mint: PublicKey;
@@ -512,19 +514,23 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       this.input_token_mint = new PublicKey(input_token_mint);
       this.output_token_mint = new PublicKey(output_token_mint);
 
-      const [input_token_vault, output_token_vault, input_token_program, output_token_program] =
+      const [input_token_vault, output_token_vault, input_token_program, output_token_program, input_token_decimal, output_token_decimal] =
         input_token_mint === pool_state.cpmm.mintA
           ? [
               pool_state.cpmm.vaultA,
               pool_state.cpmm.vaultB,
               pool_state.cpmm.mintProgramA,
               pool_state.cpmm.mintProgramB,
+              pool_state.cpmm.mintDecimalA,
+              pool_state.cpmm.mintDecimalB,
             ]
           : [
               pool_state.cpmm.vaultB,
               pool_state.cpmm.vaultA,
               pool_state.cpmm.mintProgramB,
               pool_state.cpmm.mintProgramA,
+              pool_state.cpmm.mintDecimalB,
+              pool_state.cpmm.mintDecimalA,
             ];
 
       this.input_token_vault = new PublicKey(input_token_vault);
@@ -532,6 +538,9 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       this.input_token_program = new PublicKey(input_token_program);
       this.output_token_program = new PublicKey(output_token_program);
+
+      this.input_token_decimal = input_token_decimal;
+      this.output_token_decimal = output_token_decimal;
 
       this.pool_state = pool_state;
       this.token_0_mint = new PublicKey(pool_state.cpmm.mintA);
@@ -641,14 +650,21 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         input_token_amount.mul(output_token_amount).div(input_token_amount.add(input_swap_amount))
       );
 
-      // const current_price = new Decimal(input_swap_amount.toString()).div(
-      //   new Decimal(pre_output_amount.toString())
-      // );
       const current_price =
         parseFloat(input_swap_amount.toString()) / parseFloat(pre_output_amount.toString());
 
-      const output_usd_price = this.input_usd_price * current_price;
-
+        console.log(`AAA: `, new Decimal(output_token_amount.toString()).div(
+          new Decimal(10).pow(this.output_token_decimal)
+        ).div( new Decimal(input_token_amount.toString()).div(
+          new Decimal(10).pow(this.input_token_decimal)
+        ) ).toString())
+      const output_usd_price = new Decimal(this.input_usd_price).div( new Decimal(output_token_amount.toString()).div(
+        new Decimal(10).pow(this.output_token_decimal)
+      ).div( new Decimal(input_token_amount.toString()).div(
+        new Decimal(10).pow(this.input_token_decimal)
+      ) ))
+      
+        
       console.group("get_current_price");
       console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("input_token_amount:", input_token_amount.toString());
@@ -656,7 +672,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       console.log("pre_output_amount:", pre_output_amount.toString());
       console.log("current_price:", current_price.toFixed(20));
       console.log("input usd price:", this.input_usd_price);
-      console.log("output usd price:", output_usd_price );
+      console.log("output usd price:", output_usd_price.toString() );
       console.groupEnd();
 
       return {
@@ -665,7 +681,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         // current_price: current_price.toNumber(),
         current_price: current_price,
         input_usd_price: this.input_usd_price,
-        output_usd_price: output_usd_price
+        output_usd_price: output_usd_price.toNumber()
       };
     }
 
@@ -737,11 +753,11 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       const before_v = await this.get_current_price(input_amount);
 
-      // console.group("calc_buy_more");
-      // console.log("before_v:", before_v.current_price.toString());
-      // console.log("before_v input:", before_v.input.toString());
-      // console.log("before_v output:", before_v.output.toString());
-      // console.groupEnd();
+      console.group("calc_buy_more");
+      console.log("before_v:", before_v.current_price.toString());
+      console.log("before_v input:", before_v.input_usd_price.toFixed(10));
+      console.log("before_v output:", before_v.output_usd_price.toFixed(10));
+      console.groupEnd();
 
       const { left_input_amount, output_amount_count } = trades_v;
 
@@ -757,6 +773,17 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         new_output_amount = output_amount_count.add(from_swap.output);
       }
 
+      const ui_input_usd = new Decimal(input_amount.toString()).div(
+        new Decimal(10).pow(this.input_token_decimal)
+      ).mul( before_v.input_usd_price )
+
+      const ui_output_usd = new Decimal(new_output_amount.toString()).div(
+        new Decimal(10).pow(this.output_token_decimal)
+      ).mul( before_v.output_usd_price )
+
+      const slippage_v = ui_input_usd.lte(ui_output_usd) ? 0 : (1 - ui_output_usd.div(ui_input_usd).toNumber());
+
+      console.log(`CCCCCC: `, slippage_v )
       return {
         trades: trades_v,
         more: new_output_amount.sub(before_v.output) as BN,
@@ -773,9 +800,12 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
           },
           result: {
             input: input_amount,
-            input_usd: parseFloat(input_amount.toString()) * before_v.input_usd_price,
+            // input_usd: parseFloat(input_amount.toString()) * before_v.input_usd_price,
+            input_usd: ui_input_usd.toString(),
             output: new_output_amount,
-            output_usd: parseFloat(new_output_amount.toString()) * before_v.output_usd_price,
+            // output_usd: parseFloat(new_output_amount.toString()) * before_v.output_usd_price,
+            output_usd: ui_output_usd.toString(),
+            slippage: slippage_v.toFixed(2)
           },
         },
       };

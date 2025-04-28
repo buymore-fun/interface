@@ -330,8 +330,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .toString();
         const resultBuyMoreFromSwap = result.buy_more.from_swap.output.toString();
 
-        const InputUsd = result.buy_more.result.input_usd.toString();
-        const OutputUsd = result.buy_more.result.output_usd.toString();
+        const InputUsd = result.buy_more.result.input_usd;
+        const OutputUsd = result.buy_more.result.output_usd;
 
         console.group("handleQuery");
         console.log("inputAmount", amount);
