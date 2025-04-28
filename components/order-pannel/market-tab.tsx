@@ -336,9 +336,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         const InputUsd = result.buy_more.result.input_usd;
         const OutputUsd = result.buy_more.result.output_usd;
-        const Resultslippage = result.buy_more.result.slippage;
-        const ResultslippageFormatted =
-          +routing.resultSlippage > 0 ? `(${formatFloor(routing.resultSlippage)}%)` : "";
+        const resultSlippage = result.buy_more.result.slippage;
+        const resultSlippageFormatted =
+          +resultSlippage > 0 ? `(${formatFloor(resultSlippage)}%)` : "";
 
         console.group("handleQuery");
         console.log("inputAmount", amount);
@@ -355,7 +355,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         );
         console.log(`Buy more input usd: ${InputUsd}`);
         console.log(`Buy more output usd: ${OutputUsd}`);
-        console.log(`Buy more slippage: ${Resultslippage}, ${ResultslippageFormatted}`);
+        console.log(`Buy more slippage: ${resultSlippage}, ${resultSlippageFormatted}`);
         console.log(
           `Buy more from order: ${result.buy_more.from_order.input.toString()} -> ${result.buy_more.from_order.output.toString()}`
         );
@@ -436,7 +436,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           fee: `${formatFloor(fee)}`,
           inputUsd: `${InputUsd}`,
           outputUsd: `${OutputUsd}`,
-          resultSlippage: `${ResultslippageFormatted}`,
+          resultSlippage: `${resultSlippageFormatted}`,
         });
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
