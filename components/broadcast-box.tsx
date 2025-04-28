@@ -49,7 +49,7 @@ export function BroadcastBox({ orders }: BroadcastBoxProps) {
               </span>
             </div>
             <span className={cn("text-sm", index === 0 ? "text-white" : "text-muted-foreground")}>
-              {formatAddress(order.order_amount.address)}
+              {formatAddress(order.owner)}
             </span>
           </div>
           <div className="flex justify-between items-center">
