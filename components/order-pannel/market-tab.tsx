@@ -48,6 +48,8 @@ export interface Routing {
   minReceive: string;
   maxReceive: string;
   fee: string;
+  inputUsd: string;
+  outputUsd: string;
 }
 
 export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
@@ -89,6 +91,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     minReceive: "",
     maxReceive: "",
     fee: "",
+    inputUsd: "",
+    outputUsd: "",
   });
 
   const [tokenA, tokenB] = useMemo(
@@ -175,9 +179,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { SwapInfo } = hybirdTradeProgram;
 
+  const FromUSdPrice = useMemo(() => {
+    return isReverse ? solPrice : new Decimal(solPrice).div(priceState).toString();
+  }, [isReverse, solPrice, priceState]);
+
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
-    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, solPrice);  //TODO sol price == input usd price 
+    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice); //TODO sol price == input usd price
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
 
@@ -226,6 +234,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       minReceive: "",
       maxReceive: "",
       fee: "",
+      inputUsd: "",
+      outputUsd: "",
     });
     cleanInterval();
   };
@@ -312,9 +322,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         swapInfo?.add_orders(orderBook);
 
-        // calc input usd price
-        
-
         // const current_price = await swapInfo?.get_current_price(new BN(amount));
         const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;
 
@@ -322,6 +329,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           .div(10 ** mintDecimalB!)
           .toString();
         const resultBuyMoreFromSwap = result.buy_more.from_swap.output.toString();
+
+        const InputUsd = result.buy_more.result.input_usd.toString();
+        const OutputUsd = result.buy_more.result.output_usd.toString();
 
         console.group("handleQuery");
         console.log("inputAmount", amount);
@@ -336,6 +346,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         console.log(
           `Buy more: ${result.buy_more.result.input.toString()} -> ${result.buy_more.result.output.toString()}`
         );
+        console.log(`Buy more input usd: ${InputUsd}`);
+        console.log(`Buy more output usd: ${OutputUsd}`);
         console.log(
           `Buy more from order: ${result.buy_more.from_order.input.toString()} -> ${result.buy_more.from_order.output.toString()}`
         );
@@ -414,6 +426,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           minReceive: `${formatFloor(minReceive)}`,
           maxReceive: `${formatFloor(maxReceive)}`,
           fee: `${formatFloor(fee)}`,
+          inputUsd: `${InputUsd}`,
+          outputUsd: `${OutputUsd}`,
         });
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
@@ -605,7 +619,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
               value={orderTokenAAmount}
             />
             <span className="text-muted-foreground text-sm flex justify-end ">
-              ${formatedTokenABalanceInUSD}
+              ${formatFloor(routing.inputUsd)}
             </span>
           </div>
         </div>
@@ -658,7 +672,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
                 readOnly
               />
               <span className="text-muted-foreground text-sm flex justify-end h-2">
-                ${formatedTokenBBalanceInUSD}
+                ${formatFloor(routing.outputUsd)}
               </span>
             </div>
           )}
