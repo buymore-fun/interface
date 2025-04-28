@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { ArrowDownUp, Wallet } from "lucide-react";
 import { SOL_ADDRESS } from "@/lib/constants";
@@ -50,6 +51,7 @@ export interface Routing {
   fee: string;
   inputUsd: string;
   outputUsd: string;
+  resultSlippage: string;
 }
 
 export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
@@ -91,8 +93,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     minReceive: "",
     maxReceive: "",
     fee: "",
-    inputUsd: "",
-    outputUsd: "",
+    inputUsd: "0",
+    outputUsd: "0",
+    resultSlippage: "",
   });
 
   const [tokenA, tokenB] = useMemo(
@@ -185,7 +188,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
-    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice); //TODO sol price == input usd price
+    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
 
@@ -236,6 +239,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       fee: "",
       inputUsd: "",
       outputUsd: "",
+      resultSlippage: "",
     });
     cleanInterval();
   };
@@ -332,6 +336,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
         const InputUsd = result.buy_more.result.input_usd;
         const OutputUsd = result.buy_more.result.output_usd;
+        const Resultslippage = result.buy_more.result.slippage;
+        const ResultslippageFormatted =
+          +routing.resultSlippage > 0 ? `(${formatFloor(routing.resultSlippage)}%)` : "";
 
         console.group("handleQuery");
         console.log("inputAmount", amount);
@@ -348,6 +355,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         );
         console.log(`Buy more input usd: ${InputUsd}`);
         console.log(`Buy more output usd: ${OutputUsd}`);
+        console.log(`Buy more slippage: ${Resultslippage}, ${ResultslippageFormatted}`);
         console.log(
           `Buy more from order: ${result.buy_more.from_order.input.toString()} -> ${result.buy_more.from_order.output.toString()}`
         );
@@ -428,6 +436,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           fee: `${formatFloor(fee)}`,
           inputUsd: `${InputUsd}`,
           outputUsd: `${OutputUsd}`,
+          resultSlippage: `${ResultslippageFormatted}`,
         });
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
@@ -435,7 +444,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         setIsQuoting(false);
       }
     }, 500),
-    [isQuoting, swapInfo, mintDecimalA, mintDecimalB, inputToken, outputToken, slippage]
+    [isQuoting, swapInfo, mintDecimalA, mintDecimalB, inputToken, outputToken, slippage, priceState]
   );
 
   const pollPoolInfo = async () => {
@@ -457,13 +466,14 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     }
   };
 
+  // todo is necessary for get current price?
   useEffect(() => {
     if (inputTokenAmount && servicePoolInfo) {
       // Initial fetch
       pollPoolInfo();
 
-      // Set up polling interval (every 3 seconds)
-      const newIntervalId = setInterval(pollPoolInfo, 3000);
+      // Set up polling interval (every 30 seconds)
+      const newIntervalId = setInterval(pollPoolInfo, 30000);
       setIntervalId(newIntervalId);
     }
 
@@ -517,6 +527,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     try {
       await swapInfo?.generate_tx(new BN(inputTokenAmount), slippageBN);
       await fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
+      await fetchSolBalance();
+      await mutateTokenBalance();
     } catch (error) {
       console.log("🚀 ~ handleBuy ~ error:", error);
       errorToast(
@@ -672,7 +684,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
                 readOnly
               />
               <span className="text-muted-foreground text-sm flex justify-end h-2">
-                ${formatFloor(routing.outputUsd)}
+                ${formatFloor(routing.outputUsd)} {routing.resultSlippage}
               </span>
             </div>
           )}
