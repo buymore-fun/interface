@@ -177,43 +177,43 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
-    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address);
+    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, solPrice);  //TODO sol price == input usd price 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
 
-  const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
-    // Handle empty or invalid inputs to prevent Decimal errors
-    const validTokenAAmount =
-      orderTokenAAmount && !isNaN(Number(orderTokenAAmount)) ? orderTokenAAmount : "0";
-    const validTokenBAmount =
-      orderTokenBAmount && !isNaN(Number(orderTokenBAmount)) ? orderTokenBAmount : "0";
+  // const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
+  //   // Handle empty or invalid inputs to prevent Decimal errors
+  //   const validTokenAAmount =
+  //     orderTokenAAmount && !isNaN(Number(orderTokenAAmount)) ? orderTokenAAmount : "0";
+  //   const validTokenBAmount =
+  //     orderTokenBAmount && !isNaN(Number(orderTokenBAmount)) ? orderTokenBAmount : "0";
 
-    const priceSolInUSD = isReverse
-      ? new Decimal(solPrice).mul(validTokenAAmount).toString()
-      : new Decimal(solPrice).mul(validTokenBAmount).toString();
-    const priceTokenInUSD = isReverse
-      ? priceState && priceState !== 0
-        ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toString()
-        : "0.000"
-      : priceState && priceState !== 0
-        ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toString()
-        : "0.000";
-    // const priceWithSlippage = isReverse
-    //   ? new Decimal(priceTokenInUSD)
-    //       .mul(100 - slippage)
-    //       .div(100)
-    //       .toString()
-    //   : new Decimal(priceSolInUSD)
-    //       .mul(100 - slippage)
-    //       .div(100)
-    //       .toString();
+  //   const priceSolInUSD = isReverse
+  //     ? new Decimal(solPrice).mul(validTokenAAmount).toString()
+  //     : new Decimal(solPrice).mul(validTokenBAmount).toString();
+  //   const priceTokenInUSD = isReverse
+  //     ? priceState && priceState !== 0
+  //       ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toString()
+  //       : "0.000"
+  //     : priceState && priceState !== 0
+  //       ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toString()
+  //       : "0.000";
+  //   // const priceWithSlippage = isReverse
+  //   //   ? new Decimal(priceTokenInUSD)
+  //   //       .mul(100 - slippage)
+  //   //       .div(100)
+  //   //       .toString()
+  //   //   : new Decimal(priceSolInUSD)
+  //   //       .mul(100 - slippage)
+  //   //       .div(100)
+  //   //       .toString();
 
-    console.log("🚀 ~ priceSolInUSD:", solPrice, priceState, priceSolInUSD, priceTokenInUSD);
+  //   console.log("🚀 ~ priceSolInUSD:", solPrice, priceState, priceSolInUSD, priceTokenInUSD);
 
-    return isReverse
-      ? [formatFloor(priceSolInUSD), formatFloor(priceTokenInUSD)]
-      : [formatFloor(priceTokenInUSD), formatFloor(priceSolInUSD)];
-  }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
+  //   return isReverse
+  //     ? [formatFloor(priceSolInUSD), formatFloor(priceTokenInUSD)]
+  //     : [formatFloor(priceTokenInUSD), formatFloor(priceSolInUSD)];
+  // }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
 
   const cleanInput = () => {
     setOrderTokenAAmount("");
@@ -311,6 +311,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         });
 
         swapInfo?.add_orders(orderBook);
+
+        // calc input usd price
+        
 
         // const current_price = await swapInfo?.get_current_price(new BN(amount));
         const result = (await swapInfo?.calc_buy_more(new BN(amount)))!;

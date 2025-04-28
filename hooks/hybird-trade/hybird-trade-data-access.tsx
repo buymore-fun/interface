@@ -501,11 +501,13 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
     token_1_mint: PublicKey;
     input_token_program: PublicKey;
     output_token_program: PublicKey;
+    input_usd_price: number;
 
     constructor(
       pool_state: IResponsePoolInfoItem,
       input_token_mint: string,
-      output_token_mint: string
+      output_token_mint: string,
+      input_usd_price: number
     ) {
       this.input_token_mint = new PublicKey(input_token_mint);
       this.output_token_mint = new PublicKey(output_token_mint);
@@ -534,6 +536,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       this.pool_state = pool_state;
       this.token_0_mint = new PublicKey(pool_state.cpmm.mintA);
       this.token_1_mint = new PublicKey(pool_state.cpmm.mintB);
+      this.input_usd_price = input_usd_price;
       this.orders = [] as IOrderbookDepthItem[];
     }
 
@@ -644,12 +647,16 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const current_price =
         parseFloat(input_swap_amount.toString()) / parseFloat(pre_output_amount.toString());
 
+      const output_usd_price = this.input_usd_price * current_price;
+
       console.group("get_current_price");
       console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("input_token_amount:", input_token_amount.toString());
       console.log("output_token_amount:", output_token_amount.toString());
       console.log("pre_output_amount:", pre_output_amount.toString());
       console.log("current_price:", current_price.toFixed(20));
+      console.log("input usd price:", this.input_usd_price);
+      console.log("output usd price:", output_usd_price );
       console.groupEnd();
 
       return {
@@ -657,6 +664,8 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         output: pre_output_amount,
         // current_price: current_price.toNumber(),
         current_price: current_price,
+        input_usd_price: this.input_usd_price,
+        output_usd_price: output_usd_price
       };
     }
 
@@ -723,7 +732,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       };
     }
 
-    async calc_buy_more(input_amount: BN) {
+    async calc_buy_more(input_amount: BN ) {
       const trades_v = this.find_orders(input_amount);
 
       const before_v = await this.get_current_price(input_amount);
@@ -764,7 +773,9 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
           },
           result: {
             input: input_amount,
+            input_usd: parseFloat(input_amount.toString()) * before_v.input_usd_price,
             output: new_output_amount,
+            output_usd: parseFloat(new_output_amount.toString()) * before_v.output_usd_price,
           },
         },
       };
