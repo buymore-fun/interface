@@ -237,8 +237,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       minReceive: "",
       maxReceive: "",
       fee: "",
-      inputUsd: "",
-      outputUsd: "",
+      inputUsd: "0",
+      outputUsd: "0",
       resultSlippage: "",
     });
     cleanInterval();
@@ -337,8 +337,10 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         const InputUsd = result.buy_more.result.input_usd;
         const OutputUsd = result.buy_more.result.output_usd;
         const resultSlippage = result.buy_more.result.slippage;
+        const percentSlippage = new Decimal(resultSlippage).mul(100).toString();
+        const percentSymbol = +InputUsd > +OutputUsd ? "-" : "+";
         const resultSlippageFormatted =
-          +resultSlippage > 0 ? `(${formatFloor(resultSlippage)}%)` : "";
+          +resultSlippage > 0 ? `(${percentSymbol}${formatFloor(percentSlippage)}%)` : "";
 
         console.group("handleQuery");
         console.log("inputAmount", amount);

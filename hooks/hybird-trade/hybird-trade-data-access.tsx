@@ -514,7 +514,14 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       this.input_token_mint = new PublicKey(input_token_mint);
       this.output_token_mint = new PublicKey(output_token_mint);
 
-      const [input_token_vault, output_token_vault, input_token_program, output_token_program, input_token_decimal, output_token_decimal] =
+      const [
+        input_token_vault,
+        output_token_vault,
+        input_token_program,
+        output_token_program,
+        input_token_decimal,
+        output_token_decimal,
+      ] =
         input_token_mint === pool_state.cpmm.mintA
           ? [
               pool_state.cpmm.vaultA,
@@ -653,18 +660,27 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const current_price =
         parseFloat(input_swap_amount.toString()) / parseFloat(pre_output_amount.toString());
 
-        console.log(`AAA: `, new Decimal(output_token_amount.toString()).div(
-          new Decimal(10).pow(this.output_token_decimal)
-        ).div( new Decimal(input_token_amount.toString()).div(
-          new Decimal(10).pow(this.input_token_decimal)
-        ) ).toString())
-      const output_usd_price = new Decimal(this.input_usd_price).div( new Decimal(output_token_amount.toString()).div(
-        new Decimal(10).pow(this.output_token_decimal)
-      ).div( new Decimal(input_token_amount.toString()).div(
-        new Decimal(10).pow(this.input_token_decimal)
-      ) ))
-      
-        
+      console.log(
+        `AAA: `,
+        new Decimal(output_token_amount.toString())
+          .div(new Decimal(10).pow(this.output_token_decimal))
+          .div(
+            new Decimal(input_token_amount.toString()).div(
+              new Decimal(10).pow(this.input_token_decimal)
+            )
+          )
+          .toString()
+      );
+      const output_usd_price = new Decimal(this.input_usd_price).div(
+        new Decimal(output_token_amount.toString())
+          .div(new Decimal(10).pow(this.output_token_decimal))
+          .div(
+            new Decimal(input_token_amount.toString()).div(
+              new Decimal(10).pow(this.input_token_decimal)
+            )
+          )
+      );
+
       console.group("get_current_price");
       console.log("input_swap_amount:", input_swap_amount.toString());
       console.log("input_token_amount:", input_token_amount.toString());
@@ -672,7 +688,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       console.log("pre_output_amount:", pre_output_amount.toString());
       console.log("current_price:", current_price.toFixed(20));
       console.log("input usd price:", this.input_usd_price);
-      console.log("output usd price:", output_usd_price.toString() );
+      console.log("output usd price:", output_usd_price.toString());
       console.groupEnd();
 
       return {
@@ -681,7 +697,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         // current_price: current_price.toNumber(),
         current_price: current_price,
         input_usd_price: this.input_usd_price,
-        output_usd_price: output_usd_price.toNumber()
+        output_usd_price: output_usd_price.toNumber(),
       };
     }
 
@@ -748,7 +764,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       };
     }
 
-    async calc_buy_more(input_amount: BN ) {
+    async calc_buy_more(input_amount: BN) {
       const trades_v = this.find_orders(input_amount);
 
       const before_v = await this.get_current_price(input_amount);
@@ -773,17 +789,19 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         new_output_amount = output_amount_count.add(from_swap.output);
       }
 
-      const ui_input_usd = new Decimal(input_amount.toString()).div(
-        new Decimal(10).pow(this.input_token_decimal)
-      ).mul( before_v.input_usd_price )
+      const ui_input_usd = new Decimal(input_amount.toString())
+        .div(new Decimal(10).pow(this.input_token_decimal))
+        .mul(before_v.input_usd_price);
 
-      const ui_output_usd = new Decimal(new_output_amount.toString()).div(
-        new Decimal(10).pow(this.output_token_decimal)
-      ).mul( before_v.output_usd_price )
+      const ui_output_usd = new Decimal(new_output_amount.toString())
+        .div(new Decimal(10).pow(this.output_token_decimal))
+        .mul(before_v.output_usd_price);
 
-      const slippage_v = ui_input_usd.lte(ui_output_usd) ? 0 : (1 - ui_output_usd.div(ui_input_usd).toNumber());
+      const slippage_v = ui_input_usd.lte(ui_output_usd)
+        ? 0
+        : 1 - ui_output_usd.div(ui_input_usd).toNumber();
 
-      console.log(`CCCCCC: `, slippage_v )
+      console.log(`CCCCCC: `, slippage_v);
       return {
         trades: trades_v,
         more: new_output_amount.sub(before_v.output) as BN,
@@ -805,7 +823,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
             output: new_output_amount,
             // output_usd: parseFloat(new_output_amount.toString()) * before_v.output_usd_price,
             output_usd: ui_output_usd.toString(),
-            slippage: slippage_v.toFixed(2)
+            slippage: slippage_v.toString(),
           },
         },
       };
