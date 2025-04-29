@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { BroadcastBox, Order } from "@/components/broadcast-box";
+import { formatTimeAgo } from "@/lib/utils";
 
 interface OrderFeedSocketProps {
   inputToken: string;
@@ -27,6 +28,25 @@ interface OrderResponse {
     owner: string;
     price: string;
   }[];
+}
+// React hook for updating time display every second
+export function useCountdownTimer(timestamp: number | string | Date): string {
+  const [timeAgo, setTimeAgo] = useState<string>(formatTimeAgo(timestamp));
+
+  useEffect(() => {
+    // Update time immediately
+    setTimeAgo(formatTimeAgo(timestamp));
+
+    // Update time every second
+    const intervalId = setInterval(() => {
+      setTimeAgo(formatTimeAgo(timestamp));
+    }, 1000);
+
+    // Clean up on unmount
+    return () => clearInterval(intervalId);
+  }, [timestamp]);
+
+  return timeAgo;
 }
 
 export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: OrderFeedSocketProps) {
