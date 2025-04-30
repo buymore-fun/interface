@@ -255,6 +255,18 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
     const tx = new Transaction();
 
+    if (!input_token_account) {
+      console.log("Input token account not found, will attempt to create.");
+      const ix = createAssociatedTokenAccountInstruction(
+        wallet.publicKey!,
+        input_token_account,
+        wallet.publicKey!,
+        input_token_mint
+      );
+
+      tx.add(ix);
+    }
+
     console.log(
       `Maker: `,
       order_book_detail.toBase58(),

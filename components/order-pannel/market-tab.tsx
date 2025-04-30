@@ -340,7 +340,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         const percentSlippage = new Decimal(resultSlippage).mul(100).toString();
         const percentSymbol = +InputUsd > +OutputUsd ? "-" : "+";
         const resultSlippageFormatted =
-          +resultSlippage > 0 ? `(${percentSymbol}${formatFloor(percentSlippage)}%)` : "";
+          +resultSlippage > 0 ? `(${percentSymbol}${(+percentSlippage).toFixed(2)}%)` : "";
 
         console.group("handleQuery");
         console.log("inputAmount", amount);
