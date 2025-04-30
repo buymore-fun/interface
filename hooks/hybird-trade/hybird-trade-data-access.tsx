@@ -253,6 +253,9 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       input_token_program
     );
 
+    console.log("1111112312123");
+    console.log(input_token_mint.toBase58(), NATIVE_MINT.toBase58());
+    const isNativeMint = input_token_mint.equals(NATIVE_MINT);
     const tx = new Transaction();
 
     if (!input_token_account) {
@@ -310,6 +313,11 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       .instruction();
 
     tx.add(ix);
+
+    if (isNativeMint) {
+      const ix = await unwrap_sol();
+      tx.add(ix);
+    }
 
     const sig = await provider.sendAndConfirm(tx);
     transactionToast(sig);

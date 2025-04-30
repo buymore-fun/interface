@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletAuth } from "@/components/wallet-auth";
 import { getExplorerUrlFromTransaction } from "@/config";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
-import { useCancelPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
+import { useCancelPoolInfo, useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import { useActivities, useMyOrders, useTradeHistory } from "@/hooks/use-activities";
 import { getCpmmPoolFetchOne } from "@/hooks/services";
 import React from "react";
@@ -18,7 +18,8 @@ import { useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 // import { toast } from "react-hot-toast";
 import { useCommonToast } from "@/hooks/use-common-toast";
-import Decimal from "decimal.js";
+import { useSolBalance } from "@/hooks/use-sol-balance";
+import { useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 
 export const defaultSymbol = "T";
 
@@ -152,6 +153,12 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
     inputMint as string,
     outputMint as string
   );
+  const { solBalance, fetchSolBalance, isLoading } = useSolBalance();
+  const { raydiumPoolInfo } = useRaydiumPoolInfo();
+
+  const { tokenBalance, mutateTokenBalance } = useTokenBalanceV2(
+    raydiumPoolInfo?.poolInfo.mintB.address
+  );
 
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { servicePoolInfo, isServicePoolInfoLoading } = useServicePoolInfo();
@@ -191,6 +198,8 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
         item.from_amount.address,
         poolInfoResponse
       );
+      await fetchSolBalance();
+      await mutateTokenBalance();
     } catch (error: any) {
       errorToast("Operation Failed", "Failed to cancel order");
       console.log(error?.message);
