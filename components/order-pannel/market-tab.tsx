@@ -505,12 +505,59 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       console.log("🚀 ~ handleBuy ~ slippage:", currentSlippageValue, slippage);
       errorToast(
         "Swap Failed",
-        <div>
-          <p>The transaction failed due to slippage.</p>
-          <p>Please increase the slippage.</p>
-        </div>
+        "The transaction failed due to slippage. Please increase the slippage."
       );
       return;
+    }
+    // Stop polling when initiating a buy transaction
+    cleanInterval();
+
+    const amount = new Decimal(orderTokenAAmount)
+      .mul(new Decimal(10).pow(mintDecimalA!))
+      .toString();
+
+    await swapInfo?.init_account_balance();
+    const current_price = await swapInfo?.get_current_price(new BN(amount));
+
+    const orderBook = await getOrderbookDepth({
+      input_token: inputToken.address,
+      output_token: outputToken.address,
+      price: current_price!.current_price,
+    });
+
+    if (!orderBook || !raydiumPoolInfo || !servicePoolInfo) return;
+    isSubmitting.on();
+    swapInfo?.add_orders(orderBook);
+
+    const slippageValue = Math.min(Math.floor(parseFloat(slippage.toString()) * 10), 1000);
+    const slippageBN = new BN(slippageValue);
+
+    console.group("handleBuy");
+    console.log("🚀 ~ handleBuy ~ orderBook:", orderBook);
+    console.log("orderTokenAAmount", orderTokenAAmount);
+    console.log("orderTokenBAmount", orderTokenBAmount);
+    console.log("inputTokenAmount", inputTokenAmount);
+    console.log("outputTokenAmount", outputTokenAmount);
+    console.log("slippageBN", slippageBN.toString());
+    console.groupEnd();
+
+    try {
+      await swapInfo?.generate_tx(new BN(inputTokenAmount), slippageBN);
+      await fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
+      await fetchSolBalance();
+      await mutateTokenBalance();
+    } catch (error) {
+      console.log("🚀 ~ handleBuy ~ error:", error);
+      errorToast(
+        "Swap Failed",
+        <>
+          Request signature: <br />
+          user denied request signature.
+        </>
+      );
+    } finally {
+      isSubmitting.off();
+      cleanInput();
     }
   };
 
