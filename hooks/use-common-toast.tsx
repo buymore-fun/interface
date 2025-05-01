@@ -30,7 +30,7 @@ export function useCommonToast() {
     const color = colors[type];
 
     toast(
-      <div className="text-center px-4 py-2">
+      <div className="text-left px-4 py-2">
         <div className="text-lg flex gap-1 items-center">
           <span style={{ color }}>
             <Icon name={type} className="size-5" />
