@@ -39,7 +39,7 @@ export function Topbar() {
         <div className="flex justify-between items-center w-full gap-6">
           <div className="flex justify-between items-center flex-1">
             <div className="flex-1 -my-4 cursor-pointer" onClick={() => router.push("/")}>
-              <Image
+              {/* <Image
                 src={isAnimating ? "/logo.gif" : "/logo_v3.png"}
                 alt="Logo"
                 width={80}
@@ -48,7 +48,17 @@ export function Topbar() {
                 unoptimized
                 priority
                 loading="eager"
-              />
+              /> */}
+              <div className="relative w-30 h-20 -ml-5">
+                <video
+                  src="/logo.mp4"
+                  autoPlay
+                  muted
+                  // loop
+                  playsInline
+                  className="absolute top-0 left-0 w-full h-full object-cover"
+                />
+              </div>
             </div>
 
             <div className="flex-grow  hidden sm:block ">

@@ -489,6 +489,20 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     };
   }, [inputTokenAmount, servicePoolInfo]);
 
+  // Add an effect to refresh the token balance when pool info changes or every 30 seconds
+  useEffect(() => {
+    if (raydiumPoolInfo?.poolInfo.mintB.address && publicKey) {
+      mutateTokenBalance();
+
+      // Set up a polling interval for token balance updates
+      const balanceRefreshInterval = setInterval(() => {
+        mutateTokenBalance();
+      }, 30000); // Refresh every 30 seconds
+
+      return () => clearInterval(balanceRefreshInterval);
+    }
+  }, [raydiumPoolInfo?.poolInfo.mintB.address, publicKey, mutateTokenBalance]);
+
   const handleBuy = async () => {
     if (!inputToken || !outputToken) return;
 

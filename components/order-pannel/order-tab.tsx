@@ -32,6 +32,8 @@ import { useTransactionToast } from "@/hooks/use-transaction-toast";
 // import { useMyOrders } from "@/hooks/use-activities";
 // import { toast } from "react-hot-toast";
 import { useCommonToast } from "@/hooks/use-common-toast";
+import { Switch } from "@/components/ui/switch";
+import { DualRangeSlider } from "@/components/dual-slider-value";
 // interface OrderTabProps {}
 
 export function OrderTab() {
@@ -62,6 +64,7 @@ export function OrderTab() {
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
   const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
   const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
+  const [showRange, setShowRange] = useState(false);
 
   const provider = useAnchorProvider();
   const transactionToast = useTransactionToast();
@@ -366,7 +369,7 @@ export function OrderTab() {
             <div className="text-sm ">To</div>
           </div>
         </div>
-        <div className="flex items-center justify-between pb-3 pt-1 gap-2 ">
+        <div className="flex items-center justify-between  pt-1 gap-2 ">
           <div className="flex items-center gap-2 bg-light-card/70 p-2 rounded-lg h-[60px] w-[180px]  shadow-md shadow-background/25">
             {tokenA ? (
               <Button variant="ghost" className="px-0">
@@ -426,8 +429,24 @@ export function OrderTab() {
         </div>
       </div>
 
-      <div className="mt-5 text-sm text-muted-foreground text-right">
-        Fee: 0% (<span className="line-through">0.25%</span>)
+      <div className="mt-4 flex flex-col gap-2 px-4">
+        <div className="flex items-center justify-between w-full gap-2">
+          <span>Adaptive range</span>
+          <Switch
+            checked={showRange}
+            onCheckedChange={setShowRange}
+            className="data-[state=unchecked]:text-muted-foreground data-[state=checked]:text-primary "
+          />
+        </div>
+        {showRange ? (
+          <div className="w-full">
+            <DualRangeSlider priceValue={+orderPrice} />
+          </div>
+        ) : null}
+
+        <div className=" text-sm text-muted-foreground text-right">
+          Fee: 0% (<span className="line-through">0.25%</span>)
+        </div>
       </div>
 
       <div className="mt-4 mb-2">
