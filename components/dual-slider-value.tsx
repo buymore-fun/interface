@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 interface DualRangeSliderProps {
   className?: string;
@@ -58,7 +59,7 @@ export function DualRangeSlider({
   return (
     <div className="w-full space-y-4">
       <div className="bg-light-card/80 p-3 rounded-xl w-full">
-        <div className="relative pt-6 pb-6">
+        <div className="relative pt-7 pb-6">
           <SliderPrimitive.Root
             className={cn("relative flex w-full touch-none select-none items-center", className)}
             min={min}
@@ -80,14 +81,14 @@ export function DualRangeSlider({
 
             {/* Left thumb */}
             <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full bg-primary ring-offset-card transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-1 p-1 rounded-full bg-primary text-white text-xs font-medium min-w-[40px] text-center">
+              <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-full mb-1 p-1 rounded-full bg-primary text-white text-xs font-medium min-w-[40px] text-center">
                 {formatValue(values[0])}
               </div>
             </SliderPrimitive.Thumb>
 
             {/* Right thumb */}
             <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full bg-primary ring-offset-card transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-1 p-1 rounded-full bg-primary text-white text-xs font-medium min-w-[40px] text-center">
+              <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-full mb-1 p-1 rounded-full bg-primary text-white text-xs font-medium min-w-[40px] text-center">
                 {formatValue(values[1])}
               </div>
             </SliderPrimitive.Thumb>
@@ -155,6 +156,8 @@ export function DualRangeSlider({
           {calculateDisplayValue(values[1]).toFixed(2)}
         </div>
       </div>
+
+      <Separator className="my-3 bg-muted-foreground h-[0.5px]" />
     </div>
   );
 }
