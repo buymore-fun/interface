@@ -518,8 +518,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     if (+currentSlippageValue > slippage) {
       console.log("🚀 ~ handleBuy ~ slippage:", currentSlippageValue, slippage);
       errorToast(
-        "Swap Failed",
-        "The transaction failed due to slippage. Please increase the slippage."
+        "Slippage Failed",
+        "The slippage is too low, please adjust the settings and resubmit transaction."
       );
       return;
     }

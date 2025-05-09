@@ -17,7 +17,7 @@ import { useMemo, useEffect } from "react";
 import { useSolBalance, useTokenBalanceV2 } from "@/hooks/use-sol-balance";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
 import Decimal from "decimal.js";
-import { formatBalance, formatFloor } from "@/lib/utils";
+import { cn, formatBalance, formatFloor } from "@/lib/utils";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
 import { BN } from "@coral-xyz/anchor";
 import { useSolPrice } from "@/hooks/use-sol-price";
@@ -34,6 +34,7 @@ import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import { useCommonToast } from "@/hooks/use-common-toast";
 import { Switch } from "@/components/ui/switch";
 import { DualRangeSlider } from "@/components/dual-slider-value";
+import TooltipWrapper from "@/components/tooltip-wrapper";
 // interface OrderTabProps {}
 
 export function OrderTab() {
@@ -335,7 +336,13 @@ export function OrderTab() {
                 {getSymbolFromPoolInfo(poolMintB)}
               </span>
               <Button variant="ghost" size="xs" className="p-0 h-auto" onClick={refreshTokenPrice}>
-                <Icon name="refresh" className="text-primary" />
+                <Icon
+                  name="refresh"
+                  className={cn(
+                    isRaydiumLoading ? "animate-spin duration-700" : "",
+                    "text-primary hover:animate-none"
+                  )}
+                />
               </Button>
             </div>
             <div className="flex items-start text-xs text-muted-foreground w-full justify-end">
@@ -431,7 +438,15 @@ export function OrderTab() {
 
       <div className="mt-4 flex flex-col gap-2 px-4">
         <div className="flex items-center justify-between w-full gap-2">
-          <span>Adaptive range</span>
+          <div className="flex items-center gap-1">
+            <span className="text-md">Adaptive range</span>
+            <div className="relative inline-block">
+              <TooltipWrapper content={``}>
+                <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
+              </TooltipWrapper>
+            </div>
+          </div>
+
           <Switch
             checked={showRange}
             onCheckedChange={setShowRange}
