@@ -49,7 +49,7 @@ export function Topbar() {
                 priority
                 loading="eager"
               /> */}
-              <div className="relative w-30 h-20 -ml-5">
+              <div className="relative w-[120px] h-[80px] ">
                 <video
                   src="/logo.mp4"
                   autoPlay

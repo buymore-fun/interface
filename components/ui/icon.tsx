@@ -10,7 +10,8 @@ interface IconProps {
     | "market"
     | "order"
     | "success"
-    | "error";
+    | "error"
+    | "line-range";
   className?: string;
 }
 
@@ -228,6 +229,21 @@ export function Icon({ name, className }: IconProps) {
               />
             </filter>
           </defs>
+        </svg>
+      );
+    case "line-range":
+      return (
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M24.375 17.5C23.7933 17.5 23.2779 17.3229 22.8288 16.9688C22.3796 16.6146 22.0888 16.1667 21.9563 15.625H3.125V14.375H21.9575C22.09 13.8333 22.3808 13.3854 22.83 13.0313C23.2792 12.6771 23.7942 12.5 24.375 12.5C25.075 12.5 25.6667 12.7417 26.15 13.225C26.6333 13.7083 26.875 14.2996 26.875 14.9987C26.875 15.6979 26.6333 16.2896 26.15 16.7737C25.6667 17.2579 25.075 17.5 24.375 17.5Z"
+            fill="#26878D"
+          />
         </svg>
       );
     default:

@@ -4,7 +4,8 @@ import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-
+import Image from "next/image";
+import { Icon } from "@/components/ui/icon";
 interface DualRangeSliderProps {
   className?: string;
   min?: number;
@@ -116,41 +117,13 @@ export function DualRangeSlider({
           {calculateDisplayValue(values[0]).toFixed(2)}
         </div>
         <div className="text-primary">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M5 12H19M19 12L13 6M19 12L13 18"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Icon name="line-range" className="text-primary w-6 h-6" />
         </div>
         <div className="bg-light-card/80 py-2 px-2 rounded-xl text-gray-500 text-sm font-medium flex-1 text-center truncate">
           {middleValue}
         </div>
         <div className="text-primary">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M5 12H19M19 12L13 6M19 12L13 18"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Icon name="line-range" className="text-primary w-6 h-6" />
         </div>
         <div className="bg-light-card/80 py-2 px-2 rounded-xl text-white text-sm font-medium flex-1 text-center truncate shadow-md">
           {calculateDisplayValue(values[1]).toFixed(2)}
