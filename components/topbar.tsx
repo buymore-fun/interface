@@ -97,7 +97,7 @@ export function Topbar() {
                         alt={wallet.adapter.name}
                         width={64}
                         height={64}
-                        className="size-6 rounded-full"
+                        className="size-6 rounded-full hidden md:block"
                       />
                     ) : null}
                     {ellipseMiddle(publicKey.toString())}

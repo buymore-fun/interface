@@ -100,6 +100,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     resultSlippageFormatted: "",
   });
 
+  const [isDisableSlippage, setIsDisableSlippage] = useState(false);
+
   const [tokenA, tokenB] = useMemo(
     () => (isReverse ? [SOL, token] : [token, SOL]),
     [isReverse, token, SOL]
@@ -181,6 +183,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     handleQuery(orderTokenAAmount);
   }, [slippage, priceState]);
 
+  // Add effect to reset isDisableSlippage when slippage changes
+  useEffect(() => {
+    // Reset the disable flag when slippage changes (like from custom dialog)
+    setIsDisableSlippage(false);
+  }, [slippage]);
+
   const hybirdTradeProgram = useHybirdTradeProgram();
   const { SwapInfo } = hybirdTradeProgram;
 
@@ -231,6 +239,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const cleanInput = () => {
     setOrderTokenAAmount("");
     setOrderTokenBAmount("");
+    setIsDisableSlippage(false);
     setRouting({
       onlySwap: "",
       dexRatio: "",
@@ -279,6 +288,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const onSlippageClick = (value: number) => {
     setSlippage(value);
+    setIsDisableSlippage(false);
   };
 
   useEffect(() => {
@@ -444,6 +454,19 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
           resultSlippage: `${resultSlippage}`,
           resultSlippageFormatted: `${resultSlippageFormatted}`,
         });
+
+        const currentSlippageValue = new Decimal(resultSlippage).mul(100).toString();
+
+        if (+currentSlippageValue > slippage) {
+          console.log("🚀 ~ handleBuy ~ slippage:", currentSlippageValue, slippage);
+          setIsDisableSlippage(true);
+          errorToast(
+            "Slippage Failed",
+            "The slippage is too low, please adjust the settings and resubmit transaction."
+          );
+        } else {
+          setIsDisableSlippage(false);
+        }
       } catch (error) {
         console.log("🚀 ~ handleOrderTokenAAmountChange ~ error:", error);
       } finally {
@@ -513,16 +536,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       return;
     }
 
-    const currentSlippageValue = new Decimal(routing.resultSlippage).mul(100).toString();
-
-    if (+currentSlippageValue > slippage) {
-      console.log("🚀 ~ handleBuy ~ slippage:", currentSlippageValue, slippage);
-      errorToast(
-        "Slippage Failed",
-        "The slippage is too low, please adjust the settings and resubmit transaction."
-      );
-      return;
-    }
     // Stop polling when initiating a buy transaction
     cleanInterval();
 
@@ -578,6 +591,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const handleOrderTokenAAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const amount = e.target.value;
     setOrderTokenAAmount(amount);
+    setIsDisableSlippage(false);
     handleQuery(amount);
     if (amount === "") {
       cleanInput();
@@ -787,7 +801,9 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         <LoadingButton
           className="w-full"
           size="lg"
-          disabled={!orderTokenAAmount || !orderTokenBAmount || !servicePoolInfo}
+          disabled={
+            !orderTokenAAmount || !orderTokenBAmount || !servicePoolInfo || isDisableSlippage
+          }
           onClick={handleBuy}
           loading={isSubmitting.value}
         >

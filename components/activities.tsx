@@ -1,6 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { WalletAuth } from "@/components/wallet-auth";
 import { getExplorerUrlFromTransaction } from "@/config";
 import { useHybirdTradeProgram } from "@/hooks/hybird-trade/hybird-trade-data-access";
@@ -14,7 +23,7 @@ import { IMyOrderItem } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BN } from "@coral-xyz/anchor";
 // import { toast } from "react-hot-toast";
 import { useCommonToast } from "@/hooks/use-common-toast";
@@ -25,9 +34,23 @@ export const defaultSymbol = "T";
 
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
   const [activeTab, setActiveTab] = React.useState("myOrder");
+  const [showHistoryDot, setShowHistoryDot] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hasClickedHistory = localStorage.getItem("hasClickedHistory") === "true";
+      setShowHistoryDot(!hasClickedHistory);
+    }
+  }, []);
+
   // Handle tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+
+    if (value === "history") {
+      setShowHistoryDot(false);
+      localStorage.setItem("hasClickedHistory", "true");
+    }
   };
 
   return (
@@ -56,6 +79,9 @@ export function Activities({ inputMint, outputMint }: { inputMint: string; outpu
           )}
         >
           Trade History
+          {showHistoryDot && (
+            <span className="absolute top-2 -right-2 h-2 w-2 rounded-full bg-red-500"></span>
+          )}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="activity">
@@ -87,62 +113,62 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-muted-foreground/15 px-3 py-2 text-white">
-        <div className="col-span-1">Time</div>
-        <div className="col-span-2">From</div>
-        <div className="col-span-2">To</div>
-        <div className="col-span-2">Routing</div>
-        <div className="col-span-2">Buymore</div>
-        <div className="col-span-2">Maker</div>
-        <div className="col-span-1">TXN</div>
-      </div>
-      {activityList?.map((item, index) => (
-        <div
-          className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center gap-0.5"
-          key={index}
-        >
-          <div className="col-span-1">
-            <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
-          </div>
-          <div className="col-span-2">
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.from_amount.amount} {item.from_amount.symbol}
-            </span>
-          </div>
-          <div className="col-span-2">
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.to_amount.amount} {item.to_amount.symbol}
-            </span>
-          </div>
-          <div className="col-span-2 flex flex-col">
-            <span className="text-muted-foreground text-xs">
-              Dex: {item.routing.dec}% <br /> Order: {item.routing.order}%
-            </span>
-          </div>
-          <div className="col-span-2">
-            {/* className={''} */}
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.buymore_amount.amount} {item.buymore_amount.symbol}
-            </span>
-          </div>
-
-          <div className="col-span-2">
-            <span className="text-muted-foreground">{formatAddress(item.marker)}</span>
-          </div>
-          <div className="col-span-1">
-            <Link
-              href={getExplorerUrlFromTransaction(item.tx)}
-              className="text-muted-foreground hover:text-foreground"
-              target="_blank"
-            >
-              <ExternalLink className="size-4" />
-            </Link>
-          </div>
-        </div>
-      ))}
-      {activityList?.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">No activities found.</div>
-      )}
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted-foreground/15">
+            <TableHead className="w-[10%]">Time</TableHead>
+            <TableHead className="w-[15%]">From</TableHead>
+            <TableHead className="w-[15%]">To</TableHead>
+            <TableHead className="w-[15%]">Routing</TableHead>
+            <TableHead className="w-[15%]">Buymore</TableHead>
+            <TableHead className="w-[15%]">Maker</TableHead>
+            <TableHead className="w-[5%]">TXN</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {activityList?.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                No activities found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            activityList?.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell className="text-muted-foreground">
+                  {formatTime(item.time * 1000)}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.from_amount.amount} {item.from_amount.symbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.to_amount.amount} {item.to_amount.symbol}
+                </TableCell>
+                <TableCell>
+                  <span className="text-muted-foreground text-xs">
+                    Dex: {item.routing.dec}% <br /> Order: {item.routing.order}%
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.buymore_amount.amount} {item.buymore_amount.symbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatAddress(item.marker)}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={getExplorerUrlFromTransaction(item.tx)}
+                    className="text-muted-foreground hover:text-foreground"
+                    target="_blank"
+                  >
+                    <ExternalLink className="size-4" />
+                  </Link>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };
@@ -210,67 +236,69 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-muted-foreground/15 px-3 py-2 text-white gap-1">
-        <div className="col-span-2">Time</div>
-        <div className="col-span-2">From</div>
-        <div className="col-span-2">To</div>
-        <div className="col-span-2">Receive</div>
-        <div className="col-span-2">Price</div>
-        <div className="col-span-1">TXN</div>
-        <div className="col-span-1"></div>
-      </div>
-      {myOrderList?.map((item, index) => (
-        <div
-          className="grid grid-cols-12 text-sm px-3 py-2 border-t gap-1 items-center"
-          key={index}
-        >
-          <div className="col-span-2">
-            <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
-          </div>
-          <div className="col-span-2">
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.from_amount.amount} {item.from_amount.symbol || defaultSymbol}
-            </span>
-          </div>
-          <div className="col-span-2">
-            <span className={"text-muted-foreground  text-wrap break-words"}>
-              {item.to_amount.amount} {item.to_amount.symbol || defaultSymbol}
-            </span>
-          </div>
-          <div className="col-span-2">
-            <span className={"text-muted-foreground  text-wrap break-words"}>
-              {item.receive_amount.amount} {item.receive_amount.symbol || defaultSymbol}
-            </span>
-          </div>
-          <div className="col-span-2">
-            <span className="text-muted-foreground">${formatPrice(item.price, 3)}</span>
-          </div>
-          <div className="col-span-1">
-            <Link
-              href={getExplorerUrlFromTransaction(item.tx)}
-              className="text-muted-foreground hover:text-foreground"
-              target="_blank"
-            >
-              <ExternalLink className="size-4" />
-            </Link>
-          </div>
-          <div className="col-span-1">
-            <Button
-              size="xs"
-              className="text-xs"
-              disabled={cancelTx === item.tx}
-              onClick={() => {
-                handleCancelOrder(item);
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      ))}
-      {myOrderList?.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">No active orders found.</div>
-      )}
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted-foreground/15">
+            <TableHead className="w-[15%]">Time</TableHead>
+            <TableHead className="w-[15%]">From</TableHead>
+            <TableHead className="w-[15%]">To</TableHead>
+            <TableHead className="w-[15%]">Receive</TableHead>
+            <TableHead className="w-[15%]">Price</TableHead>
+            <TableHead className="w-[10%]">TXN</TableHead>
+            <TableHead className="w-[10%]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {myOrderList?.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                No active orders found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            myOrderList?.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell className="text-muted-foreground">
+                  {formatTime(item.time * 1000)}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.from_amount.amount} {item.from_amount.symbol || defaultSymbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.to_amount.amount} {item.to_amount.symbol || defaultSymbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.receive_amount.amount} {item.receive_amount.symbol || defaultSymbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  ${formatPrice(item.price, 3)}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={getExplorerUrlFromTransaction(item.tx)}
+                    className="text-muted-foreground hover:text-foreground"
+                    target="_blank"
+                  >
+                    <ExternalLink className="size-4" />
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    size="xs"
+                    className="text-xs"
+                    disabled={cancelTx === item.tx}
+                    onClick={() => {
+                      handleCancelOrder(item);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };
@@ -291,81 +319,65 @@ export const HistoryList = ({
 
   return (
     <div className="border rounded-lg">
-      <div className="grid grid-cols-12 text-muted-foreground text-xs bg-muted-foreground/15 px-3 py-2 text-white gap-1">
-        <div className="col-span-2">Time</div>
-        <div className="col-span-1">Type</div>
-        <div className="col-span-2">From</div>
-        <div className="col-span-2">To</div>
-        <div className="col-span-2">Price</div>
-        {/* <div className="col-span-2">Routing</div> */}
-        <div className="col-span-2">Buymore</div>
-        <div className="col-span-1">TXN</div>
-      </div>
-      {tradeHistoryList?.map((item, index) => (
-        <div
-          className="grid grid-cols-12 text-sm px-3 py-2 border-t items-center gap-1"
-          key={index}
-        >
-          {/* time  */}
-          <div className="col-span-2">
-            <span className="text-muted-foreground">{formatTime(item.time * 1000)}</span>
-          </div>
-          <div className="col-span-1">
-            <span
-              className={`capitalize ${
-                item.order_type === "market" ? "text-primary" : "text-white"
-              }`}
-            >
-              {item.order_type}
-            </span>
-          </div>
-
-          <div className="col-span-2">
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.from_amount.amount} {item.from_amount.symbol || defaultSymbol}
-            </span>
-          </div>
-          {/* amount */}
-          <div className="col-span-2">
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.to_amount.amount} {item.to_amount.symbol || defaultSymbol}
-            </span>
-          </div>
-          {/* price */}
-          <div className="col-span-2">
-            <span className="text-muted-foreground">${formatNumber(item.price)}</span>
-          </div>
-          {/* routing */}
-          {/* <div className="col-span-2">
-            <span className="text-muted-foreground text-xs">
-              Dex: {item.routing.dec} <br />
-              Order: {item.routing.order}%
-            </span>
-          </div> */}
-          {/* buymore */}
-          <div className="col-span-2">
-            <span className="text-muted-foreground  text-wrap break-words">
-              {item.buymore_amount.amount
-                ? `${item.buymore_amount.amount} 
-                ${item.buymore_amount.symbol || defaultSymbol}`
-                : "-"}
-            </span>
-          </div>
-          {/* txn */}
-          <div className="col-span-1">
-            <Link
-              href={getExplorerUrlFromTransaction(item.tx)}
-              className="text-muted-foreground hover:text-foreground"
-              target="_blank"
-            >
-              <ExternalLink className="size-4" />
-            </Link>
-          </div>
-        </div>
-      ))}
-      {tradeHistoryList?.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">No trade history found.</div>
-      )}
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted-foreground/15">
+            <TableHead className="w-[15%]">Time</TableHead>
+            <TableHead className="w-[10%]">Type</TableHead>
+            <TableHead className="w-[15%]">From</TableHead>
+            <TableHead className="w-[15%]">To</TableHead>
+            <TableHead className="w-[15%]">Price</TableHead>
+            <TableHead className="w-[15%]">Buymore</TableHead>
+            <TableHead className="w-[10%]">TXN</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tradeHistoryList?.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                No trade history found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            tradeHistoryList?.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell className="text-muted-foreground">
+                  {formatTime(item.time * 1000)}
+                </TableCell>
+                <TableCell
+                  className={`capitalize ${
+                    item.order_type === "market" ? "text-primary" : "text-white"
+                  }`}
+                >
+                  {item.order_type}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.from_amount.amount} {item.from_amount.symbol || defaultSymbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.to_amount.amount} {item.to_amount.symbol || defaultSymbol}
+                </TableCell>
+                <TableCell className="text-muted-foreground">${formatNumber(item.price)}</TableCell>
+                <TableCell className="text-muted-foreground text-wrap break-words">
+                  {item.buymore_amount.amount
+                    ? `${item.buymore_amount.amount} 
+                    ${item.buymore_amount.symbol || defaultSymbol}`
+                    : "-"}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={getExplorerUrlFromTransaction(item.tx)}
+                    className="text-muted-foreground hover:text-foreground"
+                    target="_blank"
+                  >
+                    <ExternalLink className="size-4" />
+                  </Link>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };
