@@ -112,7 +112,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
   if (isActivityListLoading) return <Skeleton className="h-[400px] w-full" />;
 
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg cursor-pointer">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted-foreground/15">
@@ -235,7 +235,7 @@ const MyOrders = ({ inputMint, outputMint }: { inputMint: string; outputMint: st
   };
 
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg cursor-pointer">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted-foreground/15">
@@ -318,7 +318,7 @@ export const HistoryList = ({
   if (isTradeHistoryListLoading) return <Skeleton className="h-[400px] w-full" />;
 
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg cursor-pointer">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted-foreground/15">

@@ -65,6 +65,10 @@ function SwapContent() {
                   )}
                 </div>
               </div>
+              {/* Mobile view: OrderPanel first */}
+              <div className="sm:hidden w-full mt-4">
+                <OrderPanel />
+              </div>
               <div className="mt-4">
                 <Overview />
               </div>
@@ -73,8 +77,13 @@ function SwapContent() {
               </div>
             </div>
           </div>
-          <div className="sm:max-w-[420px] w-full flex flex-col space-y-4">
+          {/* Desktop view: OrderPanel in sidebar */}
+          <div className="hidden sm:flex sm:max-w-[420px] w-full flex-col space-y-4">
             <OrderPanel />
+            <Community />
+          </div>
+          {/* Mobile view: Community component */}
+          <div className="sm:hidden w-full mt-4">
             <Community />
           </div>
         </>
