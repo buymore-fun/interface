@@ -57,6 +57,10 @@ export function getExplorerUrlFromBlock(block: string) {
   return getExplorerUrl(`/block/${block}`);
 }
 
+export function getExplorerUrlFromToken(token: string) {
+  return getExplorerUrl(`/token/${token}`);
+}
+
 export const network = "devnet";
 
 const walletAdapterNetwork = getWalletAdapterNetwork(network);

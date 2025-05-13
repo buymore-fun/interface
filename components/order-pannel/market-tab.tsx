@@ -37,6 +37,8 @@ import Image from "next/image";
 import { useSolPrice } from "@/hooks/use-sol-price";
 import { CpmmPoolInfo } from "@/types/raydium";
 import { useCommonToast } from "@/hooks/use-common-toast";
+import { TokenSelector } from "@/components/token-selector";
+
 interface MarketTabProps {
   setSlippageDialogOpen: (open: boolean) => void;
 }
@@ -201,40 +203,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
-
-  // const [formatedTokenABalanceInUSD, formatedTokenBBalanceInUSD] = useMemo(() => {
-  //   // Handle empty or invalid inputs to prevent Decimal errors
-  //   const validTokenAAmount =
-  //     orderTokenAAmount && !isNaN(Number(orderTokenAAmount)) ? orderTokenAAmount : "0";
-  //   const validTokenBAmount =
-  //     orderTokenBAmount && !isNaN(Number(orderTokenBAmount)) ? orderTokenBAmount : "0";
-
-  //   const priceSolInUSD = isReverse
-  //     ? new Decimal(solPrice).mul(validTokenAAmount).toString()
-  //     : new Decimal(solPrice).mul(validTokenBAmount).toString();
-  //   const priceTokenInUSD = isReverse
-  //     ? priceState && priceState !== 0
-  //       ? new Decimal(solPrice).div(priceState).mul(validTokenBAmount).toString()
-  //       : "0.000"
-  //     : priceState && priceState !== 0
-  //       ? new Decimal(solPrice).div(priceState).mul(validTokenAAmount).toString()
-  //       : "0.000";
-  //   // const priceWithSlippage = isReverse
-  //   //   ? new Decimal(priceTokenInUSD)
-  //   //       .mul(100 - slippage)
-  //   //       .div(100)
-  //   //       .toString()
-  //   //   : new Decimal(priceSolInUSD)
-  //   //       .mul(100 - slippage)
-  //   //       .div(100)
-  //   //       .toString();
-
-  //   console.log("🚀 ~ priceSolInUSD:", solPrice, priceState, priceSolInUSD, priceTokenInUSD);
-
-  //   return isReverse
-  //     ? [formatFloor(priceSolInUSD), formatFloor(priceTokenInUSD)]
-  //     : [formatFloor(priceTokenInUSD), formatFloor(priceSolInUSD)];
-  // }, [isReverse, solPrice, orderTokenAAmount, orderTokenBAmount, priceState]);
 
   const cleanInput = () => {
     setOrderTokenAAmount("");
@@ -598,6 +566,25 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     }
   };
 
+  // 将 ApiV3Token 或 Token 转换为 TokenSelector 需要的格式
+  const convertToSelectorToken = useCallback((apiToken?: any) => {
+    if (!apiToken) return null;
+
+    return {
+      id: apiToken.address || "",
+      symbol: apiToken.symbol || getSymbolFromPoolInfo(apiToken) || "Unknown",
+      name: apiToken.symbol || getSymbolFromPoolInfo(apiToken) || "Unknown",
+      icon: apiToken.icon || "https://swap.pump.fun/tokens/sol_square.svg",
+      address: apiToken.address || "",
+    };
+  }, []);
+
+  // 处理选择token的回调
+  const handleTokenSelect = useCallback((selectedToken: any) => {
+    console.log("Selected token:", selectedToken);
+    // 注意: 这里我们只是记录选择，实际实现可能需要更复杂的状态管理
+  }, []);
+
   return (
     <div className="p-4">
       <div className="p-4 rounded-t-lg bg-accent border border-primary shadow-md shadow-primary/20">
@@ -655,13 +642,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         </div>
         <div className="pt-3 flex ">
           {tokenA ? (
-            <Button
-              variant="secondary"
-              className="bg-light-card/80 hover:bg-light-card/85 px-6 shadow-md"
-            >
-              <TokenIcon token={tokenA} size="sm" />
-              {getSymbolFromPoolInfo(inputToken)}
-            </Button>
+            <TokenSelector
+              defaultToken={convertToSelectorToken(inputToken)}
+              onSelectToken={handleTokenSelect}
+              buttonVariant="token"
+              buttonText={getSymbolFromPoolInfo(inputToken)}
+            />
           ) : (
             <div className="flex flex-col items-end gap-1">
               <Skeleton className="h-6 w-24" />
