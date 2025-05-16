@@ -1,7 +1,5 @@
 import axios from "axios";
-
-const BASE_URL = "https://api-test.buymore.fun/usurper";
-
+import config from "@/config";
 export const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: config.baseUrl,
 });

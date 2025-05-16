@@ -1,6 +1,5 @@
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-// Use environment variables
-export const network = process.env.NEXT_PUBLIC_NETWORK as string;
+
 // export const network = {
 //   mainnet: "mainnet-beta",
 //   devnet: "devnet",
@@ -39,6 +38,7 @@ export function getClusterUrlParam(network: WalletAdapterNetwork): string {
 }
 
 export function getExplorerUrl(path: string) {
+  // const baseUrl = "https://explorer.solana.com";
   const baseUrl = "https://solscan.io";
   const params = getClusterUrlParam(config.walletAdapterNetwork);
 
@@ -61,18 +61,39 @@ export function getExplorerUrlFromToken(token: string) {
   return getExplorerUrl(`/token/${token}`);
 }
 
+export const network = "devnet";
+
 const walletAdapterNetwork = getWalletAdapterNetwork(network);
 const isMainnet = walletAdapterNetwork === WalletAdapterNetwork.Mainnet;
 
-// Configuration directly from environment variables
+function getConfig() {
+  if (network === "devnet") {
+    return devConfig;
+  }
+  return mainnetConfig;
+}
+
+const devConfig = {
+  // defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+  defaultPool: "EQsVcoBFPeW3KtoenjKYY7zFhFmhooE2sdt5m3mKf8AK",
+  programId: "kR2byBqUk8JHTWobckkmUVTafYaPgPT7QmbsMnCVZTY",
+  baseUrl: "https://api-test.buymore.fun/usurper",
+};
+
+const mainnetConfig = {
+  // defaultPool: "4zzHMzNfqNEnuwBNGLFwh7RaYx8X6ThvgZptSJMVtVE7",
+  defaultPool: "EQsVcoBFPeW3KtoenjKYY7zFhFmhooE2sdt5m3mKf8AK",
+  programId: "kR2byBqUk8JHTWobckkmUVTafYaPgPT7QmbsMnCVZTY",
+  baseUrl: "https://api.buymore.fun/usurper",
+};
+
+const mergeConfig = getConfig();
+
 const config = {
   network: network,
   walletAdapterNetwork: walletAdapterNetwork,
   isMainnet,
-  defaultPool: process.env.NEXT_PUBLIC_DEFAULT_POOL,
-  programId: process.env.NEXT_PUBLIC_PROGRAM_ID,
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+  ...mergeConfig,
 };
-console.log("🚀 ~ config:", config);
 
 export default config;

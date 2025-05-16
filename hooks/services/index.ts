@@ -10,6 +10,7 @@ import {
 } from "@/types";
 import useSWR from "swr";
 import { axiosInstance } from "@/lib/axios";
+import { ITokenItem } from "@/types/token";
 // done
 // https://api-test.buymore.fun/usurper/dashboard/index?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&tt=all
 export function useDashboardIndex(params: { inputMint: string; tt?: string }) {
@@ -247,4 +248,13 @@ export async function getCpmmPoolFetchOne(params: { mint_a: string; mint_b: stri
   });
 
   return data.data as IResponsePoolInfoItem;
+}
+
+// https://api.buymore.fun/usurper/token/search?keyword=DhF9GCD9kbeEjUu3GYVH23g71YdAB46tMNBAPnJmizsM
+export async function getSearchToken(params: { keyword: string }) {
+  const { data } = await axiosInstance.get(`/token/search`, {
+    params,
+  });
+
+  return data.data as ITokenItem[];
 }

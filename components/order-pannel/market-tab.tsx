@@ -642,12 +642,13 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
         </div>
         <div className="pt-3 flex ">
           {tokenA ? (
-            <TokenSelector
-              defaultToken={convertToSelectorToken(inputToken)}
-              onSelectToken={handleTokenSelect}
-              buttonVariant="token"
-              buttonText={getSymbolFromPoolInfo(inputToken)}
-            />
+            <Button
+              variant="secondary"
+              className="bg-light-card/80 hover:bg-light-card/85 px-6 shadow-md"
+            >
+              <TokenIcon token={tokenA} size="sm" />
+              {getSymbolFromPoolInfo(inputToken)}
+            </Button>
           ) : (
             <div className="flex flex-col items-end gap-1">
               <Skeleton className="h-6 w-24" />

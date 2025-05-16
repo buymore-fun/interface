@@ -15,30 +15,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { TokenSearch } from "./token-search";
 export function Topbar() {
   const router = useRouter();
   const [, setOpen] = useConnectWalletModalOpen();
   const { publicKey, disconnect, wallet } = useWallet();
-  const [isAnimating, setIsAnimating] = useState(true);
-
-  useEffect(() => {
-    const animationDuration = 1400;
-
-    const timer = setTimeout(() => {
-      setIsAnimating(false);
-    }, animationDuration);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto ">
         <div className="flex justify-between items-center w-full gap-6">
           <div className="flex justify-between items-center flex-1">
-            <div className="flex-1 -my-4 cursor-pointer" onClick={() => router.push("/")}>
+            <div className="flex-1 -my-4 cursor-pointer relative" onClick={() => router.push("/")}>
               {/* <Image
                 src={isAnimating ? "/logo.gif" : "/logo_v3.png"}
                 alt="Logo"
@@ -59,16 +48,20 @@ export function Topbar() {
                   className="absolute top-0 left-0 w-full h-full object-cover"
                 />
               </div>
+              <div className="absolute top-6 left-[112px] text-primary text-sm animate-fade-in">
+                Alpha
+              </div>
             </div>
 
             <div className="flex-grow  hidden sm:block ">
-              <div className="flex border bg-secondary/30  rounded-lg  border-primary focus-within:border-primary text-muted-foreground focus-within:text-foreground items-center p-2">
+              {/* <div className="flex border bg-secondary/30 rounded-lg  border-primary focus-within:border-primary text-muted-foreground focus-within:text-foreground items-center p-2">
                 <Search className="size-3 text-primary" />
                 <Input
                   placeholder="Search token/contract"
                   className="border-none outline-none p-0 ml-2 flex-1 text-sm"
                 />
-              </div>
+              </div> */}
+              <TokenSearch />
             </div>
           </div>
           <div className="flex-1 flex justify-end space-x-4 sm:max-w-[420px]">

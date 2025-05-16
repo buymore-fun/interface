@@ -82,14 +82,14 @@ export function CopyButton({
   if (copyState.value) {
     return (
       <button className={buttonClasses} disabled {...props}>
-        <Check size={iconSize} className="text-green-500" />
+        <Check size={iconSize} className="text-primary" />
       </button>
     );
   }
 
   return (
     <button className={buttonClasses} onClick={handleCopy} title="Copy to clipboard" {...props}>
-      <Copy size={iconSize} className="text-foreground" />
+      <Copy size={iconSize} className="text-muted-foreground" />
     </button>
   );
 }
