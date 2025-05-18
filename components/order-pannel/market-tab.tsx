@@ -69,7 +69,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const { servicePoolInfo } = useServicePoolInfo();
   const { raydiumPoolInfo } = useRaydiumPoolInfo();
 
-  const token = useToken(servicePoolInfo!.cpmm.mintB);
+  const token = useToken(servicePoolInfo!.cpmm?.mintB);
   const SOL = useToken(SOL_ADDRESS);
   const isSubmitting = useBoolean();
 

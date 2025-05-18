@@ -218,7 +218,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
                       <div className="flex flex-col w-full gap-1">
                         <div className="font-medium text-base text-white">{token.symbol}</div>
                         <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <p className="truncate">{formatAddress(token.address)}</p>
+                          <div className="truncate">{formatAddress(token.address)}</div>
                           <CopyButton
                             text={token.address}
                             onCopy={(event) => {

@@ -84,9 +84,7 @@ export function Community() {
                 <Skeleton className="w-10 h-4" />
               ) : (
                 <div className="flex items-center gap-1">
-                  <span className="text-sm text-white">
-                    {formatPrice(data!.active_fund.value) || "0"}
-                  </span>
+                  <span className="text-sm text-white">{formatPrice(data?.active_fund.value)}</span>
                   <Image src={"/assets/token/next.svg"} width={12} height={12} alt={"next"} />
                 </div>
               )}
@@ -99,9 +97,7 @@ export function Community() {
               {isLoading ? (
                 <Skeleton className="w-10 h-4" />
               ) : (
-                <span className="text-sm text-white">
-                  {formatPrice(data!.holders.value) || "0"}
-                </span>
+                <span className="text-sm text-white">{formatPrice(data?.holders.value)}</span>
               )}
             </div>
           </div>
@@ -113,7 +109,7 @@ export function Community() {
                 <Skeleton className="w-10 h-4" />
               ) : (
                 <span className="text-sm text-white">
-                  {formatPrice(data!.community_mbrs.value) || "0"}
+                  {formatPrice(data?.community_mbrs.value)}
                 </span>
               )}
             </div>
@@ -126,7 +122,7 @@ export function Community() {
                 <Skeleton className="w-10 h-4" />
               ) : (
                 <span className="text-sm text-white">
-                  {formatPrice(data!.active_mbrs_24h.value) || "0"}
+                  {formatPrice(data?.active_mbrs_24h.value)}
                 </span>
               )}
             </div>

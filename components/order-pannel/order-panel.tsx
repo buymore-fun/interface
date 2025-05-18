@@ -25,11 +25,11 @@ export function OrderPanel() {
   const { fetchRaydiumPoolInfo, isRaydiumLoading } = useRaydiumPoolInfo();
 
   useEffect(() => {
-    if (servicePoolInfo?.cpmm.poolId) {
+    if (servicePoolInfo?.cpmm?.poolId) {
       fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [servicePoolInfo?.cpmm.poolId]);
+  }, [servicePoolInfo?.cpmm?.poolId]);
 
   return (
     <div className="bg-card rounded-lg overflow-hidden">

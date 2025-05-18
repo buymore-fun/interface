@@ -31,7 +31,7 @@ export function Overview() {
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
-              <span className="font-semibold">${formatPrice(data!.total_volume)}</span>
+              <span className="font-semibold">${formatPrice(data?.total_volume)}</span>
             )}
           </div>
           <div className="flex flex-col">
@@ -39,7 +39,7 @@ export function Overview() {
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
-              <span className="font-semibold">{formatPrice(data!.traders)}</span>
+              <span className="font-semibold">{formatPrice(data?.traders)}</span>
             )}
           </div>
           <div className="flex flex-col">
@@ -47,7 +47,7 @@ export function Overview() {
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
-              <span className="font-semibold">{formatPrice(data!.orders)}</span>
+              <span className="font-semibold">{formatPrice(data?.orders)}</span>
             )}
           </div>
           <div className="flex flex-col">
@@ -55,7 +55,7 @@ export function Overview() {
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
-              <span className="font-semibold">${formatPrice(data!.value_of_buymore)}</span>
+              <span className="font-semibold">${formatPrice(data?.value_of_buymore)}</span>
             )}
           </div>
         </div>

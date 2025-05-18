@@ -110,7 +110,9 @@ export function formatBalance(
   return formattedBalance;
 }
 
-export function formatPrice(price: number | string, toFixed: number = 12) {
+export function formatPrice(price: number | string | undefined, toFixed: number = 12) {
+  if (!price) return "0";
+
   const formattedPrice = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: toFixed,
   }).format(+price);

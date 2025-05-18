@@ -1,7 +1,7 @@
 import { Raydium, TxVersion, parseTokenAccountResp } from "@raydium-io/raydium-sdk-v2";
 import { Connection, Keypair, clusterApiUrl, PublicKey, Cluster } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import config, { getWalletAdapterNetwork, network } from "@/config";
+import config from "@/config";
 
 const PAID_RPC_ENDPOINTS = {
   //  paid rpc
@@ -14,7 +14,7 @@ const PAID_RPC_ENDPOINTS = {
 export const getConnectionEndpoint = () => {
   if (config.walletAdapterNetwork === "mainnet-beta") {
     const paidRpc = PAID_RPC_ENDPOINTS["mainnet-beta"][0];
-    console.log(`[Solana RPC] Using PAID RPC for mainnet-beta: ${paidRpc}`);
+    // console.log(`[Solana RPC] Using PAID RPC for mainnet-beta: ${paidRpc}`);
     return paidRpc;
   }
 
@@ -31,7 +31,7 @@ const cluster = config.walletAdapterNetwork as any;
 let raydium: Raydium | undefined;
 export const initSdk = async (params?: { loadToken?: boolean; owner: PublicKey }) => {
   if (raydium) return raydium;
-  debugger;
+  // debugger;
 
   // if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta")) {
   //   console.warn(

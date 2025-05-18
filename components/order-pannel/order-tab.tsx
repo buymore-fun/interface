@@ -52,7 +52,7 @@ export function OrderTab() {
   const isLoading = isSolPriceLoading;
 
   const SOL = useToken(SOL_ADDRESS);
-  const token = useToken(servicePoolInfo!.cpmm.mintB);
+  const token = useToken(servicePoolInfo!.cpmm?.mintB);
 
   const { fetchSolBalance, solBalance } = useSolBalance();
   const { tokenBalance, mutateTokenBalance } = useTokenBalanceV2(
