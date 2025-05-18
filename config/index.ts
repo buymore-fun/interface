@@ -1,4 +1,5 @@
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { clusterApiUrl } from "@solana/web3.js";
 // Use environment variables
 export const network = process.env.NEXT_PUBLIC_NETWORK as string;
 // export const network = {
@@ -74,5 +75,25 @@ const config = {
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
 };
 console.log("🚀 ~ config:", config);
+
+const PAID_RPC_ENDPOINTS = {
+  //  paid rpc
+  "mainnet-beta": [
+    "https://rpc.ankr.com/solana/1609e828512967e228912bddd9c2a7ae07993932901d74d1277c37fc8165c3af",
+    "https://mainnet.helius-rpc.com/?api-key=806e5319-b980-41ad-9739-61cce20d0c28",
+  ],
+};
+
+export const getConnectionEndpoint = () => {
+  if (config.walletAdapterNetwork === "mainnet-beta") {
+    const paidRpc = PAID_RPC_ENDPOINTS["mainnet-beta"][0];
+    // console.log(`[Solana RPC] Using PAID RPC for mainnet-beta: ${paidRpc}`);
+    return paidRpc;
+  }
+
+  const publicRpc = clusterApiUrl(config.walletAdapterNetwork);
+  console.log(`[Solana RPC] Using public RPC for ${config.walletAdapterNetwork}: ${publicRpc}`);
+  return publicRpc;
+};
 
 export default config;

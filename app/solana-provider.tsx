@@ -12,8 +12,7 @@ import { clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import config, { getWalletAdapterNetwork } from "@/config";
-import { getConnectionEndpoint } from "@/lib/raydium/config";
+import config, { getWalletAdapterNetwork, getConnectionEndpoint } from "@/config";
 
 export function SolanaProvider({ children }: PropsWithChildren) {
   // const network = WalletAdapterNetwork.Mainnet;
