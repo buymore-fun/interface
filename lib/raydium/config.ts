@@ -1,18 +1,44 @@
 import { Raydium, TxVersion, parseTokenAccountResp } from "@raydium-io/raydium-sdk-v2";
-import { Connection, Keypair, clusterApiUrl, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, clusterApiUrl, PublicKey, Cluster } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import config, { getWalletAdapterNetwork, network } from "@/config";
 
-export const connection = new Connection(clusterApiUrl("devnet")); //<YOUR_RPC_URL>
+const PAID_RPC_ENDPOINTS = {
+  //  paid rpc
+  "mainnet-beta": [
+    "https://rpc.ankr.com/solana/1609e828512967e228912bddd9c2a7ae07993932901d74d1277c37fc8165c3af",
+    "https://mainnet.helius-rpc.com/?api-key=806e5319-b980-41ad-9739-61cce20d0c28",
+  ],
+};
+
+export const getConnectionEndpoint = () => {
+  if (config.walletAdapterNetwork === "mainnet-beta") {
+    const paidRpc = PAID_RPC_ENDPOINTS["mainnet-beta"][0];
+    console.log(`[Solana RPC] Using PAID RPC for mainnet-beta: ${paidRpc}`);
+    return paidRpc;
+  }
+
+  const publicRpc = clusterApiUrl(config.walletAdapterNetwork);
+  console.log(`[Solana RPC] Using public RPC for ${config.walletAdapterNetwork}: ${publicRpc}`);
+  return publicRpc;
+};
+
+export const connection = new Connection(getConnectionEndpoint());
+
 export const txVersion = TxVersion.V0; // or TxVersion.LEGACY
-const cluster = "devnet";
+const cluster = config.walletAdapterNetwork as any;
 
 let raydium: Raydium | undefined;
 export const initSdk = async (params?: { loadToken?: boolean; owner: PublicKey }) => {
   if (raydium) return raydium;
-  if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta"))
-    console.warn(
-      "using free rpc node might cause unexpected error, strongly suggest uses paid rpc node"
-    );
+  debugger;
+
+  // if (connection.rpcEndpoint === clusterApiUrl("mainnet-beta")) {
+  //   console.warn(
+  //     "using free rpc node might cause unexpected error, strongly suggest uses paid rpc node"
+  //   );
+  // }
+
   console.log(`connect to rpc ${connection.rpcEndpoint} in ${cluster}`);
   raydium = await Raydium.load({
     owner: params?.owner,

@@ -877,7 +877,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
         program.programId
       );
 
-      const default_pool = new PublicKey(config.defaultPool);
+      const default_pool = new PublicKey(config.defaultPool!);
       // order_book( order_book_detail, new BN(0), this.token_0_mint, this.token_1_mint );
 
       const [settle_pool] = PublicKey.findProgramAddressSync(
