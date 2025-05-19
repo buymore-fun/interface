@@ -3,6 +3,7 @@ import axios from "axios";
 import { UTCTimestamp } from "lightweight-charts";
 import useSWR from "swr";
 
+// todo address should be output mint
 export function useChartData(address: string | null, chartType: ChartType) {
   const { data } = useSWR(
     address

@@ -13,6 +13,7 @@ import { Suspense, useEffect, useState } from "react";
 import { ChartType } from "@/types/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useServicePoolInfo } from "@/hooks/use-pool-info";
+import { solChangeToToken } from "@/lib/constants";
 
 function SwapContent() {
   const searchParams = useSearchParams();
@@ -26,7 +27,10 @@ function SwapContent() {
 
   useEffect(() => {
     if (inputMint && outputMint) {
-      fetchServicePoolInfo(inputMint as string, outputMint as string);
+      fetchServicePoolInfo(
+        solChangeToToken(inputMint as string),
+        solChangeToToken(outputMint as string)
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputMint, outputMint]);
