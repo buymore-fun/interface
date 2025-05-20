@@ -115,7 +115,7 @@ export default function Home() {
       </div>
       <div className="relative text-white text-sm w-full pb-4 mt-8">
         <Separator className="w-full max-w-none mx-auto h-[0.5px] mb-4" />
-        <div className="w-full max-w-6xl mx-auto px-4 py-2">
+        <div className="w-full max-w-6xl mx-auto px-4 py-2 font-righteous">
           <span>© Buymore.fun</span>
         </div>
       </div>
