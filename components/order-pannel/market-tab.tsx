@@ -200,6 +200,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
+    console.log("🚀 ~ swapInfo ~ inputToken&outputToken :", inputToken, outputToken);
     return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
@@ -577,12 +578,6 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       icon: apiToken.icon || "https://swap.pump.fun/tokens/sol_square.svg",
       address: apiToken.address || "",
     };
-  }, []);
-
-  // 处理选择token的回调
-  const handleTokenSelect = useCallback((selectedToken: any) => {
-    console.log("Selected token:", selectedToken);
-    // 注意: 这里我们只是记录选择，实际实现可能需要更复杂的状态管理
   }, []);
 
   return (

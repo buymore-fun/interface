@@ -5,7 +5,7 @@ import useSWR from "swr";
 
 export function useChartData(address: string | null, outputMint: string, chartType: ChartType) {
   const { data } = useSWR(
-    address ? `/api/charts/${address}?quote_address=${outputMint}&type=${chartType}` : undefined,
+    address ? `/api/charts/${outputMint}?quote_address=${address}&type=${chartType}` : undefined,
     (url: string) =>
       axios
         .get<{

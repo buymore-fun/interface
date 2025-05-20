@@ -16,6 +16,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 import toast from "react-hot-toast";
 import { getSearchToken } from "@/hooks/services";
 import { useRouter } from "next/navigation";
+import { solChangeToToken } from "@/lib/constants";
 interface TokenSearchProps {
   onSelect?: (token: ITokenItem) => void;
   className?: string;
@@ -71,7 +72,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
   const handleSelect = (token: ITokenItem) => {
     if (onSelect) onSelect(token);
 
-    router.push(`/swap?inputMint=sol&outputMint=${token.address}`);
+    router.push(`/swap?inputMint=${solChangeToToken("sol")}&outputMint=${token.address}`);
     setQuery("");
     setIsOpen(false);
   };

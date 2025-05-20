@@ -53,7 +53,7 @@ function SwapContent() {
             <div className="flex flex-col">
               <div>
                 <TokenInfo
-                  tokenAddress={inputMint as string}
+                  tokenAddress={outputMint as string}
                   type={chartType}
                   onTypeChange={setChartType}
                   inputMint={inputMint}

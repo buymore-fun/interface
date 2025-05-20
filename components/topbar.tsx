@@ -74,57 +74,54 @@ export function Topbar() {
                 <FaRegFileWord className="size-5" />
               </Button>
             </div>
-            {!isHomePage && (
-              <>
-                {publicKey ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        onClick={disconnect}
-                        className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
-                      >
-                        {wallet ? (
-                          <Image
-                            src={wallet.adapter.icon}
-                            alt={wallet.adapter.name}
-                            width={64}
-                            height={64}
-                            className="size-6 rounded-full hidden md:block"
-                          />
-                        ) : null}
-                        {ellipseMiddle(publicKey.toString())}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {/* <DropdownMenuItem> */}
-                      <div className="flex flex-col gap-1 text-sm px-3 pt-2">
-                        <span className="text-muted-foreground">Total Buymore </span>
-                        <span className="text-white">$ {personalBuyMore}</span>
-                      </div>
-                      {/* </DropdownMenuItem> */}
-                      <DropdownMenuItem>
-                        <Button
-                          variant="ghost"
-                          onClick={disconnect}
-                          className="w-full text-white flex justify-between px-1"
-                        >
-                          <Wallet className="text-muted-foreground size-3" />
-                          Disconnect
-                        </Button>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
+
+            {publicKey ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                    onClick={() => setOpen(true)}
+                    onClick={disconnect}
+                    className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    Connect
+                    {wallet ? (
+                      <Image
+                        src={wallet.adapter.icon}
+                        alt={wallet.adapter.name}
+                        width={64}
+                        height={64}
+                        className="size-6 rounded-full hidden md:block"
+                      />
+                    ) : null}
+                    {ellipseMiddle(publicKey.toString())}
                   </Button>
-                )}
-              </>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {/* <DropdownMenuItem> */}
+                  <div className="flex flex-col gap-1 text-sm px-3 pt-2">
+                    <span className="text-muted-foreground">Total Buymore </span>
+                    <span className="text-white">$ {personalBuyMore}</span>
+                  </div>
+                  {/* </DropdownMenuItem> */}
+                  <DropdownMenuItem>
+                    <Button
+                      variant="ghost"
+                      onClick={disconnect}
+                      className="w-full text-white flex justify-between px-1"
+                    >
+                      <Wallet className="text-muted-foreground size-3" />
+                      Disconnect
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="outline"
+                className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                onClick={() => setOpen(true)}
+              >
+                Connect
+              </Button>
             )}
           </div>
         </div>
