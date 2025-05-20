@@ -36,7 +36,7 @@ import { connection } from "@/lib/raydium/config";
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
 
-const raydium_cp_swap = `CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW`;
+const raydium_cp_swap = config.raydiumCpSwap;
 
 // const USDC_MINT = new PublicKey("9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U");
 // const tokenName = "USD Coin";
@@ -855,7 +855,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       const pre_v = new BN(1000);
       const settle_id = new BN(Date.now());
 
-      const raydium_pubkey = new PublicKey(raydium_cp_swap);
+      const raydium_pubkey = new PublicKey(raydium_cp_swap as string);
       const POOL_AUTH_SEED = Buffer.from(utils.bytes.utf8.encode("vault_and_lp_mint_auth_seed"));
       const POOL_SEED = Buffer.from(utils.bytes.utf8.encode("pool"));
       const ORACLE_SEED = Buffer.from(utils.bytes.utf8.encode("observation"));
@@ -942,6 +942,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
       );
       console.groupEnd();
 
+      //ToDo WSOL account not found, will attempt to create.
       const tx = new Transaction();
 
       const isNativeMint = this.input_token_mint.equals(NATIVE_MINT);

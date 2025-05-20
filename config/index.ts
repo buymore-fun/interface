@@ -74,6 +74,7 @@ const config = {
   programId: process.env.NEXT_PUBLIC_PROGRAM_ID,
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   socketUrl: process.env.NEXT_PUBLIC_SOCKET_URL,
+  raydiumCpSwap: process.env.NEXT_PUBLIC_RAYDIUM_CP_SWAP,
 };
 console.log("🚀 ~ config:", config);
 
