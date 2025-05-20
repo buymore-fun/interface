@@ -10,7 +10,7 @@ import HolderIcon from "@/public/assets/token/holders.svg";
 import ActiveFundIcon from "@/public/assets/token/active-fund.svg";
 import CommunityMembersIcon from "@/public/assets/token/community-members.svg";
 import ActiveMembersIcon from "@/public/assets/token/active-members.svg";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useCommunityDetail } from "@/hooks/services";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
@@ -20,7 +20,13 @@ import { Button } from "@/components/ui/button";
 
 export function Community() {
   const { address } = useParams();
-  const { data, isLoading } = useCommunityDetail({ inputMint: address as string });
+  const searchParams = useSearchParams();
+  const inputMint = searchParams.get("inputMint");
+  const outputMint = searchParams.get("outputMint");
+  const { data, isLoading } = useCommunityDetail({
+    input_token: inputMint as string,
+    output_token: outputMint as string,
+  });
 
   return (
     <>

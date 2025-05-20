@@ -47,9 +47,10 @@ export const getSymbolFromPoolInfo = (poolInfo?: ApiV3Token) => {
     return "SOL";
   }
 
+  // ToDo should check
   if (config.isMainnet) {
-    return poolInfo?.symbol || "BOB";
+    return poolInfo?.symbol || "BMT";
   }
 
-  return poolInfo?.symbol || "BOB";
+  return poolInfo?.symbol || "BMT";
 };

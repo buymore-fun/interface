@@ -81,7 +81,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
       <Command className="rounded-lg border overflow-visible bg-transparent">
         <div className="flex items-center justify-between border bg-secondary/30 rounded-lg border-primary focus-within:border-primary text-muted-foreground focus-within:text-foreground p-2 w-full">
           <CommandInput
-            placeholder="Enter token address"
+            placeholder="Search token/contract"
             className="border-none outline-none bg-transparent p-0 ml-2 flex-1 text-sm h-7 w-full no-underline"
             value={query}
             onValueChange={setQuery}

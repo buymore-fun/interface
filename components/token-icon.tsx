@@ -2,13 +2,7 @@ import { Token } from "@/types/token";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-export function TokenIcon({
-  token,
-  size = "md",
-}: {
-  token: Token;
-  size?: "sm" | "md" | "lg";
-}) {
+export function TokenIcon({ token, size = "md" }: { token: Token; size?: "sm" | "md" | "lg" }) {
   return (
     <div
       className={cn(
@@ -19,7 +13,7 @@ export function TokenIcon({
       {token.icon ? (
         <Image
           src={`https://wsrv.nl/?w=64&h=64&url=${token.icon}`}
-          className={cn("rounded-full w-full h-full")}
+          className={cn("rounded-full w-full h-full object-cover")}
           width={128}
           alt={token.symbol}
           height={128}

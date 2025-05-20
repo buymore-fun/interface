@@ -13,7 +13,11 @@ import { axiosInstance } from "@/lib/axios";
 import { ITokenItem } from "@/types/token";
 // done
 // https://api-test.buymore.fun/usurper/dashboard/index?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R&tt=all
-export function useDashboardIndex(params: { inputMint: string; tt?: string }) {
+export function useDashboardIndex(params: {
+  input_token: string;
+  output_token: string;
+  tt?: string;
+}) {
   const { data, error, isLoading } = useSWR(`/dashboard/index`, async (url: string) => {
     const response = await axiosInstance.get(url, {
       params,
@@ -113,7 +117,7 @@ export function useTradeHistoryList(params: {
 }
 
 // https://api-test.buymore.fun/usurper/community/detail?input_mint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
-export function useCommunityDetail(params: { inputMint: string }) {
+export function useCommunityDetail(params: { input_token: string; output_token: string }) {
   const { data, error, isLoading, mutate } = useSWR(`/community/detail`, async (url: string) => {
     const response = await axiosInstance.get(url, {
       params,
@@ -257,4 +261,13 @@ export async function getSearchToken(params: { keyword: string }) {
   });
 
   return data.data as ITokenItem[];
+}
+
+export async function getPersonalBuyMore(params: { wallet: string }) {
+  const { data } = await axiosInstance.get(`/wallet/fetch-one`, {
+    params,
+  });
+
+  // ToDo: fix type
+  return data.data as any;
 }

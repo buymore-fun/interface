@@ -1,17 +1,21 @@
 import { useDashboardIndex } from "@/hooks/services";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardTime } from "@/types/chart";
 import { TimeGroup } from "@/components/time-group";
 import { useState } from "react";
-
+import { solChangeToToken } from "@/lib/constants";
 export function Overview() {
   const { address } = useParams();
   const [tableType, setTableType] = useState<DashboardTime>(DashboardTime.ALL);
-
+  const searchParams = useSearchParams();
+  const inputMint = searchParams.get("inputMint");
+  const outputMint = searchParams.get("outputMint");
   const { data, isLoading } = useDashboardIndex({
-    inputMint: address as string,
+    input_token: solChangeToToken(inputMint as string),
+    output_token: solChangeToToken(outputMint as string),
+    tt: "all",
   });
 
   return (
