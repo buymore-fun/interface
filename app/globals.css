@@ -7,6 +7,14 @@ body {
   font-family: var(--font-poppins);
 }
 
+.font-righteous {
+  font-family: var(--font-righteous);
+}
+
+.font-digital {
+  font-family: var(--font-digital);
+}
+
 @layer base {
   :root {
     --background: 0 0% 7%;

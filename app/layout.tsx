@@ -7,6 +7,14 @@ import { SolanaProvider } from "@/app/solana-provider";
 import { ReactQueryProvider } from "@/app/react-query-provider";
 import { Toaster } from "react-hot-toast";
 import { GlobalInit } from "@/components/global-init";
+import localFont from "next/font/local";
+
+// Local digital font
+const digital = localFont({
+  src: "../public/fonts/DigitalNumbers-Regular.ttf",
+  variable: "--font-digital",
+  display: "swap",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} ${poppins.variable} antialiased`}>
+      <body className={`${poppins.variable} ${righteous.variable} ${digital.variable} antialiased`}>
         <ReactQueryProvider>
           <SolanaProvider>
             <GlobalInit />
