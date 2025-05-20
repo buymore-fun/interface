@@ -21,7 +21,7 @@ function SwapContent() {
   const outputMint = searchParams.get("outputMint");
 
   const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
-  const chartData = useChartData(inputMint as string, chartType);
+  const chartData = useChartData(inputMint as string, outputMint as string, chartType);
 
   const { fetchServicePoolInfo, isServicePoolInfoLoading, servicePoolInfo } = useServicePoolInfo();
 

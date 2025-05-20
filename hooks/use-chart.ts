@@ -3,12 +3,9 @@ import axios from "axios";
 import { UTCTimestamp } from "lightweight-charts";
 import useSWR from "swr";
 
-// todo address should be output mint dev
-export function useChartData(address: string | null, chartType: ChartType) {
+export function useChartData(address: string | null, outputMint: string, chartType: ChartType) {
   const { data } = useSWR(
-    address
-      ? `/api/charts/${address}?quote_address=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&type=${chartType}`
-      : undefined,
+    address ? `/api/charts/${address}?quote_address=${outputMint}&type=${chartType}` : undefined,
     (url: string) =>
       axios
         .get<{

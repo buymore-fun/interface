@@ -5,7 +5,7 @@ export type HybirdTradeV2 = {
     {
       "name": "AUTHORITY_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 50]"
+      "value": "[98, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 50]"
     },
     {
       "name": "MAX_ORDER_LIMIT",
@@ -15,27 +15,27 @@ export type HybirdTradeV2 = {
     {
       "name": "ORDER_BOOK_WITH_TOKEN_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 50]"
+      "value": "[98, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 50]"
     },
     {
       "name": "ORDER_CONFIG_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 50]"
+      "value": "[98, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 50]"
     },
     {
       "name": "ORDER_COUNTER_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 50]"
+      "value": "[98, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 50]"
     },
     {
       "name": "SETTLE_POOL_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 50]"
+      "value": "[98, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 50]"
     },
     {
       "name": "SOL_VAULT_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 50]"
+      "value": "[98, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 50]"
     }
   ],
   "instructions": [
@@ -142,7 +142,7 @@ export type HybirdTradeV2 = {
       ]
     },
     {
-      "name": "modifyComReceiver",
+      "name": "modifyPoolReceiver",
       "accounts": [
         {
           "name": "payer",
@@ -171,6 +171,10 @@ export type HybirdTradeV2 = {
         }
       ],
       "args": [
+        {
+          "name": "sysReceiver",
+          "type": "publicKey"
+        },
         {
           "name": "comReceiver",
           "type": "publicKey"
@@ -577,6 +581,79 @@ export type HybirdTradeV2 = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "settle",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "settlePool",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "unchecked"
+          ]
+        },
+        {
+          "name": "tokenVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookDetail",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "settlements",
+          "type": {
+            "vec": {
+              "defined": "SettleOut"
+            }
+          }
+        }
+      ]
     },
     {
       "name": "tradeOrder",
@@ -1130,6 +1207,18 @@ export type HybirdTradeV2 = {
       }
     },
     {
+      "name": "SettleOut",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "orderId",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "Trade",
       "type": {
         "kind": "struct",
@@ -1395,6 +1484,26 @@ export type HybirdTradeV2 = {
       ]
     },
     {
+      "name": "PoolReceiverUpated",
+      "fields": [
+        {
+          "name": "poolPubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "sysReceiver",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "comReceiver",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
       "name": "UsedOrder",
       "fields": [
         {
@@ -1425,6 +1534,21 @@ export type HybirdTradeV2 = {
         {
           "name": "afterOutAmount",
           "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UsedSettment",
+      "fields": [
+        {
+          "name": "settlePubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "sender",
+          "type": "publicKey",
           "index": false
         }
       ]
@@ -1470,6 +1594,11 @@ export type HybirdTradeV2 = {
       "code": 6007,
       "name": "InvalidSwap",
       "msg": "Invalid Swap Info"
+    },
+    {
+      "code": 6008,
+      "name": "MinimumAmountOutInvalid",
+      "msg": "Minimum amount out invalid"
     }
   ]
 };
@@ -1481,7 +1610,7 @@ export const IDL: HybirdTradeV2 = {
     {
       "name": "AUTHORITY_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 50]"
+      "value": "[98, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121, 95, 118, 50]"
     },
     {
       "name": "MAX_ORDER_LIMIT",
@@ -1491,27 +1620,27 @@ export const IDL: HybirdTradeV2 = {
     {
       "name": "ORDER_BOOK_WITH_TOKEN_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 50]"
+      "value": "[98, 95, 111, 114, 100, 101, 114, 95, 119, 105, 116, 104, 95, 116, 111, 107, 101, 110, 95, 118, 50]"
     },
     {
       "name": "ORDER_CONFIG_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 50]"
+      "value": "[98, 95, 111, 114, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103, 95, 118, 50]"
     },
     {
       "name": "ORDER_COUNTER_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 50]"
+      "value": "[98, 95, 111, 114, 100, 101, 114, 95, 99, 111, 117, 110, 116, 101, 114, 95, 118, 50]"
     },
     {
       "name": "SETTLE_POOL_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 50]"
+      "value": "[98, 95, 115, 101, 116, 116, 108, 101, 95, 112, 111, 111, 108, 95, 118, 50]"
     },
     {
       "name": "SOL_VAULT_SEED",
       "type": "bytes",
-      "value": "[98, 117, 121, 109, 111, 114, 101, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 50]"
+      "value": "[98, 95, 115, 111, 108, 95, 118, 97, 117, 108, 116, 95, 118, 50]"
     }
   ],
   "instructions": [
@@ -1618,7 +1747,7 @@ export const IDL: HybirdTradeV2 = {
       ]
     },
     {
-      "name": "modifyComReceiver",
+      "name": "modifyPoolReceiver",
       "accounts": [
         {
           "name": "payer",
@@ -1647,6 +1776,10 @@ export const IDL: HybirdTradeV2 = {
         }
       ],
       "args": [
+        {
+          "name": "sysReceiver",
+          "type": "publicKey"
+        },
         {
           "name": "comReceiver",
           "type": "publicKey"
@@ -2053,6 +2186,79 @@ export const IDL: HybirdTradeV2 = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "settle",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "settlePool",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "unchecked"
+          ]
+        },
+        {
+          "name": "tokenVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookDetail",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "orderBookAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "settlements",
+          "type": {
+            "vec": {
+              "defined": "SettleOut"
+            }
+          }
+        }
+      ]
     },
     {
       "name": "tradeOrder",
@@ -2606,6 +2812,18 @@ export const IDL: HybirdTradeV2 = {
       }
     },
     {
+      "name": "SettleOut",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "orderId",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "Trade",
       "type": {
         "kind": "struct",
@@ -2871,6 +3089,26 @@ export const IDL: HybirdTradeV2 = {
       ]
     },
     {
+      "name": "PoolReceiverUpated",
+      "fields": [
+        {
+          "name": "poolPubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "sysReceiver",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "comReceiver",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
       "name": "UsedOrder",
       "fields": [
         {
@@ -2901,6 +3139,21 @@ export const IDL: HybirdTradeV2 = {
         {
           "name": "afterOutAmount",
           "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UsedSettment",
+      "fields": [
+        {
+          "name": "settlePubkey",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "sender",
+          "type": "publicKey",
           "index": false
         }
       ]
@@ -2946,6 +3199,11 @@ export const IDL: HybirdTradeV2 = {
       "code": 6007,
       "name": "InvalidSwap",
       "msg": "Invalid Swap Info"
+    },
+    {
+      "code": 6008,
+      "name": "MinimumAmountOutInvalid",
+      "msg": "Minimum amount out invalid"
     }
   ]
 };

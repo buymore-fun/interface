@@ -15,10 +15,11 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 export default function Token() {
   const searchParams = useSearchParams();
+  const outputMint = searchParams.get("outputMint");
   const { address } = useParams();
   const connection = useConnection();
   const [chartType, setChartType] = useState<ChartType>(ChartType.FIVE_MINUTE);
-  const chartData = useChartData(address as string, chartType);
+  const chartData = useChartData(address as string, outputMint as string, chartType);
 
   const wallet = useWallet();
 

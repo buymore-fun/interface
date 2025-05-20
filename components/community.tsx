@@ -81,55 +81,68 @@ export function Community() {
             onClick={() => {
               window.open(data?.contact?.tg?.url, "_blank");
             }}
-            className="flex bg-muted-foreground/15 rounded-lg px-6 py-2 items-center border-[0.5px] justify-between text-primary border-primary cursor-pointer"
+            className="flex bg-muted-foreground/15 rounded-lg px-6 py-2 items-end border-[0.5px] justify-between text-primary border-primary cursor-pointer flex-row-reverse"
           >
-            <Image src={ActiveFundIcon} alt={"active fund"} />
-            <div className="flex flex-col ml-3  items-end">
-              <span className="text-xs ">Active fund</span>
+            <Image src={ActiveFundIcon} alt={"active fund"} className="w-10 h-10" />
+            <div className="flex flex-col ">
+              <span className="text-xs">Active fund</span>
               {isLoading ? (
                 <Skeleton className="w-10 h-4" />
               ) : (
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-white">{formatPrice(data?.active_fund.value)}</span>
-                  <Image src={"/assets/token/next.svg"} width={12} height={12} alt={"next"} />
+                <div className="flex flex-col  gap-1">
+                  <span className="text-sm text-white">
+                    ${data?.active_fund?.token0.symbol}:
+                    {formatPrice(data?.active_fund?.token0.amount)}
+                  </span>
+                  <span className="text-sm text-white">
+                    ${data?.active_fund?.token1.symbol}:
+                    {formatPrice(data?.active_fund?.token1.amount)}
+                  </span>
                 </div>
               )}
             </div>
           </div>
-          <div className="flex bg-muted-foreground/15 rounded-lg px-6 py-2 items-center border border-transparent justify-between   text-muted-foreground ">
+
+          <div className="flex flex-col bg-muted-foreground/15 rounded-lg px-6 py-2 border-[0.5px] border-transparent text-muted-foreground row-span-2 h-full">
+            <div className="flex justify-between items-center h-1/2">
+              <Image src={CommunityMembersIcon} alt={"community members"} />
+              <div className="flex flex-col ml-3 items-end gap-3">
+                <span className="text-xs whitespace-nowrap">Community Mbrs</span>
+                {isLoading ? (
+                  <Skeleton className="w-10 h-4" />
+                ) : (
+                  <span className="text-sm text-white">
+                    {formatPrice(data?.community_mbrs.value)}
+                  </span>
+                )}
+              </div>
+            </div>
+            <Separator className="bg-muted-foreground h-[0.5px]" />
+            <div className="flex justify-between items-center h-1/2">
+              <Image src={ActiveMembersIcon} alt={"active members"} />
+              <div className="flex flex-col ml-3 items-end gap-3">
+                <span className="text-xs whitespace-nowrap text-muted-foreground hover:text-primary">
+                  Active Mbrs(24)
+                </span>
+                {isLoading ? (
+                  <Skeleton className="w-10 h-4" />
+                ) : (
+                  <span className="text-sm text-white">
+                    {formatPrice(data?.active_mbrs_24h.value)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-row-reverse bg-muted-foreground/15 rounded-lg px-6 py-2 items-center border border-transparent justify-between   text-muted-foreground ">
             <Image src={HolderIcon} alt={"holders"} />
-            <div className="flex flex-col ml-3 items-end">
+            <div className="flex flex-col ">
               <span className="text-xs ">Holders</span>
               {isLoading ? (
                 <Skeleton className="w-10 h-4" />
               ) : (
                 <span className="text-sm text-white">{formatPrice(data?.holders.value)}</span>
-              )}
-            </div>
-          </div>
-          <div className="flex bg-muted-foreground/15 rounded-lg px-6 py-2 items-center border-[0.5px] border-transparent justify-between text-muted-foreground ">
-            <Image src={CommunityMembersIcon} alt={"community members"} />
-            <div className="flex flex-col ml-3  items-end">
-              <span className="text-xs ">Community Mbrs</span>
-              {isLoading ? (
-                <Skeleton className="w-10 h-4" />
-              ) : (
-                <span className="text-sm text-white">
-                  {formatPrice(data?.community_mbrs.value)}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex bg-muted-foreground/15 rounded-lg px-6 py-2 items-center border-[0.5px] border-transparent justify-between  text-muted-foreground">
-            <Image src={ActiveMembersIcon} alt={"active members"} />
-            <div className="flex flex-col ml-3 items-end">
-              <span className="text-xs text-muted-foreground hover:text-primary">Active Mbrs</span>
-              {isLoading ? (
-                <Skeleton className="w-10 h-4" />
-              ) : (
-                <span className="text-sm text-white">
-                  {formatPrice(data?.active_mbrs_24h.value)}
-                </span>
               )}
             </div>
           </div>

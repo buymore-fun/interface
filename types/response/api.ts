@@ -7,10 +7,19 @@ export interface IResponseDashboardIndex {
   value_of_buymore: string;
 }
 
+export interface IDetailToken {
+  amount: string;
+  name: string;
+  address: string;
+  symbol: string;
+  decimal: number;
+}
+
 export interface IResponseCommunityDetail {
   active_fund: {
     url: string;
-    value: string;
+    token0: IDetailToken;
+    token1: IDetailToken;
   };
   active_mbrs_24h: {
     url: string;
