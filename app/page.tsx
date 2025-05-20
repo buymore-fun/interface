@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <div className="relative w-full">
       <div className="min-h-screen text-white overflow-hidden relative font-righteous">
-        <div className="container mx-auto px-4 md:px-6 py-6 md:py-16 relative z-10">
+        <div className="container mx-auto px-4 md:px-6 py-6 relative z-10">
           <div className="flex flex-col gap-8 md:gap-12 mx-4 md:mx-8">
             <div className="my-6 md:my-10 text-center">
               <div className="relative w-full md:w-[640px] h-[180px] md:h-[280px] mx-auto">
@@ -52,7 +52,7 @@ export default function Home() {
               </p>
             </div>
 
-            <Button
+            {/* <Button
               onClick={handleSwap}
               className="text-base md:text-lg rounded-full mx-auto px-12 md:px-20 py-6 md:py-8 transition-all hover:scale-105"
               variant="default"
@@ -60,7 +60,7 @@ export default function Home() {
             >
               <ArrowRight className="w-4 h-4 mr-2" />
               Buymore
-            </Button>
+            </Button> */}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 justify-items-center md:justify-items-start pt-6">
               <div className="flex flex-col gap-2 w-fit">
