@@ -17,10 +17,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { TokenSearch } from "./token-search";
+import config from "@/config";
+import { useEffect, useState } from "react";
+import { getPersonalBuyMore } from "@/hooks/services";
 export function Topbar() {
   const router = useRouter();
   const [, setOpen] = useConnectWalletModalOpen();
   const { publicKey, disconnect, wallet } = useWallet();
+  const [personalBuyMore, setPersonalBuyMore] = useState<string>("0");
+  const getPersonalBuyMoreData = async () => {
+    const personalBuyMore = await getPersonalBuyMore({ wallet: config.defaultPool as string });
+    setPersonalBuyMore(personalBuyMore.total_buymore_amount);
+    console.log("🚀 ~ getPersonalBuyMore ~ personalBuyMore:", personalBuyMore);
+  };
+
+  useEffect(() => {
+    if (publicKey) {
+      getPersonalBuyMoreData();
+    }
+  }, [publicKey]);
 
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
@@ -100,7 +115,7 @@ export function Topbar() {
                   {/* <DropdownMenuItem> */}
                   <div className="flex flex-col gap-1 text-sm px-3 pt-2">
                     <span className="text-muted-foreground">Total Buymore </span>
-                    <span className="text-white">$888.999</span>
+                    <span className="text-white">$ {personalBuyMore}</span>
                   </div>
                   {/* </DropdownMenuItem> */}
                   <DropdownMenuItem>
