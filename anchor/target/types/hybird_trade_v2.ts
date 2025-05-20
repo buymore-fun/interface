@@ -265,7 +265,7 @@ export type HybirdTradeV2 = {
       ]
     },
     {
-      "name": "proxySwapBaseInput",
+      "name": "raydiumSwap",
       "accounts": [
         {
           "name": "cpSwapProgram",
@@ -1870,7 +1870,7 @@ export const IDL: HybirdTradeV2 = {
       ]
     },
     {
-      "name": "proxySwapBaseInput",
+      "name": "raydiumSwap",
       "accounts": [
         {
           "name": "cpSwapProgram",

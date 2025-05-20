@@ -80,7 +80,9 @@ console.log("🚀 ~ config:", config);
 const PAID_RPC_ENDPOINTS = {
   //  paid rpc
   "mainnet-beta": [
-    "https://rpc.ankr.com/solana/1609e828512967e228912bddd9c2a7ae07993932901d74d1277c37fc8165c3af",
+    "https://solana-rpc.publicnode.com",
+    "https://api.mainnet-beta.solana.com",
+    "https://rpc.ankr.com/solana",
     "https://mainnet.helius-rpc.com/?api-key=806e5319-b980-41ad-9739-61cce20d0c28",
   ],
 };

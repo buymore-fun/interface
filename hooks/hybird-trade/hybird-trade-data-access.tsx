@@ -953,7 +953,7 @@ export function useHybirdTradeProgram(mintAddress: string = "") {
 
       // debugger;
       const ix = await program.methods
-        .proxySwapBaseInput(settle_id, input_amount, minimum_amount_out, buymore_info.trades.trades)
+        .raydiumSwap(settle_id, input_amount, minimum_amount_out, buymore_info.trades.trades)
         .accounts({
           cpSwapProgram: raydium_pubkey,
           payer: wallet.publicKey!,

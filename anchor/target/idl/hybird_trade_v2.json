@@ -265,7 +265,7 @@
       ]
     },
     {
-      "name": "proxySwapBaseInput",
+      "name": "raydiumSwap",
       "accounts": [
         {
           "name": "cpSwapProgram",
@@ -1602,6 +1602,6 @@
     }
   ],
   "metadata": {
-    "address": "kR2byBqUk8JHTWobckkmUVTafYaPgPT7QmbsMnCVZTY"
+    "address": "HAZgeWKTqxxgGX3apuT3ftbPRA5epPDDjMDGfjuBMXHF"
   }
 }

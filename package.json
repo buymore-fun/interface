@@ -39,6 +39,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "copy-to-clipboard": "^3.3.3",
+    "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
     "decimal.js": "^10.5.0",
     "jotai": "^2.12.1",

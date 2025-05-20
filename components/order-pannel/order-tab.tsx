@@ -276,7 +276,7 @@ export function OrderTab() {
           <span>
             {isBuy
               ? `${formatFloor(formatBalance(solBalance, 9))} ${getSymbolFromPoolInfo(poolMintA)}`
-              : `${formatFloor(tokenBalance!.uiAmountString || "0")} ${getSymbolFromPoolInfo(poolMintA)}`}
+              : `${formatFloor(tokenBalance?.uiAmountString || 0)} ${getSymbolFromPoolInfo(poolMintA)}`}
           </span>
         </div>
       </div>
