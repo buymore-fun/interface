@@ -31,6 +31,7 @@ import { CpmmPoolInfo } from "@/types";
 import Decimal from "decimal.js";
 import config from "@/config";
 import { ORDER_BOOK_DETAIL_SEED, ORDER_BOOK_WITH_TOKEN_SEED } from "@/anchor/constants";
+import { connection } from "@/lib/raydium/config";
 // http://localhost:3000/demo/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN
 // http://localhost:3000/demo/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 // https://solscan.io/token/9T7uw5dqaEmEC4McqyefzYsEg5hoC4e2oV8it1Uc4f1U?cluster=devnet#metadata
@@ -49,7 +50,7 @@ interface Trade {
 export function useHybirdTradeProgram(mintAddress: string = "") {
   const wallet = useWallet();
 
-  const { connection } = useConnection();
+  // const { connection } = useConnection();
   // const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
   const provider = useAnchorProvider();
