@@ -73,6 +73,7 @@ const config = {
   defaultPool: process.env.NEXT_PUBLIC_DEFAULT_POOL,
   programId: process.env.NEXT_PUBLIC_PROGRAM_ID,
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+  socketUrl: process.env.NEXT_PUBLIC_SOCKET_URL,
 };
 console.log("🚀 ~ config:", config);
 

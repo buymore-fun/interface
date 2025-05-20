@@ -13,6 +13,7 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import config, { getWalletAdapterNetwork, getConnectionEndpoint } from "@/config";
+import { connection } from "@/lib/raydium/config";
 
 export function SolanaProvider({ children }: PropsWithChildren) {
   // const network = WalletAdapterNetwork.Mainnet;
@@ -51,7 +52,7 @@ export function SolanaProvider({ children }: PropsWithChildren) {
 }
 
 export function useAnchorProvider() {
-  const { connection } = useConnection();
+  // const { connection } = useConnection();
   const wallet = useWallet();
 
   return new AnchorProvider(connection, wallet as AnchorWallet, {

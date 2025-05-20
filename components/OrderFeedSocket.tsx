@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { BroadcastBox, Order } from "@/components/broadcast-box";
 import { formatTimeAgo } from "@/lib/utils";
+import config from "@/config";
 
 interface OrderFeedSocketProps {
   inputToken: string;
@@ -76,7 +77,7 @@ export function OrderFeedSocket({ inputToken, outputToken, maxOrders = 3 }: Orde
         const encodedOutputToken = encodeURIComponent(outputToken);
 
         // 使用wss协议，确保与提供的地址格式匹配
-        const wsUrl = `wss://api-test.buymore.fun/usurper/order-feed/subscribe?input_token=${encodedInputToken}&output_token=${encodedOutputToken}`;
+        const wsUrl = `${config.socketUrl}?input_token=${encodedInputToken}&output_token=${encodedOutputToken}`;
 
         console.log("Connecting to WebSocket:", wsUrl);
         const ws = new WebSocket(wsUrl);
