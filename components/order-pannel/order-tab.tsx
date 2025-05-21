@@ -35,6 +35,7 @@ import { useCommonToast } from "@/hooks/use-common-toast";
 import { Switch } from "@/components/ui/switch";
 import { DualRangeSlider } from "@/components/dual-slider-value";
 import TooltipWrapper from "@/components/tooltip-wrapper";
+import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
 // interface OrderTabProps {}
 
 export function OrderTab() {
@@ -78,13 +79,35 @@ export function OrderTab() {
     [isBuy, token, SOL]
   );
 
-  const [poolMintA, poolMintB] = useMemo(
-    () =>
-      isBuy
-        ? [raydiumPoolInfo?.poolInfo.mintA, raydiumPoolInfo?.poolInfo.mintB]
-        : [raydiumPoolInfo?.poolInfo.mintB, raydiumPoolInfo?.poolInfo.mintA],
-    [isBuy, raydiumPoolInfo]
-  );
+  // const [poolMintA, poolMintB] = useMemo(
+  //   () =>
+  //     isBuy
+  //       ? [raydiumPoolInfo?.poolInfo.mintA, raydiumPoolInfo?.poolInfo.mintB]
+  //       : [raydiumPoolInfo?.poolInfo.mintB, raydiumPoolInfo?.poolInfo.mintA],
+  //   [isBuy, raydiumPoolInfo]
+  // );
+  const [poolMintA, poolMintB] = useMemo(() => {
+    if (!raydiumPoolInfo?.poolInfo) {
+      return [undefined, undefined];
+    }
+
+    const { mintA: originalMintA, mintB: originalMintB } = raydiumPoolInfo.poolInfo;
+
+    // Determine which mints to use based on order type
+    const [firstMint, secondMint] = isBuy
+      ? [originalMintA, originalMintB]
+      : [originalMintB, originalMintA];
+
+    // Create copies with potentially added symbols
+    const mintA = { ...firstMint } as ApiV3Token;
+    const mintB = { ...secondMint } as ApiV3Token;
+
+    // Add symbols if missing
+    if (!mintA.symbol && tokenA?.symbol) mintA.symbol = tokenA.symbol;
+    if (!mintB.symbol && tokenB?.symbol) mintB.symbol = tokenB.symbol;
+
+    return [mintA, mintB];
+  }, [isBuy, raydiumPoolInfo, tokenA, tokenB]);
 
   const [tokenABalance, tokenBBalance] = useMemo(
     () =>
@@ -120,12 +143,8 @@ export function OrderTab() {
     }
 
     const priceInUSD = isBuy
-      ? new Intl.NumberFormat("en-US", {
-          maximumFractionDigits: 4,
-        }).format(solPrice / priceToUse)
-      : new Intl.NumberFormat("en-US", {
-          maximumFractionDigits: 4,
-        }).format(priceToUse * solPrice);
+      ? formatFloor(solPrice / priceToUse)
+      : formatFloor(priceToUse * solPrice);
 
     // Default to showing just the price in USD
     return priceInUSD;
@@ -134,28 +153,18 @@ export function OrderTab() {
   useEffect(() => {
     if (raydiumPoolInfo?.poolInfo) {
       const price = getCurrentPrice(raydiumPoolInfo, !isBuy);
+      console.log("====price", price);
       setOrderPrice(price.toString());
     }
   }, [raydiumPoolInfo, isBuy, priceState]);
 
   useEffect(() => {
     if (orderTokenAAmount && orderPrice) {
-      // if (isBuy) {
-      //   const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-      //     .mul(new Decimal(orderPrice))
-      //     .toString();
-
-      //   setOrderTokenBAmount(_orderTokenBAmount);
-      // } else {
-      //   const _orderTokenBAmount = new Decimal(orderTokenAAmount)
-      //     .mul(new Decimal(orderPrice))
-      //     .toString();
-
-      //   setOrderTokenBAmount(_orderTokenBAmount);
-      // }
       const _orderTokenBAmount = new Decimal(orderTokenAAmount)
         .mul(new Decimal(orderPrice))
         .toString();
+
+      console.log("_orderTokenBAmount", orderTokenAAmount, orderPrice, _orderTokenBAmount);
 
       setOrderTokenBAmount(_orderTokenBAmount);
     }

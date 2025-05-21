@@ -108,25 +108,23 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     () => (isReverse ? [SOL, token] : [token, SOL]),
     [isReverse, token, SOL]
   );
-
   const [inputToken, outputToken] = useMemo(() => {
     if (!raydiumPoolInfo?.poolInfo) {
       return [undefined, undefined];
     }
 
-    const mintA = { ...raydiumPoolInfo.poolInfo.mintA } as ApiV3Token;
-    const mintB = { ...raydiumPoolInfo.poolInfo.mintB } as ApiV3Token;
+    const { mintA, mintB } = raydiumPoolInfo.poolInfo;
+    const [first, second] = isReverse ? [mintA, mintB] : [mintB, mintA];
 
-    // Safely assign symbols if they're missing
-    if (mintA && !mintA.symbol) {
-      mintA.symbol = tokenA?.symbol as string;
-    }
+    // Create copies with potentially added symbols
+    const input = { ...first } as ApiV3Token;
+    const output = { ...second } as ApiV3Token;
 
-    if (mintB && !mintB.symbol) {
-      mintB.symbol = tokenB?.symbol as string;
-    }
+    // Add symbols if missing
+    if (!input.symbol && tokenA?.symbol) input.symbol = tokenA.symbol;
+    if (!output.symbol && tokenB?.symbol) output.symbol = tokenB.symbol;
 
-    return isReverse ? [mintA, mintB] : [mintB, mintA];
+    return [input, output];
   }, [isReverse, raydiumPoolInfo, tokenA, tokenB]);
 
   const mintDecimalA = inputToken?.decimals;
@@ -159,11 +157,11 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   );
 
   const [formatedTokenABalance, formatedTokenBBalance] = useMemo(() => {
-    console.log(
-      "~formatBalance",
-      formatBalance(solBalance, 9),
-      formatFloor(formatBalance(solBalance, 9))
-    );
+    // console.log(
+    //   "~formatBalance",
+    //   formatBalance(solBalance, 9),
+    //   formatFloor(formatBalance(solBalance, 9))
+    // );
 
     if (!inputToken || !outputToken) {
       return [undefined, undefined];

@@ -8,7 +8,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { FaTelegramPlane, FaRegFileWord } from "react-icons/fa";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { cn, ellipseMiddle } from "@/lib/utils";
+import { cn, formatAddress } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +27,7 @@ export function Topbar() {
   const { publicKey, disconnect, wallet } = useWallet();
   const [personalBuyMore, setPersonalBuyMore] = useState<string>("0");
   const getPersonalBuyMoreData = async () => {
-    const personalBuyMore = await getPersonalBuyMore({ wallet: config.defaultPool as string });
+    const personalBuyMore = await getPersonalBuyMore({ wallet: publicKey?.toString() as string });
     setPersonalBuyMore(personalBuyMore.total_buymore_amount);
     console.log("🚀 ~ getPersonalBuyMore ~ personalBuyMore:", personalBuyMore);
   };
@@ -104,7 +104,7 @@ export function Topbar() {
                             className="size-6 rounded-full hidden md:block"
                           />
                         ) : null}
-                        {ellipseMiddle(publicKey.toString())}
+                        {formatAddress(publicKey?.toString())}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>

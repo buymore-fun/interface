@@ -1,5 +1,6 @@
 import { SOL_ADDRESS } from "@/anchor/src";
 import config from "@/config";
+import { formatFloor } from "@/lib/utils";
 import { CpmmPoolInfo } from "@/types";
 import { ApiV3Token } from "@raydium-io/raydium-sdk-v2";
 import { NATIVE_MINT } from "@solana/spl-token";
@@ -18,15 +19,14 @@ import Decimal from "decimal.js";
 
 //   return price;
 // };
-
 export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
   if (!cpmmPoolInfo) return 0;
 
   const price = isReverse
-    ? new Decimal(1).div(cpmmPoolInfo.poolInfo.price).toNumber()
+    ? formatFloor(new Decimal(1).div(cpmmPoolInfo.poolInfo.price).toFixed(12))
     : cpmmPoolInfo.poolInfo.price;
 
-  return +price.toFixed(9);
+  return +price;
 };
 
 export const getCurrentPriceInUSD = (
