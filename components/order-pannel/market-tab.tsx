@@ -217,7 +217,7 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
 
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
-    console.log("🚀 ~ swapInfo ~ inputToken&outputToken :", inputToken, outputToken);
+    // console.log("🚀 ~ swapInfo ~ inputToken&outputToken :", inputToken, outputToken);
     return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);

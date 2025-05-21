@@ -31,7 +31,7 @@ export function OrderPanelDexComparison({ loading, routing, isQuoting, outputTok
 
       <div className="flex  items-center justify-between ">
         <div className="text-sm flex items-center gap-1">
-          <span className="font-medium text-muted-foreground">Dex Comparison</span>
+          <span className="font-medium text-muted-foreground">AMM Comparison</span>
           <TooltipWrapper content={`Results of all buy in DEX.`}>
             <Image src="/assets/token/help.svg" alt="Help" width={10} height={10} />
           </TooltipWrapper>

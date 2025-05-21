@@ -146,7 +146,7 @@ const ActivitiesList = ({ inputMint, outputMint }: { inputMint: string; outputMi
                 </TableCell>
                 <TableCell>
                   <span className="text-muted-foreground text-xs">
-                    Dex: {item.routing.dec}% <br /> Order: {item.routing.order}%
+                    AMM: {item.routing.dec}% <br /> Order: {item.routing.order}%
                   </span>
                 </TableCell>
                 <TableCell className="text-muted-foreground text-wrap break-words">
