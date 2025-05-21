@@ -86,7 +86,6 @@ export function Topbar() {
             </div>
             {!isHomePage && (
               <>
-                {" "}
                 {publicKey ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

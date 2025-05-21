@@ -75,6 +75,9 @@ const config = {
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   socketUrl: process.env.NEXT_PUBLIC_SOCKET_URL,
   raydiumCpSwap: process.env.NEXT_PUBLIC_RAYDIUM_CP_SWAP,
+  privyAppId: process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+  privyClientId: process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID,
+  privyAppSecret: process.env.PRIVY_APP_SECRET,
 };
 console.log("🚀 ~ config:", config);
 
