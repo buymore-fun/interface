@@ -26,7 +26,7 @@ import { debounce } from "lodash";
 
 import Decimal from "decimal.js";
 import { BN } from "@coral-xyz/anchor";
-import { div, isNumber } from "@raydium-io/raydium-sdk-v2";
+import { ApiV3Token, div, isNumber } from "@raydium-io/raydium-sdk-v2";
 import useBoolean from "@/hooks/use-boolean";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useRaydiumPoolInfo, useServicePoolInfo } from "@/hooks/use-pool-info";
@@ -109,13 +109,21 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     [isReverse, token, SOL]
   );
 
-  const [inputToken, outputToken] = useMemo(
-    () =>
-      isReverse
-        ? [raydiumPoolInfo?.poolInfo.mintA, raydiumPoolInfo?.poolInfo.mintB]
-        : [raydiumPoolInfo?.poolInfo.mintB, raydiumPoolInfo?.poolInfo.mintA],
-    [isReverse, raydiumPoolInfo]
-  );
+  const [inputToken, outputToken] = useMemo(() => {
+    const mintA = { ...raydiumPoolInfo?.poolInfo.mintA } as ApiV3Token;
+    const mintB = { ...raydiumPoolInfo?.poolInfo.mintB } as ApiV3Token;
+
+    // Safely assign symbols if they're missing
+    if (mintA && !mintA.symbol) {
+      mintA.symbol = tokenA?.symbol as string;
+    }
+
+    if (mintB && !mintB.symbol) {
+      mintB.symbol = tokenB?.symbol as string;
+    }
+
+    return isReverse ? [mintA, mintB] : [mintB, mintA];
+  }, [isReverse, raydiumPoolInfo, tokenA, tokenB]);
 
   const mintDecimalA = inputToken?.decimals;
   const mintDecimalB = outputToken?.decimals;
@@ -152,6 +160,11 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
       formatBalance(solBalance, 9),
       formatFloor(formatBalance(solBalance, 9))
     );
+
+    if (!inputToken || !outputToken) {
+      return [undefined, undefined];
+    }
+
     return isReverse
       ? [
           `${formatFloor(formatBalance(solBalance, 9))} ${getSymbolFromPoolInfo(inputToken)}`,

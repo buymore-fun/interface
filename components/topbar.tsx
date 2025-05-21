@@ -45,22 +45,32 @@ export function Topbar() {
         <div className="flex justify-between items-center w-full gap-6">
           <div className="flex justify-between items-center flex-1">
             <div className="flex-1 -my-4 cursor-pointer relative" onClick={() => router.push("/")}>
-              <Image
+              {/* <Image
                 src={"/logo.png"}
                 alt="Logo"
                 width={80}
                 height={80}
                 className={cn("size-20", "object-cover")}
-              />
+              /> */}
+              <div className="relative w-[120px] h-[80px] ">
+                <video
+                  src="/logo.mp4"
+                  autoPlay
+                  muted
+                  // loop
+                  playsInline
+                  className="absolute top-0 left-0 w-full h-full object-cover"
+                />
+              </div>
 
-              <div className="absolute top-4 left-[76px] text-primary text-sm">Alpha</div>
+              <div className="absolute top-6 left-[112px] text-primary text-sm animate-fade-in">
+                Alpha
+              </div>
             </div>
 
-            {!isHomePage ? (
-              <div className="flex-grow hidden sm:block">
-                <TokenSearch />
-              </div>
-            ) : null}
+            <div className="flex-grow hidden sm:block">
+              <TokenSearch />
+            </div>
           </div>
           <div className="flex-1 flex justify-end space-x-4 sm:max-w-[420px]">
             <div className="flex gap-2">
@@ -74,54 +84,58 @@ export function Topbar() {
                 <FaRegFileWord className="size-5" />
               </Button>
             </div>
-
-            {publicKey ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            {!isHomePage && (
+              <>
+                {" "}
+                {publicKey ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={disconnect}
+                        className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
+                      >
+                        {wallet ? (
+                          <Image
+                            src={wallet.adapter.icon}
+                            alt={wallet.adapter.name}
+                            width={64}
+                            height={64}
+                            className="size-6 rounded-full hidden md:block"
+                          />
+                        ) : null}
+                        {ellipseMiddle(publicKey.toString())}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {/* <DropdownMenuItem> */}
+                      <div className="flex flex-col gap-1 text-sm px-3 pt-2">
+                        <span className="text-muted-foreground">Total Buymore </span>
+                        <span className="text-white">$ {personalBuyMore}</span>
+                      </div>
+                      {/* </DropdownMenuItem> */}
+                      <DropdownMenuItem>
+                        <Button
+                          variant="ghost"
+                          onClick={disconnect}
+                          className="w-full text-white flex justify-between px-1"
+                        >
+                          <Wallet className="text-muted-foreground size-3" />
+                          Disconnect
+                        </Button>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
                   <Button
                     variant="outline"
-                    onClick={disconnect}
-                    className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                    onClick={() => setOpen(true)}
                   >
-                    {wallet ? (
-                      <Image
-                        src={wallet.adapter.icon}
-                        alt={wallet.adapter.name}
-                        width={64}
-                        height={64}
-                        className="size-6 rounded-full hidden md:block"
-                      />
-                    ) : null}
-                    {ellipseMiddle(publicKey.toString())}
+                    Connect
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {/* <DropdownMenuItem> */}
-                  <div className="flex flex-col gap-1 text-sm px-3 pt-2">
-                    <span className="text-muted-foreground">Total Buymore </span>
-                    <span className="text-white">$ {personalBuyMore}</span>
-                  </div>
-                  {/* </DropdownMenuItem> */}
-                  <DropdownMenuItem>
-                    <Button
-                      variant="ghost"
-                      onClick={disconnect}
-                      className="w-full text-white flex justify-between px-1"
-                    >
-                      <Wallet className="text-muted-foreground size-3" />
-                      Disconnect
-                    </Button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button
-                variant="outline"
-                className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                onClick={() => setOpen(true)}
-              >
-                Connect
-              </Button>
+                )}
+              </>
             )}
           </div>
         </div>

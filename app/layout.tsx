@@ -56,7 +56,7 @@ export default function RootLayout({
             <GlobalInit />
             <div className="flex min-h-screen w-screen flex-col">
               <Topbar />
-              <div className="flex flex-1 flex-col p-4 overflow-y-auto">
+              <div className="flex flex-1 flex-col p-4 overflow-y-auto hide-scrollbar">
                 <div className="w-full max-w-6xl mx-auto">{children}</div>
               </div>
               <ConnectWalletModal />

@@ -2,10 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import axios from "axios";
 import moment from "moment";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const quoteAddress = req.nextUrl.searchParams.get("quote_address");
@@ -46,10 +43,7 @@ export async function GET(
     });
   } catch (error) {
     return NextResponse.json({
-      error:
-        error instanceof Error
-          ? error.message || error.toString()
-          : "Unkown Error",
+      error: error instanceof Error ? error.message || error.toString() : "Unkown Error",
       success: false,
     });
   }
