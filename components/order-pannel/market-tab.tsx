@@ -110,8 +110,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   );
 
   const [inputToken, outputToken] = useMemo(() => {
-    const mintA = { ...raydiumPoolInfo?.poolInfo.mintA } as ApiV3Token;
-    const mintB = { ...raydiumPoolInfo?.poolInfo.mintB } as ApiV3Token;
+    if (!raydiumPoolInfo?.poolInfo) {
+      return [undefined, undefined];
+    }
+
+    const mintA = { ...raydiumPoolInfo.poolInfo.mintA } as ApiV3Token;
+    const mintB = { ...raydiumPoolInfo.poolInfo.mintB } as ApiV3Token;
 
     // Safely assign symbols if they're missing
     if (mintA && !mintA.symbol) {
