@@ -22,11 +22,11 @@ export function Overview() {
     <div className="pt-4">
       <div className="flex justify-between">
         <span className="font-semibold text-lg">Dashboard</span>
-        <TimeGroup
+        {/* <TimeGroup
           typeObject={DashboardTime}
           onTypeChange={(type) => setTableType(type as DashboardTime)}
           selectedType={tableType}
-        />
+        /> */}
       </div>
       <div className="border rounded-lg mt-2 bg-secondary/20 px-5 py-3">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

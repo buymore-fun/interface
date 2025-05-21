@@ -437,7 +437,7 @@ export function OrderTab() {
       </div>
 
       <div className="mt-4 flex flex-col gap-2 px-4">
-        <div className="flex items-center justify-between w-full gap-2">
+        {/*  <div className="flex items-center justify-between w-full gap-2">
           <div className="flex items-center gap-1">
             <span className="text-md">Adaptive range</span>
             <div className="relative inline-block">
@@ -457,7 +457,7 @@ export function OrderTab() {
           <div className="w-full">
             <DualRangeSlider priceValue={+orderPrice} />
           </div>
-        ) : null}
+        ) : null}*/}
 
         <div className=" text-sm text-muted-foreground text-right">
           Fee: 0% (<span className="line-through">0.25%</span>)

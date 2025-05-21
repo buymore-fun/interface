@@ -27,7 +27,7 @@ export default function Home() {
 
   return (
     <div className="relative w-full">
-      <div className="h-[calc(100vh-200px)] text-white overflow-hidden relative font-righteous">
+      <div className="min-h-[calc(100vh-200px)] text-white relative font-righteous overflow-scroll">
         <div className="container mx-auto px-4 md:px-6 py-6 relative z-10">
           <div className="flex flex-col gap-8 md:gap-12 mx-4 md:mx-8">
             <div className=" text-center">
