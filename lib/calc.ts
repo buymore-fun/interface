@@ -19,12 +19,30 @@ import Decimal from "decimal.js";
 
 //   return price;
 // };
+export const scientificToDecimal = (sciNum: number): string => {
+  try {
+    const decimalValue = new Decimal(sciNum.toString());
+
+    // Convert scientific notation to full decimal representation
+    const decimalStr = decimalValue.toFixed(18);
+
+    // Use Intl.NumberFormat to format the string representation
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 18,
+      useGrouping: false, // Avoid commas in the output
+    }).format(Number(decimalStr));
+  } catch (error) {
+    console.log("🚀 ~ scientificToDecimal ~ error:", error);
+    return "0.000000";
+  }
+};
+
 export const getCurrentPrice = (cpmmPoolInfo?: CpmmPoolInfo, isReverse = true): number => {
   if (!cpmmPoolInfo) return 0;
 
-  const price = isReverse
-    ? formatFloor(new Decimal(1).div(cpmmPoolInfo.poolInfo.price).toFixed(12))
-    : cpmmPoolInfo.poolInfo.price;
+  const token2SolPrice = new Decimal(1).div(cpmmPoolInfo.poolInfo.price).toNumber();
+  const price = isReverse ? token2SolPrice : cpmmPoolInfo.poolInfo.price;
 
   return +price;
 };

@@ -253,3 +253,21 @@ export interface IResponsePoolInfoItem {
     fundFeesMintB: string;
   };
 }
+
+export interface IOrderItem {
+  time: number;
+  order_type: string;
+  order_amount: {
+    amount: string;
+    name: string;
+    address: string;
+    symbol: string;
+    decimal: number;
+  };
+  owner: string;
+  price: string;
+}
+
+export interface IResponsePersonalBuyMore {
+  total_buymore_amount: string;
+}

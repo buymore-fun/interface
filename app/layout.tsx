@@ -8,6 +8,7 @@ import { ReactQueryProvider } from "@/app/react-query-provider";
 import { Toaster } from "react-hot-toast";
 import { GlobalInit } from "@/components/global-init";
 import localFont from "next/font/local";
+import Decimal from "decimal.js";
 
 // Local digital font
 const digital = localFont({
@@ -42,6 +43,14 @@ export const righteous = Righteous({
   subsets: ["latin"],
   weight: ["400"],
 });
+
+export const initDecimalConfig = () => {
+  Decimal.set({
+    precision: 18,
+    toExpNeg: -1e9,
+    toExpPos: 1e9,
+  });
+};
 
 export default function RootLayout({
   children,

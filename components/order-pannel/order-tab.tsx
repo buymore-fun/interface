@@ -26,7 +26,7 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { IResponsePoolInfoItem } from "@/types/response";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useBoolean } from "@/hooks/use-boolean";
-import { getCurrentPrice, getSymbolFromPoolInfo } from "@/lib/calc";
+import { getCurrentPrice, getSymbolFromPoolInfo, scientificToDecimal } from "@/lib/calc";
 import { useAnchorProvider } from "@/app/solana-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 // import { useMyOrders } from "@/hooks/use-activities";
@@ -153,8 +153,10 @@ export function OrderTab() {
   useEffect(() => {
     if (raydiumPoolInfo?.poolInfo) {
       const price = getCurrentPrice(raydiumPoolInfo, !isBuy);
-      console.log("====price", price);
-      setOrderPrice(price.toString());
+
+      const formattedPrice = scientificToDecimal(price);
+      console.log("====price", price, formattedPrice);
+      setOrderPrice(formattedPrice);
     }
   }, [raydiumPoolInfo, isBuy, priceState]);
 
@@ -164,7 +166,7 @@ export function OrderTab() {
         .mul(new Decimal(orderPrice))
         .toString();
 
-      console.log("_orderTokenBAmount", orderTokenAAmount, orderPrice, _orderTokenBAmount);
+      // console.log("_orderTokenBAmount", orderTokenAAmount, orderPrice, _orderTokenBAmount);
 
       setOrderTokenBAmount(_orderTokenBAmount);
     }

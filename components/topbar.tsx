@@ -19,23 +19,21 @@ import { useRouter, usePathname } from "next/navigation";
 import { TokenSearch } from "./token-search";
 import config from "@/config";
 import { useEffect, useState } from "react";
-import { getPersonalBuyMore } from "@/hooks/services";
+import { usePersonalBuyMore } from "@/hooks/use-personal-buymore";
+import { Skeleton } from "@/components/ui/skeleton";
 export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [, setOpen] = useConnectWalletModalOpen();
   const { publicKey, disconnect, wallet } = useWallet();
-  const [personalBuyMore, setPersonalBuyMore] = useState<string>("0");
-  const getPersonalBuyMoreData = async () => {
-    const personalBuyMore = await getPersonalBuyMore({ wallet: publicKey?.toString() as string });
-    setPersonalBuyMore(personalBuyMore.total_buymore_amount);
-    console.log("🚀 ~ getPersonalBuyMore ~ personalBuyMore:", personalBuyMore);
-  };
+  const { personalBuyMore, isPersonalBuyMoreLoading, personalBuyMoreError, fetchPersonalBuyMore } =
+    usePersonalBuyMore(publicKey?.toString() as string);
+
   const isHomePage = pathname === "/";
 
   useEffect(() => {
     if (publicKey) {
-      getPersonalBuyMoreData();
+      fetchPersonalBuyMore();
     }
   }, [publicKey]);
 
@@ -111,7 +109,11 @@ export function Topbar() {
                       {/* <DropdownMenuItem> */}
                       <div className="flex flex-col gap-1 text-sm px-3 pt-2">
                         <span className="text-muted-foreground">Total Buymore </span>
-                        <span className="text-white">$ {personalBuyMore}</span>
+                        {isPersonalBuyMoreLoading ? (
+                          <Skeleton className="w-16 h-4" />
+                        ) : (
+                          <span className="text-white">$ {personalBuyMore}</span>
+                        )}
                       </div>
                       {/* </DropdownMenuItem> */}
                       <DropdownMenuItem>

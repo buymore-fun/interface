@@ -247,6 +247,25 @@ export function formatDecimal(
     return formattedValue.toFixed(2);
   }
 
+  // For extremely small numbers, handle scientific notation
+  if (num > 0 && num < 0.000001) {
+    // Convert to scientific notation and extract the exponent
+    const scientificStr = num.toExponential();
+    const exponentPart = scientificStr.split("e")[1];
+    const exponent = parseInt(exponentPart);
+
+    // Calculate how many decimal places we need to show
+    const decimalPlaces = Math.abs(exponent) + 4; // Show 4 significant digits
+
+    // Format with the calculated precision
+    const factor = Math.pow(10, decimalPlaces);
+    const formattedValue = roundDown
+      ? Math.floor(num * factor) / factor
+      : Math.round(num * factor) / factor;
+
+    return formattedValue.toFixed(decimalPlaces);
+  }
+
   // For numbers < 1, show 4 digits after first non-zero digit
   if (num > 0) {
     // Convert to string to analyze the digits
@@ -295,6 +314,17 @@ export function formatFloor(
   isFloor: boolean = true
 ): string {
   if (!input && input !== 0) return "";
+
+  // Handle extremely small numbers that might be converted to 0
+  const num = typeof input === "string" ? parseFloat(input) : input;
+  if (num > 0 && num < 0.000001) {
+    const formattedValue = formatDecimal(input, decimals, isFloor);
+    // Only remove trailing zeros if there are some significant digits left
+    if (formattedValue !== "0") {
+      return formattedValue.replace(/\.?0+$/, "").replace(/\.$/, "");
+    }
+    return formattedValue;
+  }
 
   const flooredValue = formatDecimal(input, decimals, isFloor);
 

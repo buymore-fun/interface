@@ -15,8 +15,7 @@ import { ChartType } from "@/types/chart";
 import { TimeGroup } from "@/components/time-group";
 import { Switch } from "@/components/ui/switch";
 import React from "react";
-import { OrderFeedSocket } from "@/components/OrderFeedSocket";
-
+import { OrderFeedList } from "@/components/OrderFeedList";
 export function TokenInfo({
   tokenAddress,
   onTypeChange,
@@ -81,7 +80,8 @@ export function TokenInfo({
           </div>
           <div className="absolute top-8 left-0 w-full h-full z-20">
             {showOrders && inputMint && outputMint ? (
-              <OrderFeedSocket inputToken={inputMint} outputToken={outputMint} />
+              // <OrderFeedSocket inputToken={inputMint} outputToken={outputMint} />
+              <OrderFeedList inputToken={inputMint} outputToken={outputMint} />
             ) : null}
           </div>
         </div>

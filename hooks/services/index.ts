@@ -7,6 +7,7 @@ import {
   IResponseTradeHistoryList,
   IResponsePoolInfoItem,
   IOrderbookDepthItem,
+  IOrderItem,
 } from "@/types";
 import useSWR from "swr";
 import { axiosInstance } from "@/lib/axios";
@@ -263,11 +264,50 @@ export async function getSearchToken(params: { keyword: string }) {
   return data.data as ITokenItem[];
 }
 
-export async function getPersonalBuyMore(params: { wallet: string }) {
-  const { data } = await axiosInstance.get(`/wallet/fetch-one`, {
-    params,
-  });
+export function usePersonalBuyMoreService(params: { wallet: string }) {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/wallet/fetch-one`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      // console.log("SWR fetching my orders:", response.data.data);
+      return response.data.data as any;
+    },
+    {
+      revalidateOnMount: true,
+      refreshInterval: 10000,
+    }
+  );
 
-  // ToDo: fix type
-  return data.data as any;
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+}
+
+export function useOrderList(params: { input_token: string; output_token: string }) {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/order-feed/last-list`,
+    async (url: string) => {
+      const response = await axiosInstance.get(url, {
+        params,
+      });
+      // console.log("SWR fetching my orders:", response.data.data);
+      return response.data.data as IOrderItem[];
+    },
+    {
+      revalidateOnMount: true,
+      refreshInterval: 10000,
+    }
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
 }

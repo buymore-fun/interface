@@ -88,7 +88,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
             onValueChange={setQuery}
             onFocus={handleInputFocus}
           />
-          {isOpen && query && (
+          {isOpen && (
             <button
               onClick={handleClose}
               className="shrink-0 p-1 hover:bg-secondary/50 rounded-full"
