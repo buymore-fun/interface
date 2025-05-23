@@ -79,7 +79,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
 
   return (
     <div className={cn("relative w-full", className)}>
-      <Command className="rounded-lg border overflow-visible bg-transparent">
+      <Command className="rounded-lg border overflow-visible bg-transparent" shouldFilter={false}>
         <div className="flex items-center justify-between border bg-secondary/30 rounded-lg border-primary focus-within:border-primary text-muted-foreground focus-within:text-foreground p-2 w-full">
           <CommandInput
             placeholder="Search token/contract"
@@ -88,7 +88,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
             onValueChange={setQuery}
             onFocus={handleInputFocus}
           />
-          {isOpen && query && (
+          {isOpen && (
             <button
               onClick={handleClose}
               className="shrink-0 p-1 hover:bg-secondary/50 rounded-full"
@@ -122,6 +122,7 @@ export function TokenSearch({ onSelect, className }: TokenSearchProps) {
                       value={token.address}
                       onSelect={() => handleSelect(token)}
                       className="flex items-center py-2 px-3 hover:bg-secondary/30 cursor-pointer border-b border-primary/10 last:border-0"
+                      keywords={[token.address]}
                     >
                       <div className="flex flex-col w-full gap-1">
                         <div className="font-medium text-base text-white">{token.symbol}</div>

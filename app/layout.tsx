@@ -10,7 +10,8 @@ import { GlobalInit } from "@/components/global-init";
 import localFont from "next/font/local";
 import { PrivyProviderWrapper } from "@/app/privy-provider";
 import config from "@/config";
-import { PrivyProvider } from "@privy-io/react-auth";
+import Decimal from "decimal.js";
+
 // Local digital font
 const digital = localFont({
   src: "../public/fonts/DigitalNumbers-Regular.ttf",
@@ -45,6 +46,14 @@ export const righteous = Righteous({
   weight: ["400"],
 });
 
+export const initDecimalConfig = () => {
+  Decimal.set({
+    precision: 18,
+    toExpNeg: -1e9,
+    toExpPos: 1e9,
+  });
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -59,8 +68,8 @@ export default function RootLayout({
             {/* todo after test open */}
             {/* <GlobalInit /> */}
             <div className="flex min-h-screen w-screen flex-col">
-              {/* todo after test open */}
-              {/* <Topbar /> */}
+              {/* Uncommented to show the Topbar with ConnectButton */}
+              <Topbar />
               <div className="flex flex-1 flex-col p-4 overflow-y-auto hide-scrollbar">
                 <div className="w-full max-w-6xl mx-auto">{children}</div>
               </div>
