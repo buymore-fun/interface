@@ -35,11 +35,15 @@ export const defaultSymbol = "T";
 export function Activities({ inputMint, outputMint }: { inputMint: string; outputMint: string }) {
   const [activeTab, setActiveTab] = React.useState("myOrder");
   const [showHistoryDot, setShowHistoryDot] = useState(false);
-
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const checkHistory = () => {
       const hasClickedHistory = localStorage.getItem("hasClickedHistory") === "true";
       setShowHistoryDot(!hasClickedHistory);
+    };
+
+    // Run on client-side only
+    if (typeof window !== "undefined") {
+      checkHistory();
     }
   }, []);
 
