@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins, Righteous } from "next/font/google";
 import "./globals.css";
 import { Topbar } from "@/components/topbar";
-import { ConnectWalletModal } from "@/components/connect-wallet-modal";
-import { SolanaProvider } from "@/app/solana-provider";
+// import { ConnectWalletModal } from "@/components/connect-wallet-modal";
+// import { SolanaProvider } from "@/app/solana-provider";
 import { ReactQueryProvider } from "@/app/react-query-provider";
 import { Toaster } from "react-hot-toast";
 import { GlobalInit } from "@/components/global-init";
@@ -11,8 +11,8 @@ import localFont from "next/font/local";
 import { PrivyProviderWrapper } from "@/app/privy-provider";
 import config from "@/config";
 import Decimal from "decimal.js";
-
 // Local digital font
+
 const digital = localFont({
   src: "../public/fonts/DigitalNumbers-Regular.ttf",
   variable: "--font-digital",
@@ -65,15 +65,13 @@ export default function RootLayout({
         <ReactQueryProvider>
           {/* <SolanaProvider> */}
           <PrivyProviderWrapper>
-            {/* todo after test open */}
-            {/* <GlobalInit /> */}
+            <GlobalInit />
             <div className="flex min-h-screen w-screen flex-col">
-              {/* Uncommented to show the Topbar with ConnectButton */}
               <Topbar />
               <div className="flex flex-1 flex-col p-4 overflow-y-auto hide-scrollbar">
                 <div className="w-full max-w-6xl mx-auto">{children}</div>
               </div>
-              {/* todo after test open */}
+
               {/* <ConnectWalletModal /> */}
               <Toaster position="bottom-right" />
             </div>

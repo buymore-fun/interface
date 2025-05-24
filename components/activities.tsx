@@ -20,7 +20,8 @@ import React from "react";
 
 import { cn, formatAddress, formatNumber, formatPrice, formatTime } from "@/lib/utils";
 import { IMyOrderItem } from "@/types";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -37,10 +38,8 @@ export function Activities({ inputMint, outputMint }: { inputMint: string; outpu
   const [showHistoryDot, setShowHistoryDot] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hasClickedHistory = localStorage.getItem("hasClickedHistory") === "true";
-      setShowHistoryDot(!hasClickedHistory);
-    }
+    const hasClickedHistory = localStorage.getItem("hasClickedHistory") === "true";
+    setShowHistoryDot(!hasClickedHistory);
   }, []);
 
   // Handle tab change
@@ -310,7 +309,8 @@ export const HistoryList = ({
   inputMint: string;
   outputMint: string;
 }) => {
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
 
   const { tradeHistoryList, isTradeHistoryListLoading, tradeHistoryListError, fetchTradeHistory } =
     useTradeHistory(inputMint as string, outputMint as string);

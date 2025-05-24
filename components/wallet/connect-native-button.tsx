@@ -6,74 +6,71 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useLogin, PrivyProvider, getAccessToken, usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { Wallet } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { formatAddress } from "@/lib/utils/format-address";
-import { getPersonalBuyMore } from "@/hooks/services";
-import config from "@/config";
+import { usePersonalBuyMore } from "@/hooks/use-personal-buymore";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 
-async function verifyToken() {
-  const url = "/api/verify";
-  const accessToken = await getAccessToken();
-  const result = await fetch(url, {
-    headers: {
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined),
-    },
-  });
+export default function ConnectNativeButton() {
+  const { pathname } = useRouter();
+  const { publicKey, disconnect, wallet } = useWallet();
+  const { personalBuyMore, isPersonalBuyMoreLoading, fetchPersonalBuyMore } = usePersonalBuyMore(
+    publicKey?.toString() as string
+  );
+  const [, setOpen] = useConnectWalletModalOpen();
 
-  return await result.json();
-}
-
-export default function ConnectButton() {
-  const { login } = useLogin({
-    // onComplete: () => router.push("/"),
-  });
-  const [verifyResult, setVerifyResult] = useState();
-  const router = useRouter();
-  const { ready, authenticated, user, logout } = usePrivy();
-  const [personalBuyMore, setPersonalBuyMore] = useState<string>("0");
-  const getPersonalBuyMoreData = async () => {
-    const personalBuyMore = await getPersonalBuyMore({ wallet: config.defaultPool as string });
-    setPersonalBuyMore(personalBuyMore.total_buymore_amount);
-    console.log("🚀 ~ getPersonalBuyMore ~ personalBuyMore:", personalBuyMore);
-  };
-  console.log("=====", user);
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
-    if (user) {
-      getPersonalBuyMoreData();
+    if (publicKey) {
+      fetchPersonalBuyMore();
     }
-  }, [user]);
+  }, [publicKey]);
 
   return (
     <>
-      {ready && authenticated && (
+      {!isHomePage && (
         <>
-          {user ? (
+          {publicKey ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  onClick={logout}
+                  onClick={disconnect}
                   className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
                 >
-                  {formatAddress(user?.wallet?.address || "")}
+                  {wallet ? (
+                    <Image
+                      src={wallet.adapter.icon}
+                      alt={wallet.adapter.name}
+                      width={64}
+                      height={64}
+                      className="size-6 rounded-full hidden md:block"
+                    />
+                  ) : null}
+                  {formatAddress(publicKey?.toString())}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {/* <DropdownMenuItem> */}
                 <div className="flex flex-col gap-1 text-sm px-3 pt-2">
                   <span className="text-muted-foreground">Total Buymore </span>
-                  <span className="text-white">$ {personalBuyMore}</span>
+                  {isPersonalBuyMoreLoading ? (
+                    <Skeleton className="w-16 h-4" />
+                  ) : (
+                    <span className="text-white">$ {personalBuyMore}</span>
+                  )}
                 </div>
                 {/* </DropdownMenuItem> */}
                 <DropdownMenuItem>
                   <Button
                     variant="ghost"
-                    onClick={logout}
+                    onClick={disconnect}
                     className="w-full text-white flex justify-between px-1"
                   >
                     <Wallet className="text-muted-foreground size-3" />
@@ -86,7 +83,7 @@ export default function ConnectButton() {
             <Button
               variant="outline"
               className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-              onClick={login}
+              onClick={() => setOpen(true)}
             >
               Connect
             </Button>

@@ -81,7 +81,7 @@ const config = {
 };
 console.log("🚀 ~ config:", config);
 
-const PAID_RPC_ENDPOINTS = {
+export const PAID_RPC_ENDPOINTS = {
   //  paid rpc
   "mainnet-beta": [
     "https://solana-rpc.publicnode.com",

@@ -32,9 +32,7 @@ function WalletItem({
         />
         <span className="font-semibold">{wallet.adapter.name}</span>
       </div>
-      {installed && (
-        <span className="text-muted-foreground text-sm">Installed</span>
-      )}
+      {installed && <span className="text-muted-foreground text-sm">Installed</span>}
     </div>
   );
 }

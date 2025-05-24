@@ -1,6 +1,7 @@
 import { use, useCallback, useState } from "react";
 import { useToken } from "@/hooks/use-token";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 import { SOL_ADDRESS } from "@/lib/constants";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -27,7 +28,8 @@ import { IResponsePoolInfoItem } from "@/types/response";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useBoolean } from "@/hooks/use-boolean";
 import { getCurrentPrice, getSymbolFromPoolInfo, scientificToDecimal } from "@/lib/calc";
-import { useAnchorProvider } from "@/app/solana-provider";
+// import { useAnchorProvider } from "@/app/solana-provider";
+import { usePrivyAnchorProvider } from "@/app/privy-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 // import { useMyOrders } from "@/hooks/use-activities";
 // import { toast } from "react-hot-toast";
@@ -60,15 +62,17 @@ export function OrderTab() {
     raydiumPoolInfo?.poolInfo.mintB.address
   );
 
-  const hybirdTradeProgram = useHybirdTradeProgram("");
+  const hybirdTradeProgram = useHybirdTradeProgram();
 
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [orderType, setOrderType] = useState<OrderType>(OrderType.Buy);
   const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
   const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
   const [showRange, setShowRange] = useState(false);
 
-  const provider = useAnchorProvider();
+  // const provider = useAnchorProvider();
+  const provider = usePrivyAnchorProvider();
   const transactionToast = useTransactionToast();
 
   // TO BUY SHIT COIN
@@ -87,11 +91,8 @@ export function OrderTab() {
   //   [isBuy, raydiumPoolInfo]
   // );
   const [poolMintA, poolMintB] = useMemo(() => {
-    if (!raydiumPoolInfo?.poolInfo) {
-      return [undefined, undefined];
-    }
-
-    const { mintA: originalMintA, mintB: originalMintB } = raydiumPoolInfo.poolInfo;
+    const originalMintA = raydiumPoolInfo?.poolInfo.mintA;
+    const originalMintB = raydiumPoolInfo?.poolInfo.mintB;
 
     // Determine which mints to use based on order type
     const [firstMint, secondMint] = isBuy
@@ -250,7 +251,7 @@ export function OrderTab() {
         servicePoolInfo
       );
 
-      const sig1 = await provider.sendAndConfirm(tx);
+      const sig1 = await provider!.sendAndConfirm(tx);
 
       await fetchSolBalance();
       await mutateTokenBalance();

@@ -266,7 +266,7 @@ export async function getSearchToken(params: { keyword: string }) {
 
 export function usePersonalBuyMoreService(params: { wallet: string }) {
   const { data, error, isLoading, mutate } = useSWR(
-    `/wallet/fetch-one`,
+    params.wallet ? `/wallet/fetch-one` : null,
     async (url: string) => {
       const response = await axiosInstance.get(url, {
         params,
@@ -290,7 +290,7 @@ export function usePersonalBuyMoreService(params: { wallet: string }) {
 
 export function useOrderList(params: { input_token: string; output_token: string }) {
   const { data, error, isLoading, mutate } = useSWR(
-    `/order-feed/last-list`,
+    params.input_token && params.output_token ? `/order-feed/last-list` : null,
     async (url: string) => {
       const response = await axiosInstance.get(url, {
         params,

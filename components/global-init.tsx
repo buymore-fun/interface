@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
 import { connection, initSdk } from "@/lib/raydium/config";
 import { useSolBalance } from "@/hooks/use-sol-balance";
 import { useRaydium } from "@/hooks/use-raydium";
 import { useSolPrice } from "@/hooks/use-sol-price";
 import { Raydium } from "@raydium-io/raydium-sdk-v2";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
+import { usePrivy } from "@privy-io/react-auth";
 
 // Global state for Raydium instance
 let globalRaydiumInstance: Raydium | null = null;
@@ -17,7 +19,10 @@ let globalIsInitialized = false;
  * and global event listeners
  */
 export function GlobalInit() {
-  const { publicKey, connected } = useWallet();
+  // const { publicKey, connected } = useWallet();
+  const { publicKey } = usePrivyWallet();
+  const { authenticated } = usePrivy();
+  const connected = authenticated;
   const { setRaydiumInstance } = useRaydium();
   const { fetchSolBalance } = useSolBalance();
   const { fetchSolPrice } = useSolPrice();

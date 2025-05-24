@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
 import { connection } from "@/lib/raydium/config";
-import { PublicKey } from "@solana/web3.js";
 import {
   ApiV3PoolInfoStandardItem,
   AmmV4Keys,
@@ -10,6 +9,8 @@ import {
   parseTokenAccountResp,
 } from "@raydium-io/raydium-sdk-v2";
 import { atom, useAtom } from "jotai";
+import { usePrivy } from "@privy-io/react-auth";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 type PoolInfo = {
   poolInfo: ApiV3PoolInfoStandardItem;
   poolKeys: AmmV4Keys;
@@ -19,7 +20,10 @@ type PoolInfo = {
 const raydiumInstanceAtom = atom<Raydium | null>(null);
 
 export function useRaydium() {
-  const { publicKey, connected } = useWallet();
+  const { ready, authenticated, user } = usePrivy();
+  // change wallet to privy wallet
+  // const { publicKey,  } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

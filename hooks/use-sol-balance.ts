@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 import { LAMPORTS_PER_SOL, TokenAmount, PublicKey } from "@solana/web3.js";
 import { atom, useAtom } from "jotai";
 import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { useRaydium } from "@/hooks/use-raydium";
 import redstone from "redstone-api";
+import { connection } from "@/lib/raydium/config"; // Import the connection directly
 
 export const solBalanceAtom = atom<number>(0);
 
 export function useSolBalance() {
-  const { connection } = useConnection();
-  const wallet = useWallet();
+  // const { connection } = useConnection();
+  // const wallet = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [solBalance, setSolBalance] = useAtom(solBalanceAtom);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getFormattedSolBalance = useCallback((balance: number) => {
     return (balance / LAMPORTS_PER_SOL).toFixed(3);
@@ -23,26 +27,34 @@ export function useSolBalance() {
   }, [solBalance, getFormattedSolBalance]);
 
   const fetchSolBalance = useCallback(async () => {
-    if (!wallet.publicKey) return;
+    // if (!wallet.publicKey) return;
+    if (!publicKey) {
+      setError("Wallet not connected");
+      return;
+    }
+
     setIsLoading(true);
+    setError(null);
 
     try {
-      const balance = await connection.getBalance(wallet.publicKey);
-      console.log("🚀 ~ fetchSolBalance ~ balance:", balance);
+      // const balance = await connection.getBalance(wallet.publicKey);
+      const balance = await connection.getBalance(publicKey);
       setSolBalance(balance);
     } catch (error) {
       console.error("Error fetching SOL balance:", error);
+      setError("Failed to fetch balance");
       setSolBalance(0);
     } finally {
       setIsLoading(false);
     }
-  }, [connection, wallet.publicKey, setSolBalance]);
+  }, [publicKey, setSolBalance]);
 
   return {
     solBalance,
     formattedSolBalance,
     fetchSolBalance,
     isLoading,
+    error,
   };
 }
 
@@ -55,18 +67,21 @@ const tokenAmount = {
 
 export function useTokenBalanceV2(tokenAddress: string = "") {
   const { connection } = useConnection();
-  const wallet = useWallet();
+  // const wallet = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [tokenBalance, setTokenBalance] = useState<TokenAmount>();
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchTokenBalance = useCallback(
     async (tokenAddress: string) => {
-      if (!wallet.publicKey || !tokenAddress) return;
+      // if (!wallet.publicKey || !tokenAddress) return;
+      if (!publicKey || !tokenAddress) return;
       setIsLoading(true);
 
       const associatedTokenAccount = getAssociatedTokenAddressSync(
         new PublicKey(tokenAddress),
-        wallet.publicKey
+        // wallet.publicKey
+        publicKey
       );
 
       // const tokenAccount = await getAccount(connection, associatedTokenAccount);
@@ -93,7 +108,8 @@ export function useTokenBalanceV2(tokenAddress: string = "") {
         setIsLoading(false);
       }
     },
-    [connection, wallet.publicKey]
+    // wallet.publicKey
+    [connection, publicKey]
   );
 
   const mutateTokenBalance = useCallback(async () => {

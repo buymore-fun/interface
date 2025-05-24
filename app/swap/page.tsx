@@ -14,6 +14,7 @@ import { ChartType } from "@/types/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useServicePoolInfo } from "@/hooks/use-pool-info";
 import { solChangeToToken } from "@/lib/constants";
+import ClientOnly from "@/components/client-only";
 
 function SwapContent() {
   const searchParams = useSearchParams();
@@ -77,7 +78,9 @@ function SwapContent() {
                 <Overview />
               </div>
               <div className="mt-4">
-                <Activities inputMint={inputMint} outputMint={outputMint} />
+                <ClientOnly>
+                  <Activities inputMint={inputMint} outputMint={outputMint} />
+                </ClientOnly>
               </div>
             </div>
           </div>

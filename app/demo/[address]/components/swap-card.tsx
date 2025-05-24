@@ -7,37 +7,56 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { swap } from "@/lib/raydium/swap";
-import { useAnchorProvider } from "@/app/solana-provider";
+// import { useAnchorProvider } from "@/app/solana-provider";
+import { usePrivyAnchorProvider } from "@/app/privy-provider";
 import { useTransactionToast } from "@/hooks/use-transaction-toast";
 import { useAtom } from "jotai";
 import { raydiumPoolIdStorage } from "./atoms";
 import { useRaydium } from "@/hooks/use-raydium";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
+import { usePrivy } from "@privy-io/react-auth";
+import { connection } from "@/lib/raydium/config";
+
 export function SwapCard() {
   const [swapping, setSwapping] = useState(false);
   const [poolInfo, setPoolInfo] = useState<any>(null);
   const [raydiumPoolId, setRaydiumPoolId] = useAtom(raydiumPoolIdStorage);
   const { raydium } = useRaydium();
-
-  const provider = useAnchorProvider();
+  const { publicKey } = usePrivyWallet();
+  const { ready, authenticated } = usePrivy();
+  const provider = usePrivyAnchorProvider();
   const transactionToast = useTransactionToast();
 
   const handleSwap = async () => {
     try {
+      if (!ready || !authenticated) {
+        throw new Error("Please connect your wallet first");
+      }
+
+      if (!provider) {
+        throw new Error("Provider is not available");
+      }
+
+      if (!raydiumPoolId) {
+        throw new Error("Please enter a pool ID");
+      }
+
       setSwapping(true);
       const poolInfo = await raydium?.liquidity.getPoolInfoFromRpc({ poolId: raydiumPoolId });
       setPoolInfo(poolInfo?.poolInfo);
-      console.log("🚀 ~ handleSwap ~ poolInfo:", poolInfo);
-      const transaction = await swap();
 
-      // Sign the transaction with the wallet
-      const signature = await provider!.sendAndConfirm(transaction);
+      const transaction = await swap();
+      const signature = await provider.sendAndConfirm(transaction);
       transactionToast(signature);
     } catch (error) {
       console.error("Failed to swap:", error);
+      // You might want to show this error to the user through a toast or alert
     } finally {
       setSwapping(false);
     }
   };
+
+  const isDisabled = !ready || !authenticated || !publicKey || !provider || !raydiumPoolId;
 
   return (
     <Card>
@@ -66,14 +85,20 @@ export function SwapCard() {
               </div>
             )}
           </div>
-          <Button onClick={handleSwap} className="w-full" variant="default">
+          <Button onClick={handleSwap} className="w-full" variant="default" disabled={isDisabled}>
             {swapping ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Swapping...
               </>
             ) : (
-              <span className="text-white">Swap</span>
+              <span className="text-white">
+                {!ready || !authenticated
+                  ? "Connect Wallet"
+                  : !raydiumPoolId
+                    ? "Enter Pool ID"
+                    : "Swap"}
+              </span>
             )}
           </Button>
         </div>

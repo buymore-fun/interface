@@ -7,35 +7,15 @@ import { Search, Wallet } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaTelegramPlane, FaRegFileWord } from "react-icons/fa";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { cn, formatAddress } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
 import { TokenSearch } from "./token-search";
-import config from "@/config";
-import { useEffect, useState } from "react";
-import { usePersonalBuyMore } from "@/hooks/use-personal-buymore";
-import { Skeleton } from "@/components/ui/skeleton";
+import ConnectPrivyButton from "@/components/wallet/connect-privy-button";
+
 export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [, setOpen] = useConnectWalletModalOpen();
-  const { publicKey, disconnect, wallet } = useWallet();
-  const { personalBuyMore, isPersonalBuyMoreLoading, personalBuyMoreError, fetchPersonalBuyMore } =
-    usePersonalBuyMore(publicKey?.toString() as string);
-
-  const isHomePage = pathname === "/";
-
-  useEffect(() => {
-    if (publicKey) {
-      fetchPersonalBuyMore();
-    }
-  }, [publicKey]);
 
   return (
     <div className="p-4 border-b sticky top-0 left-0 w-full z-50 bg-background/60 backdrop-blur-sm">
@@ -82,62 +62,9 @@ export function Topbar() {
                 <FaRegFileWord className="size-5" />
               </Button>
             </div>
-            {!isHomePage && (
-              <>
-                {publicKey ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        onClick={disconnect}
-                        className="px-3 rounded-md border-primary hover:bg-primary hover:text-primary-foreground"
-                      >
-                        {wallet ? (
-                          <Image
-                            src={wallet.adapter.icon}
-                            alt={wallet.adapter.name}
-                            width={64}
-                            height={64}
-                            className="size-6 rounded-full hidden md:block"
-                          />
-                        ) : null}
-                        {formatAddress(publicKey?.toString())}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {/* <DropdownMenuItem> */}
-                      <div className="flex flex-col gap-1 text-sm px-3 pt-2">
-                        <span className="text-muted-foreground">Total Buymore </span>
-                        {isPersonalBuyMoreLoading ? (
-                          <Skeleton className="w-16 h-4" />
-                        ) : (
-                          <span className="text-white">$ {personalBuyMore}</span>
-                        )}
-                      </div>
-                      {/* </DropdownMenuItem> */}
-                      <DropdownMenuItem>
-                        <Button
-                          variant="ghost"
-                          onClick={disconnect}
-                          className="w-full text-white flex justify-between px-1"
-                        >
-                          <Wallet className="text-muted-foreground size-3" />
-                          Disconnect
-                        </Button>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                    onClick={() => setOpen(true)}
-                  >
-                    Connect
-                  </Button>
-                )}
-              </>
-            )}
+
+            {/* Using our Privy ConnectButton component */}
+            <ConnectPrivyButton />
           </div>
         </div>
       </div>

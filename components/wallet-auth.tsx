@@ -1,13 +1,14 @@
 "use client";
 
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 import { Button } from "./ui/button";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
 
 export function WalletAuth({ children }: { children: React.ReactNode }) {
   const [, setOpen] = useConnectWalletModalOpen();
-  const { publicKey } = useWallet();
-
+  // const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   if (publicKey) {
     return <>{children}</>;
   }

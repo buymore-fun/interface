@@ -1,7 +1,8 @@
 import { atom, useAtom } from "jotai";
 import { useCallback, useEffect, useRef } from "react";
 import { useActivityList, useMyOrderList, useTradeHistoryList } from "@/hooks/services";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 // Activity list atoms
 const activityListAtom = atom<any[]>([]);
 const activityListLoadingAtom = atom<boolean>(false);
@@ -64,7 +65,8 @@ export function useActivities(inputMint: string, outputMint: string) {
 }
 
 export function useMyOrders(inputMint: string, outputMint: string) {
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [myOrderList, setMyOrderList] = useAtom(myOrderListAtom);
   const [isMyOrderListLoading, setIsMyOrderListLoading] = useAtom(myOrderListLoadingAtom);
   const [myOrderListError, setMyOrderListError] = useAtom(myOrderListErrorAtom);
@@ -116,7 +118,8 @@ export function useMyOrders(inputMint: string, outputMint: string) {
 }
 
 export function useTradeHistory(inputMint: string, outputMint: string) {
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [tradeHistoryList, setTradeHistoryList] = useAtom(tradeHistoryListAtom);
   const [isTradeHistoryListLoading, setIsTradeHistoryListLoading] = useAtom(
     tradeHistoryListLoadingAtom

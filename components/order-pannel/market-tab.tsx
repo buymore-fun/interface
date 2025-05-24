@@ -6,7 +6,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { TokenIcon } from "../token-icon";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
+import { usePrivyWallet } from "@/hooks/use-privy-wallet";
 import { cn, formatBalance, formatFloor } from "@/lib/utils";
 import { useConnectWalletModalOpen } from "@/hooks/use-connect-wallet-modal";
 import { ChevronsUpDown } from "../ui/icon";
@@ -82,7 +83,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
   const [orderTokenAAmount, setOrderTokenAAmount] = useState("");
   const [orderTokenBAmount, setOrderTokenBAmount] = useState("");
 
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [isQuoting, setIsQuoting] = useState(false);
   const [isReverse, setIsReverse] = useState(true);
 
@@ -108,13 +110,12 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     () => (isReverse ? [SOL, token] : [token, SOL]),
     [isReverse, token, SOL]
   );
-  const [inputToken, outputToken] = useMemo(() => {
-    if (!raydiumPoolInfo?.poolInfo) {
-      return [undefined, undefined];
-    }
 
-    const { mintA, mintB } = raydiumPoolInfo.poolInfo;
-    const [first, second] = isReverse ? [mintA, mintB] : [mintB, mintA];
+  const [inputToken, outputToken] = useMemo(() => {
+    const MintA = raydiumPoolInfo?.poolInfo.mintA;
+    const MintB = raydiumPoolInfo?.poolInfo.mintB;
+
+    const [first, second] = isReverse ? [MintA, MintB] : [MintB, MintA];
 
     // Create copies with potentially added symbols
     const input = { ...first } as ApiV3Token;
@@ -124,6 +125,8 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     if (!input.symbol && tokenA?.symbol) input.symbol = tokenA.symbol;
     if (!output.symbol && tokenB?.symbol) output.symbol = tokenB.symbol;
 
+    console.log("====input", raydiumPoolInfo?.poolInfo.mintA, input);
+    console.log("====output", raydiumPoolInfo?.poolInfo.mintB, output);
     return [input, output];
   }, [isReverse, raydiumPoolInfo, tokenA, tokenB]);
 
@@ -206,17 +209,29 @@ export function MarketTab({ setSlippageDialogOpen }: MarketTabProps) {
     setIsDisableSlippage(false);
   }, [slippage]);
 
+  useEffect(() => {
+    if (servicePoolInfo?.cpmm?.poolId) {
+      console.log("====MarketTab fetchRaydiumPoolInfo", servicePoolInfo.cpmm.poolId);
+      fetchRaydiumPoolInfo(servicePoolInfo.cpmm.poolId);
+      console.log("====MarketTab fetchRaydiumPoolInfo", raydiumPoolInfo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [servicePoolInfo?.cpmm?.poolId]);
+
   const hybirdTradeProgram = useHybirdTradeProgram();
+  console.log("====inputToken", inputToken, hybirdTradeProgram);
   const { SwapInfo } = hybirdTradeProgram;
 
-  const FromUSdPrice = useMemo(() => {
+  const fromUSdPrice = useMemo(() => {
     return isReverse ? solPrice : new Decimal(solPrice).div(priceState).toString();
   }, [isReverse, solPrice, priceState]);
 
   const swapInfo = useMemo(() => {
     if (!servicePoolInfo || !inputToken || !outputToken) return null;
+    console.log("====swapInfo", raydiumPoolInfo, servicePoolInfo, inputToken, outputToken);
+
     // console.log("🚀 ~ swapInfo ~ inputToken&outputToken :", inputToken, outputToken);
-    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +FromUSdPrice);
+    return new SwapInfo(servicePoolInfo, inputToken.address, outputToken.address, +fromUSdPrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicePoolInfo, inputToken, outputToken]);
 
